@@ -1,0 +1,242 @@
+﻿<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kochanie, Wszystkiego Najlepszego z okazji Urodzin! 🎂 Tw&#243;j osobisty bilet do świata tworzenia z AI ✨</title>
+  <style>
+    :root {
+      --bg-gradient-start: #fff1f2;
+      --bg-gradient-end: #fdf2f8;
+      --card-bg: #ffffff;
+      --primary: #be123c;
+      --primary-hover: #9f1239;
+      --primary-light: #ffe4e6;
+      --gold: #b45309;
+      --gold-light: #fef3c7;
+      --text-main: #1e1b4b;
+      --text-muted: #475569;
+      --border: #fecdd3;
+      --border-gold: #fde68a;
+      --focus-ring: #db2777;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.7;
+      color: var(--text-main);
+      background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+      padding: 28px 16px;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 820px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      border-radius: 20px;
+      border: 2px solid var(--border);
+      box-shadow: 0 20px 35px -10px rgba(190, 18, 60, 0.15);
+      overflow: hidden;
+    }
+    header {
+      background: linear-gradient(135deg, #881337 0%, #be123c 60%, #e11d48 100%);
+      color: #ffffff;
+      padding: 44px 32px;
+      text-align: center;
+      position: relative;
+    }
+    .festive-ribbon {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.22);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 0.9rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 8px 20px;
+      border-radius: 9999px;
+      margin-bottom: 20px;
+    }
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 900;
+      line-height: 1.25;
+      margin-bottom: 14px;
+      letter-spacing: -0.02em;
+    }
+    .lead {
+      font-size: 1.15rem;
+      color: #ffe4e6;
+      max-width: 660px;
+      margin: 0 auto;
+    }
+    main { padding: 38px 34px; }
+    section { margin-bottom: 34px; }
+    .love-letter {
+      background: #fff5f5;
+      border: 1px solid #fecdd3;
+      border-left: 6px solid #be123c;
+      padding: 24px 28px;
+      border-radius: 12px;
+      margin-bottom: 32px;
+      font-size: 1.08rem;
+      color: #3b0764;
+    }
+    .love-letter p { margin-bottom: 14px; }
+    .love-letter p:last-child { margin-bottom: 0; }
+    h2 {
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: #881337;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 2px solid #fce7f3;
+      padding-bottom: 10px;
+    }
+    .card-box {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 18px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+    .highlight-card {
+      background: var(--gold-light);
+      border: 2px dashed #f59e0b;
+      border-radius: 14px;
+      padding: 22px;
+      margin: 22px 0;
+      color: #78350f;
+    }
+    .highlight-card p { color: #78350f; font-size: 1.02rem; }
+    .promise-box {
+      background: #fdf4ff;
+      border: 1px solid #f0abfc;
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin: 22px 0;
+      color: #701a75;
+    }
+    .promise-box strong { color: #86198f; display: block; margin-bottom: 6px; font-size: 1.05rem; }
+    .promise-box p { color: #701a75; font-size: 0.98rem; margin-bottom: 0; }
+    .features-list { list-style: none; margin: 16px 0; padding-left: 0; }
+    .features-list li {
+      position: relative;
+      padding-left: 28px;
+      margin-bottom: 10px;
+      font-size: 1.02rem;
+      color: #1e1b4b;
+    }
+    .features-list li::before {
+      content: '✨';
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+    .cta-container {
+      text-align: center;
+      padding: 32px 24px;
+      background: linear-gradient(180deg, #fff1f2 0%, #ffe4e6 100%);
+      border-radius: 16px;
+      border: 2px solid #fecdd3;
+      margin-top: 36px;
+    }
+    .cta-btn {
+      display: inline-block;
+      background: linear-gradient(135deg, #be123c 0%, #e11d48 100%);
+      color: #ffffff;
+      text-decoration: none;
+      font-weight: 800;
+      font-size: 1.2rem;
+      padding: 16px 36px;
+      border-radius: 12px;
+      box-shadow: 0 6px 20px rgba(190, 18, 60, 0.4);
+      transition: all 0.2s ease;
+    }
+    .cta-secondary {
+      display: inline-block;
+      margin-top: 14px;
+      color: #9f1239;
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-decoration: underline;
+    }
+    footer {
+      background-color: #fff1f2;
+      border-top: 1px solid var(--border);
+      padding: 22px 34px;
+      text-align: center;
+      font-size: 0.95rem;
+      color: #881337;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" role="main">
+    <header>
+      <div class="festive-ribbon" aria-label="Okazja">🎂 Wyjątkowy Prezent Urodzinowy 💖</div>
+      <h1>Kochanie, Wszystkiego Najlepszego z okazji Urodzin! 🎂 Tw&#243;j osobisty bilet do świata tworzenia z AI ✨</h1>
+      <p class="lead">Twój osobisty bilet do świata tworzenia z AI – bez programowania, bez żargonu i z czystą radością z każdego pomysłu!</p>
+    </header>
+    <main>
+      <div class="love-letter">
+        <p><strong>Najdroższa! ❤️</strong></p>
+        <p>Z okazji Twoich Urodzin życzę Ci z całego serca niesłabnącej radości, uśmiechu na każdy dzień, mn&#243;stwa zdrowia, miłości oraz spełnienia wszystkich Twoich marzeń!</p>
+        <p>Chciałem podarować Ci coś naprawdę wyjątkowego – prezent, kt&#243;rego nie można kupić na sklepowej p&#243;łce. Coś, co daje supermoc i otwiera drzwi do świata, kt&#243;ry dotąd wydawał się trudny i techniczny.</p>
+        <p>Oddaję w Twoje ręce:</p>
+        <div class="highlight-card"><p>🌟 KOMPENDIUM VIBE CODINGU I SZTUKI TWORZENIA Z AI 🌟<br>– Tw&#243;j osobisty, interaktywny przewodnik od zera do własnych aplikacji i projekt&#243;w!</p></div>
+
+      </div>
+      <section aria-labelledby="sec-1">
+        <h2 id="sec-1">CO TO DLA CIEBIE OZNACZA?</h2>
+        <p>Nie musisz znać ani jednej linijki kodu. Nie musisz być informatykiem ani uczyć się technicznego żargonu. W epoce „vibe codingu” programujesz po prostu… rozmawiając ze sztuczną inteligencją po polsku!<br>Wystarczy Tw&#243;j pomysł, Twoja intuicja i wyobraźnia, a sztuczna inteligencja tworzy dokładnie to, o co poprosisz.</p>
+        <p>Czy kiedykolwiek pomyślałaś:</p>
+        <ul class="features-list">
+          <li>„Fajnie byłoby mieć własny, sprytny przepiśnik na ulubione ciasta i dania...”</li>
+          <li>„Przydałby się kalkulator planowania podr&#243;ży marzeń albo budżetu domowego...”</li>
+          <li>„Chciałabym stworzyć piękną stronę ze wspomnieniami, kartkę z życzeniami albo małą grę dla relaksu...”</li>
+        </ul>
+        <p>Teraz możesz to wszystko stworzyć samodzielnie w kilka chwil!</p>
+
+      </section>
+      <section aria-labelledby="sec-2">
+        <h2 id="sec-2">JAK POWSTAWAŁ TEN PREZENT?</h2>
+        <p>Każdy dzień tego kursu (34 dni, po 3 proste i przyjemne zadania dziennie – tylko 15 minut przy porannej kawie!) przygotowałem i dopracowałem z myślą o Twoim pełnym komforcie:</p>
+        <ul class="features-list">
+          <li>Każde zadanie to praktyka wprost z codziennego życia (do domu 🏡 i do pracy 🏢).</li>
+          <li>Przyjazne dźwięki, piękny wygląd, możliwość robienia własnych notatek i zapisywania pomysł&#243;w.</li>
+          <li>Zero stresu, zero oceniania – liczy się czysta radość z tworzenia!</li>
+          <li>Na koniec czeka na Ciebie elegancki, pamiątkowy dyplom.</li>
+        </ul>
+
+      </section>
+      <section aria-labelledby="sec-3">
+        <h2 id="sec-3">M&#211;J OSOBISTY BILET WSPARCIA</h2>
+        <p>Jestem tuż obok i z największą radością będę Twoim prywatnym asystentem, wsparciem i pierwszym kibicem każdego Twojego pomysłu!</p>
+
+      </section>
+      <section aria-labelledby="sec-4">
+        <h2 id="sec-4">GDZIE CZEKA TW&#211;J PREZENT?</h2>
+        <p>Całe kompendium czeka na Ciebie na naszym komputerze (plik index.html) oraz w repozytorium GitHub.</p>
+        <p>Wspaniałych Urodzin, Kochanie! Niech ten rok przyniesie Ci mn&#243;stwo tw&#243;rczej satysfakcji i cudownych chwil!</p>
+        <p style="font-weight:700; color:#881337; margin-top:14px;">Z całą moją miłością,<br>Na zawsze Tw&#243;j mąż ❤️</p>
+
+      </section>
+      <div class="cta-container">
+        <a id="lnkStartCompendium" href="index.html" class="cta-btn">🎁 Odbierz Prezent i Rozpocznij Przygodę!</a>
+        <br>
+        <a id="lnkGithubRepo" href="https://github.com/strugo10/vibe-coding-kompendium" class="cta-secondary" target="_blank" rel="noopener noreferrer">Zobacz projekt także na GitHubie</a>
+      </div>
+    </main>
+    <footer>
+      <p>Stworzone z miłością jako prezent urodzinowy ❤️ Kompendium Vibe Codingu &copy; 2026</p>
+    </footer>
+  </div>
+</body>
+</html>

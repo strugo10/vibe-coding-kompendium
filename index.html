@@ -1,0 +1,1830 @@
+<!DOCTYPE html>
+<html lang="pl" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Vibe Coding">
+  <meta name="theme-color" content="#0f172a">
+  <title>Akademia Vibe Codingu i Sztuki Promptingu v3.5.0 (Od Zera do Twórcy)</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Canvas Confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+  <!-- Favicon -->
+  <link rel="icon" href="https://fav.farm/⚡" />
+  <link rel="apple-touch-icon" href="https://fav.farm/⚡" />
+
+  <style>
+    /* Dostępność WCAG AAA: Stylizacja Wysokiego Kontrastu */
+    [data-contrast="high"] body {
+      background-color: #000000 !important;
+      color: #ffffff !important;
+    }
+    [data-contrast="high"] header,
+    [data-contrast="high"] nav,
+    [data-contrast="high"] section,
+    [data-contrast="high"] article,
+    [data-contrast="high"] aside,
+    [data-contrast="high"] .modal-content,
+    [data-contrast="high"] .reward-card {
+      background-color: #050505 !important;
+      border: 2px solid #ffffff !important;
+      color: #ffffff !important;
+    }
+    [data-contrast="high"] button,
+    [data-contrast="high"] select,
+    [data-contrast="high"] input,
+    [data-contrast="high"] textarea {
+      border: 2px solid #ffffff !important;
+      background-color: #000000 !important;
+      color: #ffffff !important;
+    }
+    [data-contrast="high"] button:hover,
+    [data-contrast="high"] button:focus {
+      background-color: #ffff00 !important;
+      color: #000000 !important;
+      outline: 3px solid #ffff00 !important;
+    }
+    [data-contrast="high"] *:focus-visible {
+      outline: 4px solid #ffff00 !important;
+      outline-offset: 3px !important;
+    }
+    [data-contrast="high"] a {
+      color: #ffff00 !important;
+      text-decoration: underline !important;
+    }
+    [data-contrast="high"] .prompt-code {
+      background-color: #000000 !important;
+      color: #ffff00 !important;
+      border: 1px solid #ffffff !important;
+    }
+
+    /* Motywy profilowe */
+    body.theme-teen {
+      background: radial-gradient(circle at top right, #1d0935 0%, #0d0821 50%, #04050e 100%) !important;
+      color: #f1f5f9;
+    }
+    body.theme-teen header {
+      background-color: rgba(13, 8, 33, 0.95) !important;
+      border-bottom: 2px solid #8b5cf6 !important;
+    }
+    body.theme-teen .task-card, body.theme-teen .tool-card {
+      border: 1px solid #4c1d95 !important;
+      background: rgba(22, 12, 48, 0.85) !important;
+    }
+    body.theme-teen .prompt-code {
+      border-color: #06b6d4 !important;
+      background-color: #050414 !important;
+      color: #67e8f9 !important;
+    }
+
+    body.theme-adult {
+      background: linear-gradient(180deg, #090e17 0%, #0f172a 100%) !important;
+      color: #f8fafc;
+    }
+    body.theme-adult header {
+      background-color: rgba(15, 23, 42, 0.95) !important;
+      border-bottom: 1px solid #334155 !important;
+    }
+    body.theme-adult .task-card, body.theme-adult .tool-card {
+      border: 1px solid #334155 !important;
+      background: rgba(30, 41, 59, 0.75) !important;
+    }
+
+    body.theme-senior {
+      background: #0f172a !important;
+      color: #ffffff !important;
+      font-size: 1.08rem !important;
+      line-height: 1.75 !important;
+    }
+    body.theme-senior header {
+      background-color: #020617 !important;
+      border-bottom: 3px solid #d97706 !important;
+    }
+    body.theme-senior .task-card, body.theme-senior .tool-card {
+      border: 2px solid #64748b !important;
+      background: #1e293b !important;
+    }
+    body.theme-senior .prompt-code {
+      font-size: 1.05rem !important;
+      line-height: 1.7 !important;
+      border: 2px solid #d97706 !important;
+      background-color: #000000 !important;
+      color: #fef08a !important;
+    }
+
+    body.theme-creative {
+      background: radial-gradient(circle at top left, #290a3c 0%, #170427 50%, #0b0114 100%) !important;
+      color: #faf5ff;
+    }
+    body.theme-creative header {
+      background-color: rgba(23, 4, 39, 0.95) !important;
+      border-bottom: 2px solid #e11d48 !important;
+    }
+    body.theme-creative .task-card, body.theme-creative .tool-card {
+      border: 1px solid #701a75 !important;
+      background: rgba(39, 9, 52, 0.8) !important;
+    }
+
+    /* Ergonomia mobilna (iOS / Android) */
+    body {
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      -webkit-tap-highlight-color: rgba(99, 102, 241, 0.25);
+      overflow-x: hidden;
+    }
+    @media (max-width: 768px) {
+      input[type="text"],
+      input[type="search"],
+      select,
+      textarea {
+        font-size: 16px !important;
+      }
+      .touch-target {
+        min-height: 44px;
+      }
+    }
+
+    /* Pasek zakładek podstron */
+    .subpage-tab-btn[aria-current="page"] {
+      background-color: #4f46e5 !important;
+      color: #ffffff !important;
+      border-color: #818cf8 !important;
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35);
+    }
+    [data-contrast="high"] .subpage-tab-btn[aria-current="page"] {
+      background-color: #ffff00 !important;
+      color: #000000 !important;
+      border-color: #ffffff !important;
+      font-weight: 900 !important;
+    }
+
+    .font-serif-title {
+      font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+    }
+    .font-cyber {
+      font-family: "Courier New", Courier, monospace;
+      letter-spacing: 0.05em;
+    }
+
+    /* Styl druku dyplomu */
+    @media print {
+      body.diploma-locked {
+        display: none !important;
+      }
+      body.diploma-locked::after {
+        visibility: visible !important;
+        content: "BLOKADA DRUKU: Oficjalny certyfikat odblokowuje się po ukończeniu wszystkich 100 zadań kursu!" !important;
+        display: block !important;
+        font-size: 20pt !important;
+        font-weight: 900 !important;
+        color: #dc2626 !important;
+        text-align: center !important;
+        padding-top: 100px !important;
+      }
+      body:not(.diploma-locked) * { visibility: hidden !important; }
+      body:not(.diploma-locked) #printable-diploma-wrapper, body:not(.diploma-locked) #printable-diploma-wrapper * { visibility: visible !important; }
+      body:not(.diploma-locked) #printable-diploma-wrapper {
+        position: fixed !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        margin: 0 !important;
+        padding: 16px !important;
+        background: #ffffff !important;
+        color: #0f172a !important;
+        z-index: 999999 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+      }
+      #diploma-canvas { max-width: 100% !important; width: 100% !important; box-shadow: none !important; }
+      @page { size: A4 landscape; margin: 8mm; }
+    }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans transition-colors duration-200">
+
+  <!-- Dostępność WCAG: Pomijanie nawigacji dla czytników ekranu i klawiatury -->
+  <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:bg-amber-400 focus:text-slate-950 focus:px-4 focus:py-2 focus:rounded-md focus:font-bold focus:shadow-2xl focus:z-50 focus:outline-none">
+    Przejdź do treści aktywnej podstrony (Skip to content)
+  </a>
+
+  <!-- Komunikator dla czytników ekranu (Live Region) -->
+  <div id="sr-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Górny pasek aplikacji z narzędziami dostępu -->
+  <header class="border-b border-slate-800 bg-slate-950/95 backdrop-blur sticky top-0 z-40 shadow-md">
+    <div class="max-w-6xl mx-auto px-3 sm:px-4 py-2.5 flex flex-wrap items-center justify-between gap-2">
+      
+      <!-- Tytuł i wersja -->
+      <div class="min-w-0 flex items-center gap-2">
+        <a href="#wstep" onclick="switchSubpage('page-welcome'); return false;" class="group flex items-center gap-2 text-left focus:outline-none focus:ring-2 focus:ring-indigo-400 rounded-lg p-1">
+          <span class="text-2xl" role="img" aria-label="(ikona błyskawicy)">⚡</span>
+          <div>
+            <span class="text-base sm:text-lg font-extrabold text-white tracking-tight block leading-tight group-hover:text-indigo-300 transition">
+              Vibe Coding Academy
+            </span>
+            <span class="text-[10px] text-amber-400 font-bold block">
+              Wersja 3.5.0 • Dedykowane Ulepszenia Zadań, Stabilność Fokusu NVDA i WCAG AA
+            </span>
+          </div>
+        </a>
+
+        <!-- Globalny licznik punktów kursu -->
+        <div id="header-points-badge" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-black shadow-sm ml-2" title="Liczba zdobytych punktów w całym kursie">
+          <span role="img" aria-label="(puchar)">🏆</span>
+          <span>Punkty: <strong id="header-points-count" class="text-white">0</strong> / 1975 pkt</span>
+        </div>
+      </div>
+
+      <!-- Szybkie przełączniki ułatwień dostępu (Notatki, Instrukcja, Słowniczek, Dźwięk, Kontrast, Czcionka, Motyw) -->
+      <div class="flex items-center gap-1.5 sm:gap-2">
+
+        <!-- Przycisk Przeglądania Notatek (Dostępny w każdym momencie kursu) -->
+        <button type="button" onclick="openNotesManagerModal()" class="touch-target px-2.5 py-1.5 rounded-lg border border-purple-500/60 bg-purple-950/70 hover:bg-purple-900 text-purple-200 text-xs font-bold transition flex items-center gap-1.5 shadow" aria-haspopup="dialog" id="btn-header-notes" title="Przeglądaj zrobione notatki (Alt+N)">
+          <span role="img" aria-label="(ikona notatnika)">📝</span>
+          <span class="hidden sm:inline">Moje Notatki</span>
+          <span id="header-notes-counter" class="text-[10px] bg-purple-500/40 text-purple-200 px-1.5 py-0.2 rounded-full font-extrabold">0</span>
+        </button>
+
+        <!-- Przycisk Uwag i Sugestii dla Twórcy Kompendium (Otwiera dedykowaną podstronę) -->
+        <button type="button" onclick="openAuthorFeedbackPage()" class="touch-target px-2.5 py-1.5 rounded-lg border border-teal-500/60 bg-teal-950/70 hover:bg-teal-900 text-teal-200 text-xs font-bold transition flex items-center gap-1.5 shadow cursor-pointer" id="btn-header-feedback" title="Przekaż uwagi i sugestie twórcy kompendium (Alt+U)">
+          <span role="img" aria-label="(ikona dymku wiadomości)">💬</span>
+          <span class="hidden md:inline">Uwagi dla Twórcy</span>
+          <span id="header-feedback-counter" class="text-[10px] bg-teal-500/40 text-teal-200 px-1.5 py-0.2 rounded-full font-extrabold">0</span>
+        </button>
+
+        <!-- Przycisk Instrukcji (3 proste kroki) -->
+        <button type="button" onclick="openCourseGuideModal()" class="touch-target px-2.5 py-1.5 rounded-lg border border-indigo-500/50 bg-indigo-950/60 hover:bg-indigo-900 text-indigo-200 text-xs font-bold transition flex items-center gap-1 shadow" aria-haspopup="dialog">
+          <span class="hidden sm:inline">Instrukcja</span>
+          <span role="img" aria-label="(ikona przewodnika)">📖</span>
+        </button>
+
+        <!-- Przycisk Słowniczka (Bez żargonu) -->
+        <button type="button" onclick="openGlossaryModal()" class="touch-target px-2.5 py-1.5 rounded-lg border border-amber-500/50 bg-amber-950/60 hover:bg-amber-900 text-amber-200 text-xs font-bold transition flex items-center gap-1 shadow" aria-haspopup="dialog">
+          <span class="hidden sm:inline">Słowniczek</span>
+          <span role="img" aria-label="(ikona żarówki)">💡</span>
+        </button>
+        
+        <!-- Przełącznik Dźwięku -->
+        <button type="button" id="btn-sound-toggle" onclick="toggleSound()" class="touch-target px-2.5 py-1.5 rounded-lg border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition flex items-center gap-1" aria-pressed="true">
+          <span class="sr-only" id="sound-sr-text">Dźwięk: Włączony (Alt+M) </span>
+          <span id="sound-icon" role="img" aria-label="(ikona głośnika)">🔊</span>
+        </button>
+
+        <!-- Przełącznik Wysokiego Kontrastu -->
+        <button type="button" id="btn-contrast-toggle" onclick="toggleContrast()" class="touch-target px-2.5 py-1.5 rounded-lg border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition flex items-center gap-1" aria-pressed="false">
+          <span class="hidden sm:inline">Kontrast</span>
+          <span role="img" aria-label="(ikona oka)">👁️</span>
+        </button>
+
+        <!-- Wielkość czcionki -->
+        <div class="flex items-center rounded-lg border border-slate-700 bg-slate-800 p-0.5" role="group" aria-label="Wybór wielkości czcionki">
+          <button type="button" onclick="applyFontSize('normal')" class="px-2 py-1 text-xs font-bold text-slate-300 hover:text-white" aria-label="Czcionka domyślna (A)">A</button>
+          <button type="button" onclick="applyFontSize('large')" class="px-2 py-1 text-sm font-bold text-slate-300 hover:text-white border-l border-slate-700" aria-label="Czcionka powiększona (A plus)">A+</button>
+          <button type="button" onclick="applyFontSize('xlarge')" class="px-2 py-1 text-base font-bold text-slate-300 hover:text-white border-l border-slate-700" aria-label="Czcionka bardzo duża (A dwa plusy)">A++</button>
+        </div>
+
+        <!-- Selektor motywu -->
+        <div class="hidden sm:flex items-center gap-1 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1">
+          <label for="theme-selector" class="text-[11px] font-bold text-slate-300 sr-only">Szata graficzna:</label>
+          <select id="theme-selector" onchange="changeTheme(this.value)" class="bg-slate-900 text-slate-100 text-xs font-semibold rounded px-1.5 py-0.5 border-none focus:ring-1 focus:ring-indigo-400 focus:outline-none cursor-pointer">
+            <option value="auto">Motyw: Auto 🤖</option>
+            <option value="teen">Cyber Neon 🎮</option>
+            <option value="adult">Executive Pro 💼</option>
+            <option value="senior">Srebrny Spokój 🌟</option>
+            <option value="creative">Studio 🎨</option>
+          </select>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- GŁÓWNY PASEK PODSTRON I ETAPÓW KURSU (SEKWENCJA ZDARZEŃ)                   -->
+    <!-- ========================================================================= -->
+    <nav aria-label="Główne podstrony i etapy kursu" class="bg-slate-900/90 border-t border-slate-800/80 px-3 sm:px-4 py-2">
+      <div class="max-w-6xl mx-auto flex items-center gap-1.5 overflow-x-auto scrollbar-none py-0.5" id="subpage-tabs-container" role="tablist">
+        
+        <!-- Podstrona 1: Wstęp i Motywacja -->
+        <button type="button" role="tab" id="tab-btn-welcome" onclick="switchSubpage('page-welcome')" class="subpage-tab-btn touch-target px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap flex items-center gap-1.5 border border-slate-700 bg-slate-800 text-slate-200" aria-current="page">
+          <span>1. Wstęp</span>
+          <span role="img" aria-label="(ikona domu)">🏠</span>
+        </button>
+
+        <!-- Podstrona 2: Wybór Profilu -->
+        <button type="button" role="tab" id="tab-btn-profile" onclick="switchSubpage('page-profile')" class="subpage-tab-btn touch-target px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap flex items-center gap-1.5 border border-slate-700 bg-slate-800 text-slate-300">
+          <span>2. Profil</span>
+          <span id="tab-icon-profile" role="img" aria-label="(ikona profilu)">👤</span>
+        </button>
+
+        <!-- Podstrona 3: Sprawdzenie Wiedzy -->
+        <button type="button" role="tab" id="tab-btn-diagnostic" onclick="switchSubpage('page-diagnostic')" class="subpage-tab-btn touch-target px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap flex items-center gap-1.5 border border-slate-700 bg-slate-800 text-slate-300">
+          <span>3. Test wiedzy</span>
+          <span id="tab-icon-diagnostic" role="img" aria-label="(ikona błyskawicy)">⚡</span>
+        </button>
+
+        <!-- Podstrona 4: Zasady Bezpieczeństwa -->
+        <button type="button" role="tab" id="tab-btn-safety" onclick="switchSubpage('page-safety')" class="subpage-tab-btn touch-target px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap flex items-center gap-1.5 border border-slate-700 bg-slate-800 text-slate-300">
+          <span>4. Bezpieczeństwo</span>
+          <span id="tab-icon-safety" role="img" aria-label="(ikona tarczy)">🛡️</span>
+        </button>
+
+        <!-- Podstrona 5: Konfiguracja Narzędzi i Gemini -->
+        <button type="button" role="tab" id="tab-btn-tools" onclick="switchSubpage('page-tools')" class="subpage-tab-btn touch-target px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap flex items-center gap-1.5 border border-slate-700 bg-slate-800 text-slate-300">
+          <span>5. Narzędzia i Gemini</span>
+          <span id="tab-icon-tools" role="img" aria-label="(ikona laboratorium)">🧪</span>
+        </button>
+
+        <!-- Separator dla właściwego kursu -->
+        <span class="text-slate-600 font-bold px-1 select-none" aria-hidden="true">|</span>
+
+        <!-- Podstrona 6: Zadania Dnia (Właściwy Kurs) -->
+        <button type="button" role="tab" id="tab-btn-daily-tasks" onclick="switchSubpage('page-daily-tasks')" class="subpage-tab-btn touch-target px-3 py-1.5 rounded-xl text-xs font-black transition whitespace-nowrap flex items-center gap-1.5 border border-amber-500/40 bg-amber-950/40 text-amber-300 hover:bg-amber-900/60 shadow">
+          <span>6. Zadania Dnia</span>
+          <span id="tab-icon-daily-tasks" role="img" aria-label="(ikona celu)">🎯</span>
+        </button>
+
+        <!-- Podstrona 7: Cały Katalog 100 Zadań -->
+        <button type="button" role="tab" id="tab-btn-all-tasks" onclick="switchSubpage('page-all-tasks')" class="subpage-tab-btn touch-target px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap flex items-center gap-1.5 border border-slate-700 bg-slate-800 text-slate-300">
+          <span>7. Katalog (100)</span>
+          <span id="tab-icon-all-tasks" role="img" aria-label="(ikona książek)">📚</span>
+        </button>
+
+        <!-- Podstrona 8: Nagrody i Dyplom -->
+        <button type="button" role="tab" id="tab-btn-rewards" onclick="switchSubpage('page-rewards')" class="subpage-tab-btn touch-target px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap flex items-center gap-1.5 border border-amber-500/30 bg-slate-800 text-amber-200">
+          <span>8. Nagrody i Dyplom</span>
+          <span id="tab-icon-rewards" role="img" aria-label="(ikona pucharu)">🏆</span>
+        </button>
+
+      </div>
+    </nav>
+  </header>
+
+  <!-- Główny Kontener Treści Podstron -->
+  <main id="main-content" class="max-w-5xl mx-auto px-3 sm:px-4 py-6 sm:py-8 flex-grow w-full">
+
+    <!-- ========================================================================= -->
+    <!-- PODSTRONA 1: PRZYWITANIE, CEL, SPOSÓB ODBYCIA I MOTYWACJA                 -->
+    <!-- ========================================================================= -->
+    <section id="page-welcome" class="subpage-view space-y-6" role="region" aria-labelledby="welcome-main-title">
+      
+      <!-- Nagłówek powitalny -->
+      <div class="p-6 md:p-10 rounded-3xl border border-indigo-500/30 bg-gradient-to-br from-indigo-950/60 via-slate-900 to-slate-900 shadow-2xl relative overflow-hidden">
+        
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 mb-4">
+          <span>Etap 1 z 5 Przygotowania • Witaj w Akademii</span>
+          <span role="img" aria-label="(ikona iskierek)">✨</span>
+        </div>
+
+        <h1 id="welcome-main-title" class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-tight mb-4" tabindex="-1">
+          Witaj w Erze Twórców Bez Kodu. <br>
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-sky-300 to-emerald-300">
+            Przyszłość należy do Reżyserów AI!
+          </span>
+        </h1>
+
+        <p class="text-sm md:text-base text-slate-300 leading-relaxed mb-6 max-w-3xl">
+          Nigdy w historii ludzkości próg wejścia do tworzenia własnych narzędzi i aplikacji nie był tak niski. Termin <strong>Vibe Coding</strong> (ukuty przez byłego szefa AI w Tesla i współtwórcę OpenAI, Andreja Karpathy'ego) oznacza fundamentalną zmianę: <em>nie musisz uczyć się składni języków programowania, matematyki ani pisać kodu znak po znaku</em>. Twoim nowym językiem jest <strong>zwykły język polski</strong>, a Twoją rolą jest bycie <strong>Architektem, Reżyserem i Wizjonerem</strong>. Modele sztucznej inteligencji piszą i sprawdzają kod na Twoje polecenie!
+        </p>
+
+        <!-- 4 Kluczowe Filary Korzyści z Kursu -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 mb-8">
+          <div class="p-4 rounded-2xl bg-slate-800/80 border border-slate-700/80">
+            <h2 class="text-sm font-bold text-white mb-1.5 flex items-center justify-between gap-2">
+              <span>Własne narzędzia</span>
+              <span class="text-xl" role="img" aria-label="(ikona narzędzi)">🛠️</span>
+            </h2>
+            <p class="text-xs text-slate-300">Kalkulatory, planery, mini-aplikacje i bazy danych skrojone w 100% pod Twoje potrzeby w 5 minut.</p>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-slate-800/80 border border-slate-700/80">
+            <h2 class="text-sm font-bold text-white mb-1.5 flex items-center justify-between gap-2">
+              <span>Oszczędność</span>
+              <span class="text-xl" role="img" aria-label="(ikona oszczędności)">💰</span>
+            </h2>
+            <p class="text-xs text-slate-300">Zbuduj stronę wizytówkową lub formularz bez płacenia programistom i agencjom informatycznym.</p>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-slate-800/80 border border-slate-700/80">
+            <h2 class="text-sm font-bold text-white mb-1.5 flex items-center justify-between gap-2">
+              <span>Brak lęku przed kodem</span>
+              <span class="text-xl" role="img" aria-label="(ikona umysłu)">🧠</span>
+            </h2>
+            <p class="text-xs text-slate-300">Koniec ze strachem przed tajemniczymi błędami. Zrozumiesz maszynę i przejmiesz pełną kontrolę.</p>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-slate-800/80 border border-slate-700/80">
+            <h2 class="text-sm font-bold text-white mb-1.5 flex items-center justify-between gap-2">
+              <span>Kompetencja przyszłości</span>
+              <span class="text-xl" role="img" aria-label="(ikona rakiety)">🚀</span>
+            </h2>
+            <p class="text-xs text-slate-300">Biegłość w kierowaniu AI to najbardziej pożądana i użyteczna umiejętność nowej ery cyfrowej.</p>
+          </div>
+        </div>
+
+        <!-- Jak wygląda nauka w praktyce (3 proste kroki bez programowania) -->
+        <div class="p-5 sm:p-6 rounded-3xl bg-indigo-950/40 border border-indigo-500/40 mb-8 shadow-xl">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+            <h2 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+              <span>Jak korzystać z tego kursu? (Nauka w 3 prostych krokach)</span>
+              <span role="img" aria-label="(ikona kompasu)">🧭</span>
+            </h2>
+            <button type="button" onclick="openCourseGuideModal()" class="touch-target text-xs px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition flex items-center gap-1 shadow">
+              <span>Otwórz pełną instrukcję</span>
+              <span role="img" aria-label="(ikona książki)">📖</span>
+            </button>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-300 mb-4 leading-relaxed">
+            Nie musisz uczyć się trudnego języka programowania ani pisać kodu! Twoją rolą jest bycie <strong>Reżyserem i Dyrektorem</strong>. Ty mówisz po polsku, a sztuczna inteligencja (np. darmowy ChatGPT lub Gemini) wykonuje pracę techniczną.
+          </p>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+            <div class="p-4 rounded-2xl bg-slate-900/90 border border-amber-500/30">
+              <span class="text-amber-400 font-extrabold text-xs uppercase tracking-wider flex items-center gap-1.5 mb-1.5">
+                <span>1. Skopiuj prompt</span>
+                <span role="img" aria-label="(krok 1)">📋</span>
+              </span>
+              <p class="text-slate-200 leading-relaxed">
+                Wybierasz zadanie z danego dnia i klikasz żółty przycisk <strong>„Kopiuj Prompt”</strong>. To Twoje gotowe zamówienie po polsku dla sztucznej inteligencji.
+              </p>
+            </div>
+            <div class="p-4 rounded-2xl bg-slate-900/90 border border-sky-500/30">
+              <span class="text-sky-400 font-extrabold text-xs uppercase tracking-wider flex items-center gap-1.5 mb-1.5">
+                <span>2. Wklej do darmowego AI</span>
+                <span role="img" aria-label="(krok 2)">💬</span>
+              </span>
+              <p class="text-slate-200 leading-relaxed">
+                Wklejasz tekst do okna bezpłatnego AI (np. ChatGPT, Claude lub Gemini) i wciskasz Enter. AI przygotowuje dla Ciebie odpowiedź lub kod.
+              </p>
+            </div>
+            <div class="p-4 rounded-2xl bg-slate-900/90 border border-emerald-500/30">
+              <span class="text-emerald-400 font-extrabold text-xs uppercase tracking-wider flex items-center gap-1.5 mb-1.5">
+                <span>3. Sprawdź wynik w kursie</span>
+                <span role="img" aria-label="(krok 3)">✓</span>
+              </span>
+              <p class="text-slate-200 leading-relaxed">
+                Wklejasz odpowiedź do pola weryfikacji w zadaniu – nasz sprawdzacz od razu potwierdzi, czy zadanie jest wykonane poprawnie!
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Zasada 15 minut i motywacja -->
+        <div class="p-5 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+          <div>
+            <span class="text-xs font-bold text-amber-400 uppercase tracking-wider block mb-1">Zasada 15 Minut Dziennie</span>
+            <p class="text-xs sm:text-sm text-slate-200 leading-relaxed">
+              Nie poświęcaj na naukę całych weekendów. Wykonaj <strong>3 krótkie mikro-zadania dziennie</strong>. To tylko kwadrans, a po 34 dniach będziesz swobodnie budować działające aplikacje!
+            </p>
+          </div>
+          <div class="shrink-0 text-center px-4 py-2 rounded-xl bg-slate-800 border border-slate-700">
+            <span class="text-xs text-slate-400 block">Dobra Passa:</span>
+            <strong id="welcome-streak-display" class="text-xl font-black text-amber-400">1 dzień 🔥</strong>
+          </div>
+        </div>
+
+        <!-- Złote Myśli Ekspertów i Twórców AI (Nawigacja: Poprzednia / Następna) -->
+        <div class="p-5 rounded-2xl bg-gradient-to-r from-indigo-950/60 to-purple-950/50 border border-indigo-800/50 mb-8 shadow-md" role="region" aria-label="Złote myśli ekspertów i twórców AI">
+          <div class="flex items-center justify-between gap-3 mb-3 pb-2 border-b border-indigo-900/60">
+            <span class="text-xs uppercase font-extrabold tracking-wider text-amber-300 flex items-center gap-1.5">
+              <span role="img" aria-label="(żarówka)">💡</span>
+              <span>Złote Myśli Ekspertów i Twórców AI</span>
+            </span>
+            <span id="welcome-quote-counter" class="text-[11px] font-bold text-indigo-300 bg-indigo-950/80 px-2.5 py-0.5 rounded-full border border-indigo-700/50">
+              Myśl 1 z 10
+            </span>
+          </div>
+
+          <blockquote class="my-2">
+            <p id="welcome-quote-text" class="text-xs sm:text-sm text-slate-100 italic leading-relaxed min-h-[44px]">
+              "Najgorętszym nowym językiem programowania jest teraz język naturalny: polski i angielski."
+            </p>
+            <cite id="welcome-quote-author" class="block text-xs font-bold text-indigo-300 mt-2.5 not-italic">
+              — Andrej Karpathy, współzałożyciel OpenAI i były szef AI w Tesla
+            </cite>
+          </blockquote>
+
+          <div class="mt-4 pt-3 border-t border-indigo-900/60 flex items-center justify-between gap-2">
+            <button type="button" onclick="prevMotivationalQuote()" class="touch-target px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs transition flex items-center gap-1.5 shadow cursor-pointer" title="Wyświetl poprzednią złotą myśl eksperta" id="btn-quote-prev">
+              <span role="img" aria-label="(strzałka w lewo)">&larr;</span>
+              <span>Poprzednia myśl</span>
+            </button>
+
+            <button type="button" onclick="nextMotivationalQuote()" class="touch-target px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition flex items-center gap-1.5 shadow cursor-pointer" title="Wyświetl kolejną złotą myśl eksperta" id="btn-quote-next">
+              <span>Kolejna myśl</span>
+              <span role="img" aria-label="(strzałka w prawo)">&rarr;</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Przycisk przejścia do Kroku 2: Profil -->
+        <div class="pt-4 border-t border-slate-800 flex flex-wrap items-center justify-between gap-4">
+          <span class="text-xs text-slate-400">
+            Krok 1 ukończony. Przejdź teraz do wyboru swojego profilu twórcy:
+          </span>
+          <button type="button" onclick="goToStep('page-profile')" class="touch-target px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-black text-sm transition shadow-lg flex items-center justify-center gap-2">
+            <span>Dalej: Wybór Profilu Twórcy</span>
+            <span role="img" aria-label="(strzałka w prawo)">&rarr;</span>
+          </button>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- PODSTRONA 2: WYBÓR PROFILU TWÓRCY                                         -->
+    <!-- ========================================================================= -->
+    <section id="page-profile" class="subpage-view space-y-6 hidden" role="region" aria-labelledby="profile-page-title" hidden>
+      
+      <div class="p-6 md:p-8 rounded-3xl border border-indigo-500/40 bg-slate-900 shadow-2xl">
+        
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 uppercase tracking-wider mb-3">
+          <span>Etap 2 z 5 Przygotowania • Personalizacja</span>
+          <span role="img" aria-label="(ikona profilu)">👤</span>
+        </div>
+
+        <h1 id="profile-page-title" class="text-2xl sm:text-3xl font-extrabold text-white mb-2" tabindex="-1">
+          Wybór Twojego Profilu Twórcy
+        </h1>
+        <p class="text-xs sm:text-sm text-slate-300 mb-6 leading-relaxed">
+          Odpowiedz na 3 krótkie pytania, abyśmy mogli dopasować szatę graficzną, styl pytań w teście diagnostycznym oraz unikalny certyfikat ukończenia kursu do Twojego świata!
+        </p>
+
+        <!-- Informacja o RODO -->
+        <div class="p-4 rounded-2xl bg-emerald-950/40 border border-emerald-500/30 mb-6 flex items-start justify-between gap-3">
+          <div class="text-xs text-emerald-200 leading-relaxed">
+            <strong class="text-emerald-300 block mb-0.5">100% Prywatności i Anonimowości (Brak zbierania danych osobowych):</strong>
+            Nie pytamy o Twoje nazwisko, telefon ani e-mail. Wszystkie preferencje są zapisywane <strong>wyłącznie lokalnie na Twoim dysku</strong> (localStorage).
+          </div>
+          <span class="text-2xl shrink-0" role="img" aria-label="(ikona kłódki)">🔒</span>
+        </div>
+
+        <form id="page-profile-form" onsubmit="handleSubpageProfileSubmit(event)" class="space-y-6">
+          
+          <!-- Pytanie 1: Grupa wiekowa -->
+          <fieldset class="p-4 rounded-2xl border border-slate-700 bg-slate-800/60">
+            <legend class="text-sm font-bold text-amber-300 px-2">
+              1. Grupa wiekowa (Dopasowanie języka i motywu):
+            </legend>
+            <div class="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <label class="flex flex-col p-3.5 rounded-xl border border-slate-700 hover:border-indigo-400 bg-slate-900/60 cursor-pointer transition select-none has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-950/40">
+                <div class="flex items-center justify-between gap-2 mb-1">
+                  <div class="flex items-center gap-2">
+                    <input type="radio" name="page-profile-age" value="teen" class="w-5 h-5 text-indigo-500 focus:ring-indigo-400" required>
+                    <span class="font-bold text-white text-sm">Nastolatek</span>
+                  </div>
+                  <span role="img" aria-label="(ikona gier)">🎮</span>
+                </div>
+                <span class="text-[11px] text-slate-300">Poniżej 18 lat. Gry, boty Discord, multimedia, dynamiczny styl neon.</span>
+              </label>
+
+              <label class="flex flex-col p-3.5 rounded-xl border border-slate-700 hover:border-indigo-400 bg-slate-900/60 cursor-pointer transition select-none has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-950/40">
+                <div class="flex items-center justify-between gap-2 mb-1">
+                  <div class="flex items-center gap-2">
+                    <input type="radio" name="page-profile-age" value="adult" class="w-5 h-5 text-indigo-500 focus:ring-indigo-400">
+                    <span class="font-bold text-white text-sm">Dorosły</span>
+                  </div>
+                  <span role="img" aria-label="(ikona teczki)">💼</span>
+                </div>
+                <span class="text-[11px] text-slate-300">18–50 lat. Biznes, kariera, praca, automatyzacja, oszczędność czasu.</span>
+              </label>
+
+              <label class="flex flex-col p-3.5 rounded-xl border border-slate-700 hover:border-indigo-400 bg-slate-900/60 cursor-pointer transition select-none has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-950/40">
+                <div class="flex items-center justify-between gap-2 mb-1">
+                  <div class="flex items-center gap-2">
+                    <input type="radio" name="page-profile-age" value="senior" class="w-5 h-5 text-indigo-500 focus:ring-indigo-400">
+                    <span class="font-bold text-white text-sm">Senior / Dojrzały</span>
+                  </div>
+                  <span role="img" aria-label="(ikona gwiazdy)">🌟</span>
+                </div>
+                <span class="text-[11px] text-slate-300">50+ lat. Życiowa mądrość, wysoka czytelność, spokój, bez żargonu IT.</span>
+              </label>
+            </div>
+          </fieldset>
+
+          <!-- Pytanie 2: Forma zwrotu -->
+          <fieldset class="p-4 rounded-2xl border border-slate-700 bg-slate-800/60">
+            <legend class="text-sm font-bold text-amber-300 px-2">
+              2. Forma zwracania się w materiałach i na Dyplomie:
+            </legend>
+            <div class="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <label class="flex items-center gap-3 p-3.5 rounded-xl border border-slate-700 hover:border-indigo-400 bg-slate-900/60 cursor-pointer transition select-none has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-950/40">
+                <input type="radio" name="page-profile-gender" value="female" class="w-5 h-5 text-indigo-500 focus:ring-indigo-400 shrink-0" required>
+                <div>
+                  <span class="font-bold text-white text-sm flex items-center justify-between gap-1">
+                    <span>Forma żeńska</span>
+                    <span role="img" aria-label="(ikona kobiety)">👩</span>
+                  </span>
+                  <span class="text-[11px] text-slate-300 block">Twórczyni, Reżyserka AI, Adeptka</span>
+                </div>
+              </label>
+
+              <label class="flex items-center gap-3 p-3.5 rounded-xl border border-slate-700 hover:border-indigo-400 bg-slate-900/60 cursor-pointer transition select-none has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-950/40">
+                <input type="radio" name="page-profile-gender" value="male" class="w-5 h-5 text-indigo-500 focus:ring-indigo-400 shrink-0">
+                <div>
+                  <span class="font-bold text-white text-sm flex items-center justify-between gap-1">
+                    <span>Forma męska</span>
+                    <span role="img" aria-label="(ikona mężczyzny)">👨</span>
+                  </span>
+                  <span class="text-[11px] text-slate-300 block">Twórca, Reżyser AI, Adept</span>
+                </div>
+              </label>
+
+              <label class="flex items-center gap-3 p-3.5 rounded-xl border border-slate-700 hover:border-indigo-400 bg-slate-900/60 cursor-pointer transition select-none has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-950/40">
+                <input type="radio" name="page-profile-gender" value="neutral" class="w-5 h-5 text-indigo-500 focus:ring-indigo-400 shrink-0">
+                <div>
+                  <span class="font-bold text-white text-sm flex items-center justify-between gap-1">
+                    <span>Forma neutralna</span>
+                    <span role="img" aria-label="(ikona błyskawicy)">⚡</span>
+                  </span>
+                  <span class="text-[11px] text-slate-300 block">Adept Vibe Codingu, Twórca AI</span>
+                </div>
+              </label>
+            </div>
+          </fieldset>
+
+          <!-- Pytanie 3: Zainteresowania -->
+          <fieldset class="p-4 rounded-2xl border border-slate-700 bg-slate-800/60">
+            <legend class="text-sm font-bold text-amber-300 px-2">
+              3. Twoje główne zainteresowania i cel w kursie:
+            </legend>
+            <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <label class="flex items-start gap-3 p-3.5 rounded-xl border border-slate-700 hover:border-indigo-400 bg-slate-900/60 cursor-pointer transition select-none has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-950/40">
+                <input type="radio" name="page-profile-interest" value="gaming" class="mt-1 w-5 h-5 text-indigo-500 focus:ring-indigo-400 shrink-0" required>
+                <div>
+                  <span class="font-bold text-white text-sm flex items-center justify-between gap-1">
+                    <span>Gry, Boty i Multimedia</span>
+                    <span role="img" aria-label="(ikona kontrolera)">🕹️</span>
+                  </span>
+                  <span class="text-[11px] text-slate-300 block">Budowa mini-gier, botów społecznościowych, animacji i efektów.</span>
+                </div>
+              </label>
+
+              <label class="flex items-start gap-3 p-3.5 rounded-xl border border-slate-700 hover:border-indigo-400 bg-slate-900/60 cursor-pointer transition select-none has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-950/40">
+                <input type="radio" name="page-profile-interest" value="business" class="mt-1 w-5 h-5 text-indigo-500 focus:ring-indigo-400 shrink-0">
+                <div>
+                  <span class="font-bold text-white text-sm flex items-center justify-between gap-1">
+                    <span>Biznes, Praca i Automatyzacja</span>
+                    <span role="img" aria-label="(ikona wykresu)">📊</span>
+                  </span>
+                  <span class="text-[11px] text-slate-300 block">Usprawnianie pracy, raporty, kalkulatory, formularze, generowanie ofert.</span>
+                </div>
+              </label>
+
+              <label class="flex items-start gap-3 p-3.5 rounded-xl border border-slate-700 hover:border-indigo-400 bg-slate-900/60 cursor-pointer transition select-none has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-950/40">
+                <input type="radio" name="page-profile-interest" value="hobby" class="mt-1 w-5 h-5 text-indigo-500 focus:ring-indigo-400 shrink-0">
+                <div>
+                  <span class="font-bold text-white text-sm flex items-center justify-between gap-1">
+                    <span>Życie Codzienne, Dom i Pasje</span>
+                    <span role="img" aria-label="(ikona rośliny)">🌿</span>
+                  </span>
+                  <span class="text-[11px] text-slate-300 block">Planery domowe, organizacja przepisów, zdrowie, genealogia, hobby.</span>
+                </div>
+              </label>
+
+              <label class="flex items-start gap-3 p-3.5 rounded-xl border border-slate-700 hover:border-indigo-400 bg-slate-900/60 cursor-pointer transition select-none has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-950/40">
+                <input type="radio" name="page-profile-interest" value="creative" class="mt-1 w-5 h-5 text-indigo-500 focus:ring-indigo-400 shrink-0">
+                <div>
+                  <span class="font-bold text-white text-sm flex items-center justify-between gap-1">
+                    <span>Kreatywność, Design i Sztuka</span>
+                    <span role="img" aria-label="(ikona palety)">🎨</span>
+                  </span>
+                  <span class="text-[11px] text-slate-300 block">Interaktywne galerie, generowanie opowieści, portfolio, styl i grafika.</span>
+                </div>
+              </label>
+            </div>
+          </fieldset>
+
+          <div class="pt-4 border-t border-slate-800 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            <button type="button" onclick="goToStep('page-welcome')" class="touch-target px-4 py-2.5 text-xs font-semibold text-slate-400 hover:text-white transition rounded-xl border border-slate-800 sm:border-none flex items-center justify-center gap-1">
+              <span>&larr; Wróć do Wstępu</span>
+            </button>
+            <button type="submit" class="touch-target px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-black text-sm transition shadow-lg flex items-center justify-center gap-2">
+              <span>Zapisz profil i przejdź do Sprawdzenia Wiedzy</span>
+              <span role="img" aria-label="(strzałka w prawo)">&rarr;</span>
+            </button>
+          </div>
+
+        </form>
+
+      </div>
+
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- PODSTRONA 3: PRZYGOTOWANIE DO KURSU — SPRAWDZENIE WIEDZY (TEST)          -->
+    <!-- ========================================================================= -->
+    <section id="page-diagnostic" class="subpage-view space-y-6 hidden" role="region" aria-labelledby="diagnostic-page-title" hidden>
+      
+      <div class="p-6 md:p-8 rounded-3xl border border-indigo-500/40 bg-slate-900 shadow-2xl">
+        
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 uppercase tracking-wider">
+            <span>Etap 3 z 5 Przygotowania • Sprawdzenie Wiedzy</span>
+            <span role="img" aria-label="(ikona błyskawicy)">⚡</span>
+          </div>
+          <span id="diagnostic-profile-badge" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-950 text-indigo-300 border border-indigo-500/40">
+            Dopasowano pytania do Twojego profilu
+          </span>
+        </div>
+
+        <h1 id="diagnostic-page-title" class="text-2xl sm:text-3xl font-extrabold text-white mb-2" tabindex="-1">
+          Wstępny Test Diagnostyczny
+        </h1>
+        <p class="text-xs sm:text-sm text-slate-300 mb-6 leading-relaxed">
+          Odpowiedz na 5 krótkich pytań sytuacyjnych. Nie ma tu złych odpowiedzi! Chodzi o sprawdzenie Twojej intuicji i zarekomendowanie optymalnego poziomu startowego (Nowicjusz, Świadomy Twórca lub Zaawansowany Architekt).
+        </p>
+
+        <!-- Kontener pytań generowany dynamicznie -->
+        <div id="page-diagnostic-questions-container" class="space-y-4"></div>
+
+        <!-- Wynik testu -->
+        <div id="page-diagnostic-result-container" class="mt-6 hidden"></div>
+
+        <div class="mt-6 pt-4 border-t border-slate-800 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          <button type="button" onclick="goToStep('page-profile')" class="touch-target px-4 py-2.5 text-xs font-semibold text-slate-400 hover:text-white transition rounded-xl border border-slate-800 sm:border-none flex items-center justify-center gap-1">
+            <span>&larr; Wróć do Profilu</span>
+          </button>
+          <button type="button" id="btn-submit-diagnostic" onclick="submitSubpageDiagnosticTest()" class="touch-target px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs sm:text-sm font-bold transition shadow-lg flex items-center justify-center gap-2">
+            <span>Oblicz mój poziom i dobierz zadania</span>
+            <span role="img" aria-label="(strzałka w prawo)">&rarr;</span>
+          </button>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- PODSTRONA 4: ZASADY BEZPIECZEŃSTWA I HIGIENA PRACY Z AI (BHP)             -->
+    <!-- ========================================================================= -->
+    <section id="page-safety" class="subpage-view space-y-6 hidden" role="region" aria-labelledby="safety-page-title" hidden>
+      
+      <div class="p-6 md:p-8 rounded-3xl border border-indigo-500/40 bg-slate-900 shadow-2xl">
+        
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 uppercase tracking-wider mb-3">
+          <span>Etap 4 z 5 Przygotowania • BHP Vibe Codingu</span>
+          <span role="img" aria-label="(ikona tarczy)">🛡️</span>
+        </div>
+
+        <h1 id="safety-page-title" class="text-2xl sm:text-3xl font-extrabold text-white mb-2" tabindex="-1">
+          Zasady Bezpieczeństwa i Ochrona Danych
+        </h1>
+        <p class="text-xs sm:text-sm text-slate-300 mb-6 leading-relaxed">
+          Zanim uruchomisz pierwsze polecenia, poznaj 4 fundamentalne zasady bezpiecznej pracy ze sztuczną inteligencją. Chronią one Twoje finanse, prywatność i dają 100% spokoju.
+        </p>
+
+        <!-- 4 Złote Zasady Bezpieczeństwa -->
+        <div class="space-y-4 mb-8">
+          
+          <div class="p-4 rounded-2xl bg-rose-950/30 border border-rose-500/30 flex items-start gap-3.5">
+            <span class="text-2xl shrink-0" role="img" aria-label="(ikona zakazu)">🚫</span>
+            <div>
+              <h2 class="text-sm font-bold text-rose-300 mb-1">1. Zasada Poufności (Nigdy nie podawaj haseł ani danych wrażliwych)</h2>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                Nigdy nie wklejaj do okna czatu z modelem AI: haseł do kont, numerów PESEL, numerów kart płatniczych, poufnych baz klientów ani tajemnic handlowych firmy. Do testów zawsze używaj fikcyjnych danych (np. Jan Kowalski, test@example.com).
+              </p>
+            </div>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-amber-950/30 border border-amber-500/30 flex items-start gap-3.5">
+            <span class="text-2xl shrink-0" role="img" aria-label="(ikona wagi)">⚖️</span>
+            <div>
+              <h2 class="text-sm font-bold text-amber-300 mb-1">2. Zasada "Szef i Stażysta" (Ograniczone zaufanie i weryfikacja)</h2>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                Model AI to genialny, ale roztargniony stażysta. Ty jesteś Dyrektorem i Architektem. Zawsze sprawdzaj, czy wygenerowane kalkulacje się zgadzają, a przycisk robi dokładnie to, o co prosiłeś. Jeśli coś wygląda podejrzanie – poproś AI o wyjaśnienie linijka po linijce.
+              </p>
+            </div>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-emerald-950/30 border border-emerald-500/30 flex items-start gap-3.5">
+            <span class="text-2xl shrink-0" role="img" aria-label="(ikona tarczy)">🛡️</span>
+            <div>
+              <h2 class="text-sm font-bold text-emerald-300 mb-1">3. Bezpieczna Piaskownica (Zero ryzyka dla Twojego komputera)</h2>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                Wszystkie zadania w tym kursie działają w bezpiecznym środowisku przeglądarki internetowej. Przeglądarka tworzy tzw. piaskownicę (sandbox), która uniemożliwia kodowi modyfikowanie plików na Twoim twardym dysku bez Twojej wyraźnej zgody. Twój komputer jest w 100% bezpieczny!
+              </p>
+            </div>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-indigo-950/30 border border-indigo-500/30 flex items-start gap-3.5">
+            <span class="text-2xl shrink-0" role="img" aria-label="(ikona żarówki)">💡</span>
+            <div>
+              <h2 class="text-sm font-bold text-indigo-300 mb-1">4. Zakaz Domysłów (Jak uciąć halucynacje AI)</h2>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                Gdy model AI ma za mało informacji, może zacząć zmyślać (halucynować). Najlepszy nawyk twórcy: zawsze dodawaj do promptu zdanie: <em>„Zanim napiszesz kod, zadaj mi 3 pytania uściślające zamiast zgadywać”</em>.
+              </p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Deklaracja zapoznania się z zasadami BHP -->
+        <div class="p-4 rounded-2xl bg-slate-800/80 border border-slate-700 mb-6">
+          <label class="touch-target flex items-start gap-3 cursor-pointer select-none">
+            <input type="checkbox" id="chk-safety-agree" onchange="toggleSafetyAgreement(this.checked)" class="mt-1 w-5 h-5 text-emerald-500 focus:ring-emerald-400 cursor-pointer shrink-0 rounded">
+            <span class="text-xs sm:text-sm text-slate-200 leading-relaxed">
+              <strong class="text-white block mb-0.5">Potwierdzenie zapoznania się z zasadami BHP:</strong>
+              Rozumiem zasady bezpieczeństwa, zobowiązuję się nie wklejać do modeli AI haseł ani danych wrażliwych oraz traktować AI jako stażystę wymagającego weryfikacji.
+            </span>
+          </label>
+        </div>
+
+        <div class="pt-4 border-t border-slate-800 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          <button type="button" onclick="goToStep('page-diagnostic')" class="touch-target px-4 py-2.5 text-xs font-semibold text-slate-400 hover:text-white transition rounded-xl border border-slate-800 sm:border-none flex items-center justify-center gap-1">
+            <span>&larr; Wróć do Testu</span>
+          </button>
+          <button type="button" id="btn-submit-safety" onclick="submitSafetyAgreement()" class="touch-target px-6 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm transition shadow-lg flex items-center justify-center gap-2">
+            <span>Zatwierdzam zasady i przechodzę do Konfiguracji Narzędzi</span>
+            <span role="img" aria-label="(strzałka w prawo)">&rarr;</span>
+          </button>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- PODSTRONA 5: KONFIGURACJA NARZĘDZI I LOGOWANIE DO GEMINI                  -->
+    <!-- ========================================================================= -->
+    <section id="page-tools" class="subpage-view space-y-6 hidden" role="region" aria-labelledby="tools-page-title" hidden>
+      
+      <div class="p-6 md:p-8 rounded-3xl border border-indigo-500/40 bg-slate-900 shadow-2xl">
+        
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 uppercase tracking-wider mb-3">
+          <span>Etap 5 z 5 Przygotowania • Warsztat i Narzędzia</span>
+          <span role="img" aria-label="(ikona laboratorium)">🧪</span>
+        </div>
+
+        <h1 id="tools-page-title" class="text-2xl sm:text-3xl font-extrabold text-white mb-2" tabindex="-1">
+          Konfiguracja Narzędzi i Przygotowanie Google Gemini
+        </h1>
+        <p class="text-xs sm:text-sm text-slate-300 mb-6 leading-relaxed">
+          Wszystkie 100 zadań w tym kursie zrealizujesz za pomocą modeli sztucznej inteligencji. Twoim głównym, darmowym stażystą będzie <strong>Google Gemini</strong>. Poniższy kreator przeprowadzi Cię przez proces logowania i pierwsze powitalne zapytanie.
+        </p>
+
+        <!-- KREATOR KROK PO KROKU (Wymuszenie logowania do Gemini) -->
+        <div class="space-y-6 mb-8">
+          
+          <!-- KROK 1: LOGOWANIE -->
+          <div class="p-5 rounded-2xl bg-slate-800/80 border border-slate-700">
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <h2 class="text-sm font-bold text-white flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full bg-indigo-600 text-white text-xs font-black inline-flex items-center justify-center">1</span>
+                <span>Zaloguj się do Google Gemini (Wymagane)</span>
+              </h2>
+              <span class="text-xs text-indigo-400 font-semibold">Darmowy dostęp</span>
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed mb-4">
+              Otwórz stronę Google Gemini i zaloguj się swoim zwykłym kontem Google (tym samym, którego używasz w Gmailu lub YouTube). Kliknij poniższy przycisk, aby otworzyć Gemini w nowej karcie przeglądarki:
+            </p>
+            <div class="flex flex-wrap items-center gap-3">
+              <a href="https://gemini.google.com" target="_blank" rel="noopener noreferrer" class="touch-target px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs sm:text-sm transition shadow flex items-center gap-2">
+                <span>Otwórz Google Gemini w nowej karcie</span>
+                <span role="img" aria-label="(nowa karta)">&nearr;</span>
+              </a>
+              <button type="button" onclick="toggleGeminiHelp()" class="touch-target px-3 py-2 text-xs text-indigo-300 hover:text-white underline">
+                Nie masz jeszcze konta Google? Kliknij tutaj po pomoc
+              </button>
+            </div>
+            <div id="gemini-help-box" class="hidden mt-4 p-3.5 rounded-xl bg-slate-900 border border-slate-700 text-xs text-slate-300 leading-relaxed">
+              <strong class="text-white block mb-1">Jak założyć darmowe konto Google:</strong>
+              Wejdź na stronę <a href="https://accounts.google.com/signup" target="_blank" rel="noopener noreferrer" class="text-indigo-400 underline">accounts.google.com/signup</a>. Wpisz swoje imię, wybierz login i hasło. Po 2 minutach Twoje konto będzie aktywne i od razu pozwoli zalogować się do Gemini bez żadnych opłat!
+            </div>
+          </div>
+
+          <!-- KROK 2: PROMPT TESTOWY -->
+          <div class="p-5 rounded-2xl bg-slate-800/80 border border-slate-700">
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <h2 class="text-sm font-bold text-white flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full bg-amber-500 text-slate-950 text-xs font-black inline-flex items-center justify-center">2</span>
+                <span>Wyślij pierwszą wiadomość testową do swojego Stażysty AI</span>
+              </h2>
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed mb-3">
+              Skopiuj poniższy prompt powitalny, wróć do otwartej karty z Google Gemini, wklej go w pole wiadomości i kliknij Wyślij:
+            </p>
+            <div class="p-3.5 rounded-xl bg-slate-950 border border-slate-700 mb-3">
+              <pre id="test-gemini-prompt-text" class="text-xs font-mono text-amber-300 whitespace-pre-wrap select-all">Cześć Gemini! Rozpoczynam kurs Vibe Codingu, a Ty jesteś moim wirtualnym stażystą. Odpowiedz mi w jednym krótkim, przyjaznym zdaniu, potwierdzając gotowość do wspólnej nauki i budowania aplikacji!</pre>
+            </div>
+            <button type="button" onclick="copyGeminiTestPrompt()" id="btn-copy-test-prompt" class="touch-target px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold transition flex items-center gap-1.5 shadow">
+              <span>Kopiuj prompt testowy do schowka</span>
+              <span role="img" aria-label="(ikona schowka)">📋</span>
+            </button>
+          </div>
+
+          <!-- KROK 3: POTWIERDZENIE I ODBLOKOWANIE KURSU -->
+          <div class="p-5 rounded-2xl bg-slate-800/80 border border-emerald-500/40">
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <h2 class="text-sm font-bold text-emerald-300 flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full bg-emerald-500 text-slate-950 text-xs font-black inline-flex items-center justify-center">3</span>
+                <span>Wklej odpowiedź od Gemini i odblokuj cały kurs!</span>
+              </h2>
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed mb-3">
+              Skopiuj odpowiedź (lub jej pierwsze zdanie), którą wygenerował dla Ciebie Gemini, i wklej ją w poniższe pole:
+            </p>
+            <label for="gemini-verification-input" class="sr-only">Wklej odpowiedź z Gemini</label>
+            <textarea id="gemini-verification-input" rows="3" placeholder="Wklej tutaj odpowiedź od Gemini (np. 'Cześć! Jestem gotowy do wspólnej pracy nad aplikacjami...')" class="w-full p-3 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 mb-3"></textarea>
+
+            <button type="button" onclick="verifyGeminiAndUnlockCourse()" class="touch-target px-6 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs sm:text-sm transition shadow-lg flex items-center justify-center gap-2">
+              <span>Zweryfikuj odpowiedź i odblokuj cały kurs!</span>
+              <span role="img" aria-label="(ikona potwierdzenia)">✓</span>
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Karta Wielkiego Sukcesu (widoczna po odblokowaniu) -->
+        <div id="course-unlocked-card" class="hidden p-6 rounded-2xl bg-gradient-to-r from-emerald-950 to-teal-950 border-2 border-emerald-500 text-center shadow-2xl animate-fade-in mb-6">
+          <span class="text-4xl block mb-2" role="img" aria-label="(ikona pucharu)">🎉</span>
+          <h2 class="text-xl font-black text-white mb-1">
+            Wszystkie etapy przygotowania zostały ukończone!
+          </h2>
+          <p class="text-xs sm:text-sm text-emerald-200 mb-6 max-w-lg mx-auto">
+            Twój stażysta AI jest gotowy, zasady bezpieczeństwa są opanowane, a profil jest skonfigurowany. Otwieramy przed Tobą 100 praktycznych zadań Vibe Codingu!
+          </p>
+          <button type="button" onclick="switchSubpage('page-daily-tasks')" class="touch-target px-8 py-3.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-sm transition shadow-xl inline-flex items-center gap-2">
+            <span>Rozpocznij Kurs: Wejdź do Zadań Dnia 1</span>
+            <span role="img" aria-label="(strzałka w prawo)">&rarr;</span>
+          </button>
+        </div>
+
+        <div class="pt-4 border-t border-slate-800 flex items-center justify-between">
+          <button type="button" onclick="goToStep('page-safety')" class="touch-target px-4 py-2.5 text-xs font-semibold text-slate-400 hover:text-white transition rounded-xl border border-slate-800 sm:border-none flex items-center gap-1">
+            <span>&larr; Wróć do Zasad Bezpieczeństwa</span>
+          </button>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- PODSTRONA 6: ZADANIA DNIA (WŁAŚCIWY KURS — CZYSTY TRYB SKUPIENIA)          -->
+    <!-- ========================================================================= -->
+    <section id="page-daily-tasks" class="subpage-view space-y-6 hidden" role="region" aria-labelledby="daily-tasks-page-title" hidden>
+      
+      <!-- Baner informacyjny o punkcie startowym (widoczny gdy dzień > 1) -->
+      <div id="daily-day-notice-banner" class="hidden p-4 rounded-2xl bg-amber-950/60 border border-amber-500/50 text-xs sm:text-sm text-amber-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg">
+        <div class="flex items-center gap-2.5">
+          <span class="text-2xl shrink-0" role="img" aria-label="(ikona drogowskazu)">🧭</span>
+          <div class="leading-relaxed">
+            <span class="font-bold text-white block">Jesteś obecnie w <span id="daily-banner-day-number">Dniu 1</span>:</span>
+            <span class="text-xs text-amber-200/90">Wskazany punkt startowy na podstawie Twojego testu kompetencji. Pamiętaj, że zawsze możesz zacząć od zera!</span>
+          </div>
+        </div>
+        <button type="button" onclick="jumpToDay(1)" class="touch-target px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-amber-400/60 text-white font-bold text-xs shrink-0 flex items-center gap-1.5 shadow">
+          <span>Przełącz na Dzień 1 (Od początku)</span>
+          <span role="img" aria-label="(strzałka w lewo)">&larr;</span>
+        </button>
+      </div>
+
+      <!-- Szybka instrukcja / przypominajka jak wykonać zadanie -->
+      <div class="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 text-xs text-slate-300 shadow">
+        <details class="group cursor-pointer">
+          <summary class="font-bold text-amber-300 flex items-center justify-between list-none">
+            <span class="flex items-center gap-2">
+              <span role="img" aria-label="(ikona żarówki)">💡</span>
+              <span>Przypomnienie: Jak wykonać zadanie w 3 krokach? (Kliknij, aby rozwinąć)</span>
+            </span>
+            <span class="text-xs text-slate-400 group-open:rotate-180 transition-transform">▼</span>
+          </summary>
+          <div class="pt-3 mt-2 border-t border-slate-800 grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
+            <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+              <strong class="text-amber-400 block mb-1">1. Kopiuj Prompt:</strong>
+              Kliknij żółty przycisk przy zadaniu, aby skopiować gotowe polecenie po polsku.
+            </div>
+            <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+              <strong class="text-sky-400 block mb-1">2. Wklej do darmowego AI:</strong>
+              Wklej do ChatGPT, Claude lub Gemini i wciśnij Enter. AI od razu przygotuje odpowiedź.
+            </div>
+            <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+              <strong class="text-emerald-400 block mb-1">3. Sprawdź poprawność:</strong>
+              Wklej wynik do pola „Weryfikacja” i kliknij zielony przycisk, aby automatycznie zaliczyć zadanie!
+            </div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Nagłówek poziomu 1: Wybrany dzień -->
+      <header class="p-5 sm:p-6 rounded-3xl bg-slate-900 border border-slate-800 shadow-xl flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <span id="daily-stage-badge" class="text-xs uppercase font-extrabold tracking-wider text-indigo-400 block mb-1">
+            Etap 1: Pierwsze kroki i dekompozycja
+          </span>
+          <h1 id="daily-tasks-page-title" class="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight" tabindex="-1">
+            Dzień 1 z 34 • Zadania na dziś
+          </h1>
+          <p class="text-xs sm:text-sm text-slate-400 mt-1">
+            Czysty widok bez zbędnych rozpraszaczy. Skup się wyłącznie na poniższych 3 mikro-zadaniach.
+          </p>
+        </div>
+
+        <!-- Wskaźnik postępu dnia -->
+        <div class="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800 text-center min-w-[130px] w-full sm:w-auto">
+          <span class="text-xs text-slate-400 block mb-0.5">Postęp dnia:</span>
+          <span id="daily-progress-count" class="text-lg font-black text-amber-400">0 / 3 zadań</span>
+          <span id="daily-progress-pct" class="text-[11px] text-emerald-400 font-bold block">(0%)</span>
+        </div>
+      </header>
+
+      <!-- Pasek nawigacji między dniami (Poprzedni / Następny / Szybki skok) -->
+      <nav aria-label="Wybór dnia nauki" class="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <button type="button" onclick="prevDay()" id="btn-daily-prev-day" class="touch-target px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-200 text-xs font-bold transition flex items-center justify-center gap-2">
+          <span>Poprzedni Dzień</span>
+          <span role="img" aria-label="(strzałka w lewo)">&larr;</span>
+        </button>
+
+        <div class="flex items-center justify-center gap-2">
+          <label for="daily-jump-select" class="text-xs text-slate-400 font-bold">Wybierz dzień:</label>
+          <select id="daily-jump-select" onchange="jumpToDay(parseInt(this.value, 10))" class="touch-target bg-slate-900 border border-slate-700 text-amber-300 text-xs font-bold rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-amber-400 cursor-pointer">
+            <!-- Wypełniane w JS -->
+          </select>
+        </div>
+
+        <button type="button" onclick="nextDay()" id="btn-daily-next-day" class="touch-target px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white text-xs font-bold transition flex items-center justify-center gap-2 shadow">
+          <span>Następny Dzień</span>
+          <span role="img" aria-label="(strzałka w prawo)">&rarr;</span>
+        </button>
+      </nav>
+
+      <!-- KONTENER 3 ZADAŃ NA DANY DZIEŃ -->
+      <div id="daily-tasks-cards-container" class="space-y-6" aria-live="polite">
+        <!-- Generowane z TASKS_DATA w app.js -->
+      </div>
+
+      <!-- PRZYBORNIK NARZĘDZI DNIA (Piaskownica, Asystenci, Notatnik) -->
+      <div id="daily-tools-mount-point">
+        <!-- Renderowane przez renderDailyToolsHtml() -->
+      </div>
+
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- PODSTRONA 7: CAŁY KATALOG 100 ZADAŃ (EKSPLORATOR)                         -->
+    <!-- ========================================================================= -->
+    <section id="page-all-tasks" class="subpage-view space-y-6 hidden" role="region" aria-labelledby="all-tasks-page-title" hidden>
+      
+      <header class="p-5 sm:p-6 rounded-3xl bg-slate-900 border border-slate-800 shadow-xl flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Katalog Wiedzy i Praktyki</span>
+          <h1 id="all-tasks-page-title" class="text-xl sm:text-2xl md:text-3xl font-extrabold text-white" tabindex="-1">
+            Wszystkie 100 Zadań Vibe Codingu
+          </h1>
+          <p class="text-xs sm:text-sm text-slate-400 mt-1">
+            Przeglądaj komplet 100 ćwiczeń w 6 etapach zaawansowania. Korzystaj z filtrów i wyszukiwarki.
+          </p>
+        </div>
+
+        <div class="text-right">
+          <span id="all-tasks-progress-text" class="text-2xl sm:text-3xl font-black text-amber-400">0%</span>
+          <p id="all-tasks-progress-count" class="text-xs text-slate-400">0 z 100 zadań</p>
+        </div>
+      </header>
+
+      <!-- Pasek filtrów i wyszukiwarki -->
+      <div class="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-between gap-3 p-4 rounded-2xl bg-slate-900/80 border border-slate-800">
+        
+        <!-- Wyszukiwarka -->
+        <div class="relative flex-grow sm:max-w-xs">
+          <label for="search-tasks-input" class="sr-only">Szukaj zadania po tytule lub technologii</label>
+          <input type="search" id="search-tasks-input" placeholder="Szukaj zadania, technologii..." class="touch-target w-full px-3.5 py-2 pr-9 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+          <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none" aria-hidden="true">🔍</span>
+        </div>
+
+        <!-- Filtry Etapu i Statusu -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div>
+            <label for="filter-stage-select" class="sr-only">Filtruj według etapu</label>
+            <select id="filter-stage-select" class="touch-target w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-200 focus:ring-2 focus:ring-indigo-400 focus:outline-none">
+              <option value="all">Wszystkie etapy (1–6)</option>
+              <option value="1">Etap 1: Fundamenty myślenia (Dni 1–5)</option>
+              <option value="2">Etap 2: Twój pierwszy kod (Dni 6–12)</option>
+              <option value="3">Etap 3: Interakcje i logika (Dni 13–19)</option>
+              <option value="4">Etap 4: Narzędzia praktyczne (Dni 20–24)</option>
+              <option value="5">Etap 5: Ekosystemy AI (Dni 25–30)</option>
+              <option value="6">Etap 6: Architektura (Dni 31–34)</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="filter-status-select" class="sr-only">Filtruj według statusu</label>
+            <select id="filter-status-select" class="touch-target w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-200 focus:ring-2 focus:ring-indigo-400 focus:outline-none cursor-pointer">
+              <option value="all">Wszystkie statusy</option>
+              <option value="passed">🟢 Wykonane poprawnie (Zaliczone)</option>
+              <option value="failed">🔴 Wymaga poprawy</option>
+              <option value="skipped">⚪ Pominięte na razie</option>
+              <option value="pending">⏳ Do wykonania (Niewykonane)</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="button" id="btn-clear-search" onclick="clearSearchAndFilters()" class="touch-target px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-rose-950/60 border border-slate-700 hover:border-rose-500/50 text-slate-300 hover:text-rose-200 text-xs font-bold transition hidden items-center gap-1.5">
+          <span>Usuń filtr</span>
+          <span role="img" aria-label="(ikona kosza)">🗑️</span>
+        </button>
+
+      </div>
+
+      <!-- KONTENER WSZYSTKICH ZADAŃ -->
+      <div id="all-tasks-cards-container" class="space-y-6" aria-live="polite">
+        <!-- Generowane z TASKS_DATA w app.js -->
+      </div>
+
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- PODSTRONA 8: NAGRODY, ODZNAKI I DYPLOM MISTRZA                            -->
+    <!-- ========================================================================= -->
+    <section id="page-rewards" class="subpage-view space-y-8 hidden" role="region" aria-labelledby="rewards-page-title" hidden>
+      
+      <header class="p-5 sm:p-6 rounded-3xl bg-slate-900 border border-slate-800 shadow-xl">
+        <span class="text-xs uppercase font-extrabold tracking-wider text-amber-400 block mb-1">Grywalizacja i Osiągnięcia</span>
+        <h1 id="rewards-page-title" class="text-xl sm:text-2xl md:text-3xl font-extrabold text-white" tabindex="-1">
+          Skrzynia Nagród, Odznaki i Dyplom Mistrza
+        </h1>
+        <p class="text-xs sm:text-sm text-slate-400 mt-1">
+          Osiągaj kolejne kamienie milowe, aby odblokowywać ekskluzywne ściągawki i personalizowany certyfikat ukończenia kursu.
+        </p>
+      </header>
+
+      <!-- PANTEON 8 ODZNAK MISTRZA -->
+      <div class="p-5 sm:p-6 rounded-3xl bg-slate-900/60 border border-slate-800 shadow-lg">
+        <h2 class="text-base font-bold text-white mb-4 flex items-center gap-2">
+          <span>Panteon 8 Odznak Twórcy</span>
+          <span role="img" aria-label="(ikona pucharu)">🏆</span>
+        </h2>
+        <div id="badges-grid" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
+          <!-- Generowane dynamicznie w app.js -->
+        </div>
+      </div>
+
+      <!-- SKRZYNIA 4 NAGRÓD MERYTORYCZNYCH -->
+      <div>
+        <h2 class="text-base font-bold text-white mb-4 flex items-center gap-2">
+          <span>Odblokowywane Materiały Merytoryczne</span>
+          <span role="img" aria-label="(ikona prezentu)">🎁</span>
+        </h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          
+          <!-- 25 Zadań -->
+          <div id="reward-card-25" class="reward-card p-5 rounded-2xl border border-slate-800 bg-slate-900/60 transition flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span id="reward-badge-25" class="text-[11px] font-bold text-slate-400">Krok: 25 Zadań</span>
+                <span class="text-xl" role="img" aria-label="(ikona prezentu)">🎁</span>
+              </div>
+              <h3 class="text-sm font-bold text-white mb-1">Złota Ściągawka: 10 Szablonów</h3>
+              <p class="text-xs text-slate-400 leading-relaxed mb-4">
+                Komplet uniwersalnych wzorców promptów do generowania, odwróconej inżynierii i redukcji żargonu.
+              </p>
+            </div>
+            <button type="button" id="reward-btn-25" onclick="claimReward(25, this)" class="touch-target w-full py-2.5 px-3 rounded-xl text-xs font-bold transition bg-slate-800 text-slate-400 cursor-not-allowed flex items-center justify-center gap-1.5" disabled>
+              <span>Wymaga 25 zadań</span>
+              <span role="img" aria-label="(ikona kłódki)">🔒</span>
+            </button>
+          </div>
+
+          <!-- 50 Zadań -->
+          <div id="reward-card-50" class="reward-card p-5 rounded-2xl border border-slate-800 bg-slate-900/60 transition flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span id="reward-badge-50" class="text-[11px] font-bold text-slate-400">Krok: 50 Zadań</span>
+                <span class="text-xl" role="img" aria-label="(ikona podręcznika)">📘</span>
+              </div>
+              <h3 class="text-sm font-bold text-white mb-1">Niezbędnik: Formuła 4C i F12</h3>
+              <p class="text-xs text-slate-400 leading-relaxed mb-4">
+                Kompleksowy poradnik eliminacji błędów w konsoli F12 oraz formułowania zapytań architektonicznych.
+              </p>
+            </div>
+            <button type="button" id="reward-btn-50" onclick="claimReward(50, this)" class="touch-target w-full py-2.5 px-3 rounded-xl text-xs font-bold transition bg-slate-800 text-slate-400 cursor-not-allowed flex items-center justify-center gap-1.5" disabled>
+              <span>Wymaga 50 zadań</span>
+              <span role="img" aria-label="(ikona kłódki)">🔒</span>
+            </button>
+          </div>
+
+          <!-- 75 Zadań -->
+          <div id="reward-card-75" class="reward-card p-5 rounded-2xl border border-slate-800 bg-slate-900/60 transition flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span id="reward-badge-75" class="text-[11px] font-bold text-slate-400">Krok: 75 Zadań</span>
+                <span class="text-xl" role="img" aria-label="(ikona globusa)">🌐</span>
+              </div>
+              <h3 class="text-sm font-bold text-white mb-1">Katalog Darmowych API i CDN</h3>
+              <p class="text-xs text-slate-400 leading-relaxed mb-4">
+                Zbiór 50 darmowych bibliotek bez instalacji: wykresy, mapy, ikony, synteza mowy i efekty dźwiękowe.
+              </p>
+            </div>
+            <button type="button" id="reward-btn-75" onclick="claimReward(75, this)" class="touch-target w-full py-2.5 px-3 rounded-xl text-xs font-bold transition bg-slate-800 text-slate-400 cursor-not-allowed flex items-center justify-center gap-1.5" disabled>
+              <span>Wymaga 75 zadań</span>
+              <span role="img" aria-label="(ikona kłódki)">🔒</span>
+            </button>
+          </div>
+
+          <!-- 100 Zadań -->
+          <div id="reward-card-100" class="reward-card p-5 rounded-2xl border border-amber-500/40 bg-amber-950/20 transition flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span id="reward-badge-100" class="text-[11px] font-bold text-amber-300">Wielki Finał (100)</span>
+                <span class="text-xl" role="img" aria-label="(ikona biretu)">🎓</span>
+              </div>
+              <h3 class="text-sm font-bold text-white mb-1">Super Dyplom Mistrzowski</h3>
+              <p class="text-xs text-slate-300 leading-relaxed mb-4">
+                Personalizowany certyfikat ukończenia programu z unikalnym ID, pieczęcią i formatowaniem do druku A4.
+              </p>
+            </div>
+            <button type="button" id="reward-btn-100" onclick="openDiplomaModal(this)" class="touch-target w-full py-2.5 px-3 rounded-xl text-xs font-bold transition bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-md flex items-center justify-center gap-1.5">
+              <span>Podgląd / Odbiór Dyplomu</span>
+              <span role="img" aria-label="(ikona biretu)">🎓</span>
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- PERSONALIZACJA I DRUK DYPLOMU MISTRZA -->
+      <div class="p-6 md:p-8 rounded-3xl border border-amber-500/40 bg-slate-900 shadow-xl">
+        <h2 class="text-lg font-bold text-white mb-2 flex items-center gap-2">
+          <span>Twój Dyplom Mistrza Vibe Codingu (Podgląd & Oczyszczanie)</span>
+          <span role="img" aria-label="(ikona biretu)">🎓</span>
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-300 mb-6 leading-relaxed">
+          Dyplom możesz podglądać na każdym etapie nauki! Zawiera on zabawne zabrudzenia, stemple robocze i artefakty, które znikają wraz z postępami. <strong>Czysty certyfikat, możliwość wpisania imienia i nazwiska oraz oficjalny wydruk odblokowują się po ukończeniu 100 zadań.</strong>
+        </p>
+
+        <!-- Pasek Oczyszczania Dyplomu z Artefaktów -->
+        <div id="diploma-cleansing-panel" class="mb-6">
+          <!-- Wypełniane dynamicznie w app.js -->
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mb-6">
+          <div class="flex-grow max-w-md">
+            <label for="diploma-name-input" class="block text-xs font-bold text-amber-300 uppercase tracking-wider mb-1">
+              Twoje Imię i Nazwisko do Dyplomu:
+            </label>
+            <input type="text" id="diploma-name-input" placeholder="[ZABLOKOWANE: Ukończ 100 zadań, aby wpisać dane]" class="touch-target w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white font-bold text-base focus:ring-2 focus:ring-amber-400 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed" oninput="updateDiplomaName(this.value)" disabled>
+            <p id="diploma-name-status-note" class="text-xs text-amber-300 font-semibold mt-1.5 flex items-center gap-1.5">
+              <span role="img" aria-label="(ikona kłódki)">🔒</span>
+              <span>Wpisanie danych odblokuje się po ukończeniu 100 zadań (Aktualny postęp: <strong id="diploma-input-counter">0/100</strong>).</span>
+            </p>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <button type="button" onclick="celebrateWithConfetti()" class="touch-target px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition flex items-center gap-1.5 shadow">
+              <span>Konfetti</span>
+              <span role="img" aria-label="(ikona konfetti)">🎉</span>
+            </button>
+            <button type="button" id="btn-print-diploma" onclick="printDiploma()" class="touch-target px-4 py-2.5 rounded-xl bg-slate-800 text-slate-400 opacity-60 cursor-not-allowed font-bold text-xs transition flex items-center gap-1.5 shadow" disabled>
+              <span>Drukuj / PDF (Zablokowane)</span>
+              <span role="img" aria-label="(ikona kłódki)">🔒</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Przełącznik stylu dyplomu -->
+        <div class="flex flex-wrap items-center gap-2 mb-6">
+          <span class="text-xs font-bold text-slate-300 uppercase tracking-wider mr-2">Styl Dyplomu:</span>
+          <button type="button" onclick="switchDiplomaStyle('teen')" class="diploma-style-btn touch-target px-3 py-1.5 text-xs font-bold rounded-xl border border-slate-700 bg-slate-800 text-slate-300" id="btn-diploma-style-teen">Cyber 🎮</button>
+          <button type="button" onclick="switchDiplomaStyle('adult')" class="diploma-style-btn touch-target px-3 py-1.5 text-xs font-bold rounded-xl border border-slate-700 bg-slate-800 text-slate-300" id="btn-diploma-style-adult">Biznes 💼</button>
+          <button type="button" onclick="switchDiplomaStyle('senior')" class="diploma-style-btn touch-target px-3 py-1.5 text-xs font-bold rounded-xl border border-slate-700 bg-slate-800 text-slate-300" id="btn-diploma-style-senior">Senior 🌟</button>
+          <button type="button" onclick="switchDiplomaStyle('creative')" class="diploma-style-btn touch-target px-3 py-1.5 text-xs font-bold rounded-xl border border-slate-700 bg-slate-800 text-slate-300" id="btn-diploma-style-creative">Studio 🎨</button>
+        </div>
+
+        <!-- Render Dyplomu -->
+        <div id="printable-diploma-wrapper">
+          <div id="diploma-canvas"></div>
+        </div>
+      </div>
+
+      <!-- ========================================================================= -->
+      <!-- SKARBNICA PROJEKTÓW Z PIASKOWNICY (ARCHIWUM CYFROWYCH DZIEŁ KURSANTA)    -->
+      <!-- ========================================================================= -->
+      <section id="sandbox-archive-section" class="p-6 md:p-8 rounded-3xl border border-emerald-500/40 bg-slate-900 shadow-xl space-y-6" aria-labelledby="archive-heading">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 uppercase tracking-wider">
+                Twoje Gotowe Aplikacje
+              </span>
+              <span id="archive-count-badge" class="text-xs font-extrabold text-amber-300 bg-slate-800 px-2.5 py-0.5 rounded-full border border-slate-700">
+                8 projektów w skarbnicy
+              </span>
+            </div>
+            <h2 id="archive-heading" class="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
+              <span>🏺 Skarbnica Projektów z Piaskownicy (Archiwum Cyfrowych Dzieł)</span>
+            </h2>
+            <p class="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl leading-relaxed">
+              Oto kompletny dorobek Twojej pracy: gotowe, w pełni działające aplikacje stworzone podczas 34 dni kursu. Możesz je w każdej chwili przetestować, skopiować kod, pobrać pojedynczo lub zapisać całą kolekcję do osobnego folderu na dysku komputera!
+            </p>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2.5 shrink-0">
+            <button type="button" onclick="downloadAllSandboxProjectsZip()" class="touch-target px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs transition flex items-center gap-2 shadow-lg cursor-pointer" id="btn-download-all-zip">
+              <span role="img" aria-label="(ikona paczki)">📦</span>
+              <span>Pobierz wszystkie jako ZIP (.zip)</span>
+            </button>
+            <button type="button" onclick="switchSubpage('page-daily-tasks'); setTimeout(() => { const sb = document.getElementById('daily-tools-section'); if(sb) sb.scrollIntoView({behavior:'smooth'}); }, 100);" class="touch-target px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs transition flex items-center gap-1.5 cursor-pointer">
+              <span role="img" aria-label="(ikona laboratorium)">🧪</span>
+              <span>Otwórz Piaskownicę</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- PRZYJAZNY PORADNIK: GDZIE I JAK ZAPISAĆ PLIKI NA DYSKU -->
+        <div class="p-4 sm:p-5 rounded-2xl bg-slate-950/80 border border-indigo-500/30 text-xs sm:text-sm text-slate-300 space-y-2">
+          <strong class="text-indigo-300 font-bold flex items-center gap-2 text-sm">
+            <span role="img" aria-label="(ikona folderu)">📁</span>
+            <span>Gdzie zapisać i jak korzystać z Twoich plików na komputerze?</span>
+          </strong>
+          <p class="leading-relaxed">
+            Kliknij zielony przycisk <strong>„Pobierz wszystkie jako ZIP”</strong>, a przeglądarka pobierze spakowany folder ze wszystkimi Twoimi stronami. Zapisz go w dogodnym miejscu na komputerze (np. stwórz folder <code class="px-2 py-0.5 rounded bg-slate-800 text-amber-300 font-mono text-xs">Vibe_Coding_Projekty</code> na Pulpicie lub w Dokumentach).
+          </p>
+          <ul class="list-disc list-inside space-y-1 text-slate-300 text-xs">
+            <li><strong>Podwójne kliknięcie:</strong> Każdy plik <code class="px-1.5 py-0.5 rounded bg-slate-800 text-slate-200 font-mono">.html</code> natychmiast otwiera się w Twojej przeglądarce (Chrome, Edge, Safari) – nawet bez internetu!</li>
+            <li><strong>Publikacja w sieci:</strong> Możesz wrzucić te pliki na darmowy hosting (np. Netlify Drop) jednym przeciągnięciem myszki, aby pokazać je znajomym lub klientom.</li>
+          </ul>
+        </div>
+
+        <!-- FILTROWANIE I WYSZUKIWANIE W SKARBNICY -->
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          <div class="relative flex-grow max-w-md">
+            <label for="archive-search-input" class="sr-only">Szukaj w swoich projektach</label>
+            <input type="search" id="archive-search-input" oninput="filterSandboxArchive(this.value)" placeholder="Szukaj projektu (np. kawiarnia, licznik, quiz, kalkulator)..." class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-400">
+            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs" role="img" aria-label="(szukaj)">🔍</span>
+          </div>
+          <span class="text-xs text-slate-400 font-medium self-end sm:self-center" id="archive-filtered-count"></span>
+        </div>
+
+        <!-- SIATKA KART PROJEKTÓW ZE SKARBNICY -->
+        <div id="sandbox-archive-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" role="region" aria-label="Karty projektów z piaskownicy">
+          <!-- Renderowane dynamicznie w app.js przez renderSandboxArchiveGrid() -->
+        </div>
+      </section>
+
+      <!-- GOOGLE NOTEBOOKLM PODCASTY -->
+      <aside aria-labelledby="notebooklm-title" class="p-6 md:p-8 rounded-3xl border border-indigo-800/60 bg-gradient-to-br from-indigo-950/40 to-slate-900 shadow-xl">
+        <div class="flex flex-wrap items-start justify-between gap-4">
+          <div class="max-w-2xl">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 uppercase tracking-wider mb-3">
+              <span>Baza Merytoryczna Google NotebookLM</span>
+              <span role="img" aria-label="(ikona mikrofonu)">🎙️</span>
+            </span>
+            <h2 id="notebooklm-title" class="text-xl md:text-2xl font-bold text-white mb-2">
+              Twój Osobisty Nauczyciel i Podcast AI
+            </h2>
+            <p class="text-sm text-slate-300 leading-relaxed mb-4">
+              Wszystkie oficjalne dokumentacje możesz wgrać do darmowego <strong>Google NotebookLM</strong>. Kliknięciem wygenerujesz wirtualny podcast audio po polsku, w którym dwaj lektorzy omawiają zagadnienia z dzisiejszych zadań.
+            </p>
+            <a href="https://notebooklm.google.com" target="_blank" rel="noopener noreferrer" class="touch-target inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs md:text-sm font-bold transition shadow-lg">
+              <span>Otwórz Google NotebookLM</span>
+              <span role="img" aria-label="(nowa karta)">&nearr;</span>
+            </a>
+          </div>
+        </div>
+      </aside>
+
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- PODSTRONA 9: UWAGI I SUGESTIE DLA TWÓRCY KOMPENDIUM                       -->
+    <!-- ========================================================================= -->
+    <section id="page-feedback" class="subpage-view space-y-6 hidden" role="region" aria-labelledby="feedback-page-title" hidden>
+      
+      <div class="p-6 md:p-8 rounded-3xl border border-teal-500/40 bg-slate-900 shadow-2xl">
+        
+        <!-- NAGŁÓWEK PODSTRONY I PRZYCISK POWROTU -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-6 border-b border-slate-800">
+          <div class="flex items-center gap-3">
+            <span class="text-3xl sm:text-4xl shrink-0" role="img" aria-label="(ikona wiadomości)">💬</span>
+            <div>
+              <span class="text-xs uppercase font-extrabold tracking-wider text-teal-300 block mb-1">
+                Strefa Kontaktu i Rozwoju Kompendium
+              </span>
+              <h1 id="feedback-page-title" class="text-2xl sm:text-3xl font-black text-white focus:outline-none" tabindex="-1">
+                Twoje Uwagi i Sugestie dla Twórcy Kompendium
+              </h1>
+            </div>
+          </div>
+          
+          <button type="button" onclick="closeAuthorFeedbackPage()" class="touch-target px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 text-xs font-bold transition flex items-center justify-center gap-2 shrink-0 self-start sm:self-auto shadow cursor-pointer" title="Powrót do kursu">
+            <span role="img" aria-label="(strzałka w lewo)">&larr;</span>
+            <span>Wróć do kursu</span>
+          </button>
+        </div>
+
+        <!-- PRZYJAZNY OPIS I WSKAZÓWKA -->
+        <div class="p-4 sm:p-5 rounded-2xl bg-teal-950/30 border border-teal-500/30 mb-6 text-xs sm:text-sm text-slate-300 space-y-2">
+          <strong class="text-teal-200 block font-bold text-sm flex items-center gap-2">
+            <span role="img" aria-label="(żarówka)">💡</span>
+            <span>Twój głos ma ogromne znaczenie – każda sugestia jest mile widziana!</span>
+          </strong>
+          <p class="leading-relaxed">
+            Zauważyłeś literówkę, błąd lub niejasne zadanie? Masz pomysł na nowe ćwiczenie przydatne w pracy lub życiu codziennym? A może chcesz przekazać autorowi, co w tym kursie podoba Ci się najbardziej?
+          </p>
+          <p class="text-slate-400 text-xs">
+            Wszystkie Twoje uwagi zapisują się bezpiecznie na Twoim komputerze. Możesz je w każdej chwili <strong>pobrać w osobnym pliku Markdown lub HTML</strong> albo <strong>skopiować do schowka</strong>, aby wysłać je autorowi e-mailem lub wiadomością.
+          </p>
+        </div>
+
+        <!-- FORMULARZ DODAWANIA NOWEJ UWAGI -->
+        <div class="p-5 sm:p-6 rounded-2xl bg-slate-950/80 border border-slate-800 mb-6 shadow-inner">
+          <h2 class="text-base sm:text-lg font-bold text-white mb-4 flex items-center gap-2">
+            <span role="img" aria-label="(ołówek)">✍️</span>
+            <span>Dodaj nową uwagę lub sugestię dla autora</span>
+          </h2>
+
+          <form id="form-author-feedback" onsubmit="handleAddAuthorFeedback(event)" class="space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label for="feedback-category-select" class="block text-xs font-bold text-slate-300 mb-1.5">
+                  Rodzaj uwagi / kategoria:
+                </label>
+                <select id="feedback-category-select" class="w-full p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-400">
+                  <option value="improvement">💡 Pomysł na ulepszenie / nowa funkcja</option>
+                  <option value="bug">🐛 Zgłoszenie błędu / usterki / literówki</option>
+                  <option value="task_feedback">📝 Uwaga do konkretnego zadania</option>
+                  <option value="compliment">🌟 Co mi się najbardziej podoba (Pochwała)</option>
+                  <option value="other">💬 Inne spostrzeżenie / pytanie</option>
+                </select>
+              </div>
+
+              <div>
+                <label for="feedback-reference-input" class="block text-xs font-bold text-slate-300 mb-1.5">
+                  Dotyczy (opcjonalnie, np. Dzień 3, Zadanie 7 lub Cały kurs):
+                </label>
+                <input type="text" id="feedback-reference-input" placeholder="np. Dzień 1, Zadanie 3 (Kawiarnia)" class="w-full p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-400">
+              </div>
+            </div>
+
+            <div>
+              <label for="feedback-text-input" class="block text-xs font-bold text-slate-300 mb-1.5">
+                Treść Twojej uwagi lub sugestii:
+              </label>
+              <textarea id="feedback-text-input" rows="4" required placeholder="Napisz konkretnie, co warto poprawić, dodać lub zmienić, aby kompendium było jeszcze lepsze..." class="w-full p-3.5 rounded-xl bg-slate-900 border border-slate-700 text-xs sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-400 font-sans leading-relaxed"></textarea>
+            </div>
+
+            <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+              <span id="feedback-form-status" class="text-xs text-teal-400 font-semibold" aria-live="polite"></span>
+              <button type="submit" class="touch-target px-5 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-extrabold text-xs sm:text-sm transition flex items-center justify-center gap-2 shadow-lg cursor-pointer">
+                <span>Zapisz uwagę na liście</span>
+                <span role="img" aria-label="(plus)">➕</span>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- PASEK EKSPORTU I ZARZĄDZANIA UWAGAMI DLA AUTORA -->
+        <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 mb-6 flex flex-wrap items-center justify-between gap-3">
+          <div class="flex flex-wrap items-center gap-2">
+            <button type="button" onclick="downloadAuthorFeedbackMarkdown()" class="touch-target px-3.5 py-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs transition flex items-center gap-1.5 shadow cursor-pointer" id="btn-export-feedback-md" title="Pobierz wszystkie uwagi jako uniwersalny plik Markdown (.md) gotowy do wysłania">
+              <span role="img" aria-label="(pobierz)">📥</span>
+              <span>Pobierz jako Markdown (.md)</span>
+            </button>
+            <button type="button" onclick="downloadAuthorFeedbackHtml()" class="touch-target px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition flex items-center gap-1.5 shadow cursor-pointer" id="btn-export-feedback-html" title="Pobierz wszystkie uwagi jako sformatowaną stronę HTML (WCAG) gotową do druku lub PDF">
+              <span role="img" aria-label="(strona)">🌐</span>
+              <span>Pobierz jako stronę HTML (WCAG)</span>
+            </button>
+            <button type="button" onclick="copyAuthorFeedbackToClipboard()" class="touch-target px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs transition flex items-center gap-1.5 cursor-pointer" title="Skopiuj wszystkie uwagi do schowka, aby wkleić je do e-maila">
+              <span role="img" aria-label="(schowek)">📋</span>
+              <span>Kopiuj całość</span>
+            </button>
+          </div>
+
+          <div class="relative flex-grow sm:flex-grow-0 sm:w-64">
+            <label for="feedback-search-input" class="sr-only">Filtruj zapisane uwagi dla twórcy</label>
+            <input type="search" id="feedback-search-input" oninput="renderAuthorFeedbackList(this.value)" placeholder="Filtruj uwagi..." class="w-full pl-8 pr-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-400">
+            <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs" role="img" aria-label="(szukaj)">🔍</span>
+          </div>
+        </div>
+
+        <!-- LISTA ZAPISANYCH UWAG DLA TWÓRCY -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between gap-2 px-1">
+            <h2 class="text-sm font-bold uppercase tracking-wider text-slate-400">
+              Twoje zapisane uwagi (<span id="feedback-count-label">0</span>):
+            </h2>
+            <button type="button" onclick="clearAllAuthorFeedback()" class="text-xs text-slate-400 hover:text-rose-300 underline font-semibold transition cursor-pointer" id="btn-clear-all-feedback">
+              Wyczyść wszystkie uwagi
+            </button>
+          </div>
+
+          <div id="author-feedback-list" class="space-y-3 min-h-[100px]" role="region" aria-label="Lista zapisanych uwag dla autora">
+            <!-- Dynamicznie renderowane przez renderAuthorFeedbackList() w app.js -->
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: SZCZEGÓŁY NAGRÓD ZE SKRZYNI                                        -->
+  <!-- ========================================================================= -->
+  <div id="reward-details-modal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto hidden" role="dialog" aria-modal="true" aria-labelledby="reward-modal-title" aria-describedby="reward-modal-subtitle" aria-hidden="true">
+    <div class="modal-content bg-slate-900 border border-slate-700 rounded-3xl max-w-2xl w-full p-5 sm:p-6 md:p-8 shadow-2xl relative max-h-[90dvh] overflow-y-auto focus:outline-none" tabindex="-1">
+      
+      <button type="button" onclick="closeRewardModal()" class="touch-target absolute top-3 right-3 sm:top-5 sm:right-5 text-slate-400 hover:text-white text-2xl font-bold p-2 focus:ring-2 focus:ring-indigo-400 rounded-lg flex items-center justify-center min-w-[44px]">
+        <span class="sr-only">Zamknij podgląd nagrody (Escape) </span>
+        <span role="img" aria-label="(ikona zamknięcia)">&times;</span>
+      </button>
+
+      <div class="flex items-center justify-between gap-3 mb-4 pr-10">
+        <div>
+          <span class="text-xs uppercase font-extrabold tracking-wider text-amber-400 block" id="reward-modal-subtitle">Nagroda za Osiągnięcie</span>
+          <h3 id="reward-modal-title" class="text-lg sm:text-xl font-bold text-white focus:outline-none" tabindex="-1">Tytuł Nagrody</h3>
+        </div>
+        <span class="text-3xl shrink-0" id="reward-modal-icon" role="img" aria-label="(ikona nagrody)">🎁</span>
+      </div>
+
+      <div id="reward-modal-content" class="text-xs md:text-sm text-slate-300 space-y-4 max-h-[55dvh] overflow-y-auto pr-2"></div>
+
+      <div class="mt-6 pt-4 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3">
+        <button type="button" onclick="copyRewardContent()" class="touch-target px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs transition flex items-center gap-1.5" id="btn-copy-reward">
+          <span>Kopiuj treść do schowka</span>
+          <span role="img" aria-label="(ikona schowka)">📋</span>
+        </button>
+        <button type="button" onclick="closeRewardModal()" class="touch-target px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition">
+          Zamknij
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL 1: INSTRUKCJA — JAK KORZYSTAĆ Z KURSU (3 PROSTE KROKI)               -->
+  <!-- ========================================================================= -->
+  <div id="modal-course-guide" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto hidden" role="dialog" aria-modal="true" aria-labelledby="guide-modal-title" aria-hidden="true">
+    <div class="modal-content bg-slate-900 border border-indigo-500/50 rounded-3xl max-w-2xl w-full p-5 sm:p-6 md:p-8 shadow-2xl relative max-h-[90dvh] overflow-y-auto focus:outline-none" tabindex="-1">
+      
+      <button type="button" onclick="closeCourseGuideModal()" class="touch-target absolute top-3 right-3 sm:top-5 sm:right-5 text-slate-400 hover:text-white text-2xl font-bold p-2 focus:ring-2 focus:ring-indigo-400 rounded-lg flex items-center justify-center min-w-[44px]">
+        <span class="sr-only">Zamknij instrukcję (Escape) </span>
+        <span role="img" aria-label="(ikona zamknięcia)">&times;</span>
+      </button>
+
+      <div class="flex items-center gap-3 mb-4 pr-10">
+        <span class="text-3xl shrink-0" role="img" aria-label="(ikona przewodnika)">🧭</span>
+        <div>
+          <span class="text-xs uppercase font-extrabold tracking-wider text-amber-400 block">Dla osób, które nigdy nie programowały</span>
+          <h2 id="guide-modal-title" class="text-lg sm:text-2xl font-black text-white focus:outline-none" tabindex="-1">
+            Jak korzystać z tego kursu w 3 prostych krokach?
+          </h2>
+        </div>
+      </div>
+
+      <div class="space-y-4 text-xs md:text-sm text-slate-300 leading-relaxed max-h-[60dvh] overflow-y-auto pr-2">
+        <div class="p-4 rounded-2xl bg-indigo-950/40 border border-indigo-800/40">
+          <strong class="text-indigo-200 block mb-1 font-bold text-sm">💡 Najważniejsza zasada: Nie musisz programować!</strong>
+          <p>
+            W tradycyjnym programowaniu trzeba uczyć się trudnych komend i pisać kod znak po znaku. W <strong>Vibe Codingu</strong> jesteś <strong>Reżyserem i Dyrektorem</strong>. Mówisz po polsku, co chcesz osiągnąć, a darmowa sztuczna inteligencja (np. ChatGPT, Claude lub Gemini) pisze kod za Ciebie!
+          </p>
+        </div>
+
+        <h3 class="text-xs uppercase font-extrabold tracking-wider text-amber-300 pt-2 flex items-center gap-1.5">
+          <span>Pętla każdego zadania — 3 proste czynności:</span>
+          <span role="img" aria-label="(ikona pętli)">🔄</span>
+        </h3>
+
+        <!-- Krok 1 -->
+        <div class="p-4 rounded-2xl bg-slate-950/80 border border-slate-800">
+          <div class="flex items-center gap-2 mb-1.5">
+            <span class="w-6 h-6 rounded-full bg-amber-500 text-slate-950 font-black text-xs flex items-center justify-center">1</span>
+            <strong class="text-amber-300 font-bold">Krok 1: Przeczytaj cel i skopiuj prompt</strong>
+          </div>
+          <p class="text-slate-300">
+            W każdym zadaniu znajdziesz gotowy <strong>Prompt</strong> (to po prostu zamówienie po polsku dla AI). Kliknij żółty przycisk <strong>„Kopiuj Prompt”</strong>, aby zapisać go w schowku komputera.
+          </p>
+        </div>
+
+        <!-- Krok 2 -->
+        <div class="p-4 rounded-2xl bg-slate-950/80 border border-slate-800">
+          <div class="flex items-center gap-2 mb-1.5">
+            <span class="w-6 h-6 rounded-full bg-sky-500 text-slate-950 font-black text-xs flex items-center justify-center">2</span>
+            <strong class="text-sky-300 font-bold">Krok 2: Wklej tekst do bezpłatnego AI</strong>
+          </div>
+          <p class="text-slate-300">
+            Otwórz w przeglądarce darmowy czat AI — np. <a href="https://chatgpt.com" target="_blank" rel="noopener noreferrer" class="text-sky-400 underline font-bold">ChatGPT</a> lub <a href="https://gemini.google.com" target="_blank" rel="noopener noreferrer" class="text-sky-400 underline font-bold">Google Gemini</a>. Wklej skopiowany tekst (<kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700">Ctrl+V</kbd>) i wciśnij Enter. AI od razu wygeneruje odpowiedź lub kod strony.
+          </p>
+        </div>
+
+        <!-- Krok 3 -->
+        <div class="p-4 rounded-2xl bg-slate-950/80 border border-slate-800">
+          <div class="flex items-center gap-2 mb-1.5">
+            <span class="w-6 h-6 rounded-full bg-emerald-500 text-slate-950 font-black text-xs flex items-center justify-center">3</span>
+            <strong class="text-emerald-300 font-bold">Krok 3: Sprawdź wynik w kursie</strong>
+          </div>
+          <p class="text-slate-300 mb-2">
+            Wracasz do kursu. W sekcji <em>„Sprawdź poprawność wykonania”</em> wklejasz odpowiedź od AI i klikasz zielony przycisk <strong>„Sprawdź odpowiedź od AI”</strong>.
+          </p>
+          <ul class="space-y-1 text-xs text-slate-400 list-disc list-inside">
+            <li>Nasz weryfikator automatycznie oceni odpowiedź i potwierdzi zaliczenie zadania 🟢</li>
+            <li>W zadaniach, gdzie AI zbudowało aplikację (kod HTML), klikasz przycisk <strong>„Przetestuj kod w piaskownicy”</strong>, aby zobaczyć i poklikać działający program! 🧪</li>
+          </ul>
+        </div>
+
+        <!-- Czym jest piaskownica -->
+        <div class="p-4 rounded-2xl bg-slate-950/80 border border-amber-500/30">
+          <strong class="text-amber-300 font-bold block mb-1 flex items-center gap-1.5">
+            <span>Czym jest ta słynna „Piaskownica”?</span>
+            <span role="img" aria-label="(ikona laboratorium)">🧪</span>
+          </strong>
+          <p class="text-slate-300">
+            Tak jak prawdziwa piaskownica na placu zabaw pozwala dzieciom lepić babki z piasku bez brudzenia salonu, tak nasza komputerowa piaskownica to <strong>bezpieczny podgląd wewnątrz przeglądarki</strong>. Wklejasz tam kod od AI i od razu widzisz działające przyciski i animacje. Nic na Twoim komputerze nie może się zepsuć ani usunąć!
+          </p>
+        </div>
+      </div>
+
+      <div class="mt-6 pt-4 border-t border-slate-800 flex justify-end">
+        <button type="button" onclick="closeCourseGuideModal()" class="touch-target px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition shadow-lg">
+          Rozumiem, przejdźmy do zadań!
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL 2: SŁOWNICZEK POJĘĆ BEZ ŻARGONU (ZE SKOJARZENIAMI Z ŻYCIA)           -->
+  <!-- ========================================================================= -->
+  <div id="modal-glossary" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto hidden" role="dialog" aria-modal="true" aria-labelledby="glossary-modal-title" aria-hidden="true">
+    <div class="modal-content bg-slate-900 border border-amber-500/50 rounded-3xl max-w-3xl w-full p-5 sm:p-6 md:p-8 shadow-2xl relative max-h-[90dvh] overflow-y-auto focus:outline-none" tabindex="-1">
+      
+      <button type="button" onclick="closeGlossaryModal()" class="touch-target absolute top-3 right-3 sm:top-5 sm:right-5 text-slate-400 hover:text-white text-2xl font-bold p-2 focus:ring-2 focus:ring-amber-400 rounded-lg flex items-center justify-center min-w-[44px]">
+        <span class="sr-only">Zamknij słowniczek (Escape) </span>
+        <span role="img" aria-label="(ikona zamknięcia)">&times;</span>
+      </button>
+
+      <div class="flex items-center gap-3 mb-4 pr-10">
+        <span class="text-3xl shrink-0" role="img" aria-label="(ikona żarówki)">💡</span>
+        <div>
+          <span class="text-xs uppercase font-extrabold tracking-wider text-amber-400 block">Prosty język • Zero skomplikowanych definicji</span>
+          <h2 id="glossary-modal-title" class="text-lg sm:text-2xl font-black text-white focus:outline-none" tabindex="-1">
+            Słowniczek pojęć po ludzku (Porównania z życia)
+          </h2>
+        </div>
+      </div>
+
+      <!-- Wyszukiwarka pojęć -->
+      <div class="mb-4">
+        <label for="glossary-search-input" class="sr-only">Szukaj pojęcia w słowniczku</label>
+        <div class="relative">
+          <input type="search" id="glossary-search-input" oninput="renderGlossaryCards(this.value)" placeholder="Wpisz słowo, którego nie rozumiesz (np. prompt, klamerki, few-shot, piaskownica)..." class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-xs sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-400">
+          <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs" role="img" aria-label="(szukaj)">🔍</span>
+        </div>
+      </div>
+
+      <!-- Lista pojęć w kartach -->
+      <div id="glossary-cards-container" class="space-y-3 max-h-[55dvh] overflow-y-auto pr-2" role="region" aria-label="Lista pojęć ze słowniczka"></div>
+
+      <div class="mt-6 pt-4 border-t border-slate-800 flex justify-end">
+        <button type="button" onclick="closeGlossaryModal()" class="touch-target px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs transition">
+          Zamknij słowniczek
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL 3: CENTRUM ZROBIONYCH NOTATEK I EKSPORT (DOSTĘP W KAŻDYM MOMENCIE)   -->
+  <!-- ========================================================================= -->
+  <div id="modal-notes-manager" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto hidden" role="dialog" aria-modal="true" aria-labelledby="notes-modal-title" aria-hidden="true">
+    <div class="modal-content bg-slate-900 border border-purple-500/50 rounded-3xl max-w-4xl w-full p-5 sm:p-6 md:p-8 shadow-2xl relative max-h-[92dvh] overflow-y-auto focus:outline-none" tabindex="-1">
+      
+      <button type="button" onclick="closeNotesManagerModal()" class="touch-target absolute top-3 right-3 sm:top-5 sm:right-5 text-slate-400 hover:text-white text-2xl font-bold p-2 focus:ring-2 focus:ring-purple-400 rounded-lg flex items-center justify-center min-w-[44px]">
+        <span class="sr-only">Zamknij przeglądarkę notatek (Escape) </span>
+        <span role="img" aria-label="(ikona zamknięcia)">&times;</span>
+      </button>
+
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pr-10">
+        <div class="flex items-center gap-3">
+          <span class="text-3xl shrink-0" role="img" aria-label="(ikona notatnika)">📝</span>
+          <div>
+            <span class="text-xs uppercase font-extrabold tracking-wider text-purple-300 block">Prywatne wnioski i spostrzeżenia</span>
+            <h2 id="notes-modal-title" class="text-lg sm:text-2xl font-black text-white focus:outline-none" tabindex="-1">
+              Twoje Zrobione Notatki (Przypisane do Zadań)
+            </h2>
+          </div>
+        </div>
+        <span id="notes-modal-count-badge" class="text-xs font-bold text-purple-200 bg-purple-950/80 border border-purple-500/40 px-3 py-1 rounded-full self-start sm:self-auto">
+          0 notatek
+        </span>
+      </div>
+
+      <!-- PASEK PRZYCISKÓW AKCJI I EKSPORTU (MARKDOWN, HTML, SCHOWEK) -->
+      <div class="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex flex-wrap items-center gap-2">
+          <button type="button" onclick="downloadNotesMarkdown()" class="touch-target px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition flex items-center gap-1.5 shadow" id="btn-export-notes-md" title="Pobierz notatki jako uniwersalny plik Markdown">
+            <span role="img" aria-label="(pobierz)">📥</span>
+            <span>Pobierz jako Markdown (.md)</span>
+          </button>
+          <button type="button" onclick="downloadNotesHtml()" class="touch-target px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition flex items-center gap-1.5 shadow" id="btn-export-notes-html" title="Pobierz notatki jako sformatowaną stronę internetową z WCAG">
+            <span role="img" aria-label="(strona)">🌐</span>
+            <span>Pobierz jako stronę HTML (WCAG)</span>
+          </button>
+          <button type="button" onclick="copyAllNotesToClipboard()" class="touch-target px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs transition flex items-center gap-1.5">
+            <span role="img" aria-label="(schowek)">📋</span>
+            <span>Kopiuj całość</span>
+          </button>
+        </div>
+
+        <div class="relative flex-grow sm:flex-grow-0 sm:w-64">
+          <label for="notes-search-input" class="sr-only">Filtruj swoje notatki</label>
+          <input type="search" id="notes-search-input" oninput="renderNotesManagerList(this.value)" placeholder="Filtruj notatki lub zadania..." class="w-full pl-8 pr-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-400">
+          <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs" role="img" aria-label="(szukaj)">🔍</span>
+        </div>
+      </div>
+
+      <!-- LISTA NOTATEK ZORGANIZOWANA WEDŁUG DNI I ZADAŃ -->
+      <div id="notes-manager-list" class="space-y-4 max-h-[58dvh] overflow-y-auto pr-2" role="region" aria-label="Lista zapisanych notatek">
+        <!-- Renderowane dynamicznie przez renderNotesManagerList() w app.js -->
+      </div>
+
+      <div class="mt-6 pt-4 border-t border-slate-800 flex justify-end">
+        <button type="button" onclick="closeNotesManagerModal()" class="touch-target px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs transition">
+          Zamknij przeglądarkę notatek
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL 4: PEŁNOEKRANOWY PODGLĄD NA ŻYWO PROJEKTU ZE SKARBNICY              -->
+  <!-- ========================================================================= -->
+  <div id="modal-sandbox-preview" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 overflow-y-auto hidden" role="dialog" aria-modal="true" aria-labelledby="sandbox-preview-title" aria-hidden="true">
+    <div class="modal-content bg-slate-900 border border-emerald-500/60 rounded-3xl max-w-5xl w-full p-4 sm:p-6 shadow-2xl relative max-h-[96dvh] flex flex-col justify-between focus:outline-none" tabindex="-1">
+      
+      <div class="flex items-center justify-between gap-3 mb-3 pb-3 border-b border-slate-800">
+        <div class="min-w-0">
+          <span class="text-xs uppercase font-extrabold tracking-wider text-emerald-400 block" id="sandbox-preview-badge">Podgląd na żywo aplikacji</span>
+          <h2 id="sandbox-preview-title" class="text-base sm:text-lg font-bold text-white truncate focus:outline-none" tabindex="-1">
+            Tytuł Projektu
+          </h2>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <button type="button" id="btn-preview-download-file" class="touch-target px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition flex items-center gap-1.5 shadow">
+            <span role="img" aria-label="(pobierz)">💾</span>
+            <span class="hidden sm:inline">Pobierz HTML</span>
+          </button>
+          <button type="button" id="btn-preview-copy-code" class="touch-target px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs transition flex items-center gap-1.5">
+            <span role="img" aria-label="(kopiuj)">📋</span>
+            <span class="hidden sm:inline">Kopiuj kod</span>
+          </button>
+          <button type="button" onclick="closeSandboxPreviewModal()" class="touch-target text-slate-400 hover:text-white text-2xl font-bold p-1.5 focus:ring-2 focus:ring-emerald-400 rounded-lg flex items-center justify-center min-w-[40px]">
+            <span class="sr-only">Zamknij podgląd (Escape) </span>
+            <span role="img" aria-label="(zamknij)">&times;</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="w-full flex-grow my-2">
+        <iframe id="sandbox-preview-frame" sandbox="allow-scripts allow-modals allow-forms allow-same-origin" class="w-full h-[65dvh] rounded-2xl bg-white border-2 border-emerald-500/50 shadow-inner" title="Interaktywny podgląd uruchomionego projektu"></iframe>
+      </div>
+
+      <div class="pt-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+        <span>Możesz swobodnie klikać w przyciski i testować zachowanie strony.</span>
+        <button type="button" onclick="closeSandboxPreviewModal()" class="touch-target px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs transition">
+          Wróć do kursu
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stopka Zgodności WCAG i Wersji -->
+  <footer class="border-t border-slate-800 bg-slate-950 py-6 sm:py-8 px-4 text-xs text-slate-400 mt-10">
+    <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-6">
+      <div>
+        <p class="font-bold text-slate-300 mb-1">
+          Akademia Vibe Codingu i Sztuki Promptingu • Wersja 3.5.0 • WCAG 2.1 / 2.2 Poziom AA/AAA
+        </p>
+        <p>
+          Akademia Vibe Codingu i Sztuki Promptingu • Projekt dostępny w chmurze na GitHubie: <a href="https://github.com/strugo10/vibe-coding-kompendium" target="_blank" rel="noopener noreferrer" class="underline text-slate-300 hover:text-white">strugo10/vibe-coding-kompendium</a> oraz online: <a href="https://strugo10.github.io/vibe-coding-kompendium/" target="_blank" rel="noopener noreferrer" class="underline text-teal-400 hover:text-teal-300">Wersja webowa na żywo</a>. Praktyka w pracy i życiu osobistym, dedykowany panel uwag dla twórcy i uniwersalny eksport notatek.
+        </p>
+      </div>
+      <div class="flex flex-wrap items-center gap-4">
+        <button type="button" onclick="openAuthorFeedbackPage()" class="text-xs text-teal-400 hover:text-teal-300 font-bold transition flex items-center gap-1.5 cursor-pointer">
+          <span role="img" aria-label="(dymek)">💬</span>
+          <span>Przekaż uwagę twórcy</span>
+        </button>
+        <button type="button" onclick="resetEntireProgress()" class="text-[11px] text-slate-500 hover:text-rose-400 transition underline cursor-pointer">
+          Zresetuj postęp i przejdź kurs od zera
+        </button>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Załadowanie bazy zadań i silnika aplikacji -->
+  <!-- Baza zadan i silnik aplikacji -->
+  <script src="tasks_data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,2842 @@
+<!DOCTYPE html>
+<html lang="pl" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Zadania Dnia">
+  <meta name="theme-color" content="#0f172a">
+  <title>Tryb Skupienia (v3.4.0) — Zadania i Narzędzia Dnia | Vibe Coding Academy</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Canvas Confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+  <!-- Favicon -->
+  <link rel="icon" href="https://fav.farm/🎯" />
+  <link rel="apple-touch-icon" href="https://fav.farm/🎯" />
+
+  <style>
+    /* Dostępność WCAG AAA: Stylizacja Wysokiego Kontrastu */
+    [data-contrast="high"] body {
+      background-color: #000000 !important;
+      color: #ffffff !important;
+    }
+    [data-contrast="high"] header,
+    [data-contrast="high"] section,
+    [data-contrast="high"] article,
+    [data-contrast="high"] aside,
+    [data-contrast="high"] .task-card,
+    [data-contrast="high"] .tool-card {
+      background-color: #050505 !important;
+      border: 2px solid #ffffff !important;
+      color: #ffffff !important;
+    }
+    [data-contrast="high"] button,
+    [data-contrast="high"] select,
+    [data-contrast="high"] input,
+    [data-contrast="high"] textarea {
+      border: 2px solid #ffffff !important;
+      background-color: #000000 !important;
+      color: #ffffff !important;
+    }
+    [data-contrast="high"] button:hover,
+    [data-contrast="high"] button:focus {
+      background-color: #ffff00 !important;
+      color: #000000 !important;
+      outline: 3px solid #ffff00 !important;
+    }
+    [data-contrast="high"] *:focus-visible {
+      outline: 4px solid #ffff00 !important;
+      outline-offset: 3px !important;
+    }
+    [data-contrast="high"] a {
+      color: #ffff00 !important;
+      text-decoration: underline !important;
+    }
+    [data-contrast="high"] .prompt-code {
+      background-color: #000000 !important;
+      color: #ffff00 !important;
+      border: 2px solid #ffffff !important;
+    }
+
+    /* Motywy profilowe */
+    body.theme-teen {
+      background: radial-gradient(circle at top right, #1d0935 0%, #0d0821 50%, #04050e 100%) !important;
+      color: #f1f5f9;
+    }
+    body.theme-teen .task-card, body.theme-teen .tool-card {
+      border: 1px solid #4c1d95 !important;
+      background: rgba(22, 12, 48, 0.85) !important;
+    }
+    body.theme-teen .prompt-code {
+      border-color: #06b6d4 !important;
+      background-color: #050414 !important;
+      color: #67e8f9 !important;
+    }
+
+    body.theme-adult {
+      background: linear-gradient(180deg, #090e17 0%, #0f172a 100%) !important;
+      color: #f8fafc;
+    }
+    body.theme-adult .task-card, body.theme-adult .tool-card {
+      border: 1px solid #334155 !important;
+      background: rgba(30, 41, 59, 0.8) !important;
+    }
+
+    body.theme-senior {
+      background: #0f172a !important;
+      color: #ffffff !important;
+      font-size: 1.1rem !important;
+      line-height: 1.75 !important;
+    }
+    body.theme-senior .task-card, body.theme-senior .tool-card {
+      border: 2px solid #64748b !important;
+      background: #1e293b !important;
+    }
+    body.theme-senior .prompt-code {
+      font-size: 1.05rem !important;
+      border: 2px solid #d97706 !important;
+      background-color: #000000 !important;
+      color: #fef08a !important;
+    }
+
+    body.theme-creative {
+      background: radial-gradient(circle at top left, #290a3c 0%, #170427 50%, #0b0114 100%) !important;
+      color: #faf5ff;
+    }
+    body.theme-creative .task-card, body.theme-creative .tool-card {
+      border: 1px solid #701a75 !important;
+      background: rgba(39, 9, 52, 0.85) !important;
+    }
+
+    /* Skalowanie czcionek */
+    html.font-size-large { font-size: 115%; }
+    html.font-size-xlarge { font-size: 130%; }
+
+    /* Optymalizacja mobilna pod iPhone / iOS Safari */
+    body {
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      -webkit-tap-highlight-color: rgba(99, 102, 241, 0.25);
+      overflow-x: hidden;
+    }
+    @media (max-width: 768px) {
+      input[type="text"],
+      select,
+      textarea {
+        font-size: 16px !important;
+      }
+      .touch-target {
+        min-height: 44px;
+      }
+    }
+
+    .prompt-code {
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans transition-colors duration-200">
+
+  <!-- Dostępność WCAG: Pomijanie nawigacji dla czytników ekranu i klawiatury -->
+  <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:bg-amber-400 focus:text-slate-950 focus:px-4 focus:py-2 focus:rounded-md focus:font-bold focus:shadow-2xl focus:z-50 focus:outline-none">
+    Przejdź do zadań na dzisiaj (Skip to content)
+  </a>
+
+  <!-- Komunikator dla czytników ekranu (Live Region) -->
+  <div id="sr-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Górny minimalistyczny pasek nawigacyjny okna skupienia -->
+  <header class="border-b border-slate-800 bg-slate-950/95 backdrop-blur sticky top-0 z-30 shadow-md">
+    <div class="max-w-5xl mx-auto px-3 sm:px-4 py-2 flex flex-wrap items-center justify-between gap-2">
+      
+      <!-- Nawigacja i powrót do pełnego kompendium (Etykieta pierwsza, ikona po niej) -->
+      <div class="flex items-center gap-2">
+        <a href="index.html" class="touch-target px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition flex items-center gap-1.5 border border-slate-700 focus:ring-2 focus:ring-indigo-400">
+          <span>Pełne Kompendium</span>
+          <span role="img" aria-label="(ikona strony głównej)">🏠</span>
+        </a>
+        <button type="button" onclick="openFocusNotesModal()" class="touch-target px-2.5 py-1.5 rounded-lg border border-purple-500/50 bg-purple-950/60 hover:bg-purple-900 text-purple-200 text-xs font-bold transition flex items-center gap-1 shadow" id="btn-focus-header-notes" title="Przeglądaj zrobione notatki">
+          <span role="img" aria-label="(ikona notatnika)">📝</span>
+          <span class="hidden sm:inline">Notatki</span>
+          <span id="focus-header-notes-counter" class="text-[10px] bg-purple-500/40 text-purple-200 px-1.5 py-0.2 rounded-full font-extrabold hidden">0</span>
+        </button>
+        <button type="button" onclick="openFocusFeedbackModal()" class="touch-target px-2.5 py-1.5 rounded-lg border border-teal-500/50 bg-teal-950/60 hover:bg-teal-900 text-teal-200 text-xs font-bold transition flex items-center gap-1 shadow" id="btn-focus-header-feedback" title="Przekaż uwagi i sugestie twórcy kompendium (Alt+U)">
+          <span role="img" aria-label="(ikona wiadomości)">💬</span>
+          <span class="hidden sm:inline">Uwagi dla Twórcy</span>
+          <span id="focus-header-feedback-counter" class="text-[10px] bg-teal-500/40 text-teal-200 px-1.5 py-0.2 rounded-full font-extrabold hidden">0</span>
+        </button>
+        <span class="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/30">
+          <span>Tryb Skupienia</span>
+          <span role="img" aria-label="(ikona celu)">🎯</span>
+        </span>
+        <span id="focus-header-points" class="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-amber-500/10 text-amber-300 border border-amber-500/30">
+          <span>🏆 Punkty:</span> <strong id="focus-header-points-count">0</strong> / 1975 pkt
+        </span>
+        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-300 border border-slate-700">v3.4.0</span>
+      </div>
+
+      <!-- Przełącznik dni (Poprzedni / Wybór / Następny) -->
+      <nav aria-label="Wybór dnia nauki" class="flex items-center gap-1.5">
+        <button type="button" onclick="changeDay(CURRENT_DAY - 1)" id="btn-prev-day" class="touch-target px-2.5 sm:px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1">
+          <span class="sr-only sm:not-sr-only">Poprzedni<span class="sr-only"> dzień (Alt+P)</span></span>
+          <span role="img" aria-label="(strzałka w lewo)">&larr;</span>
+        </button>
+
+        <label for="day-select" class="sr-only">Wybierz dzień nauki</label>
+        <select id="day-select" onchange="changeDay(parseInt(this.value, 10))" class="touch-target bg-slate-900 text-amber-400 font-extrabold text-xs rounded-lg px-2 py-1.5 border border-slate-700 focus:ring-2 focus:ring-amber-400 focus:outline-none cursor-pointer max-w-[140px] sm:max-w-none">
+          <!-- Wypełniane dynamicznie od Dzień 1 do Dzień 34 -->
+        </select>
+
+        <button type="button" onclick="changeDay(CURRENT_DAY + 1)" id="btn-next-day" class="touch-target px-2.5 sm:px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 shadow">
+          <span class="sr-only sm:not-sr-only">Następny<span class="sr-only"> dzień (Alt+N)</span></span>
+          <span role="img" aria-label="(strzałka w prawo)">&rarr;</span>
+        </button>
+      </nav>
+
+      <!-- Ułatwienia dostępu (Dźwięk, Kontrast, Czcionka) -->
+      <div class="hidden sm:flex items-center gap-2">
+        <button type="button" id="btn-sound-toggle" onclick="toggleSound()" class="touch-target px-2.5 py-1.5 rounded-lg border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition flex items-center gap-1" aria-pressed="true">
+          <span class="sr-only" id="sound-sr-text">Dźwięk: Włączony (Alt+M) </span>
+          <span id="sound-icon" role="img" aria-label="(ikona głośnika)">🔊</span>
+        </button>
+
+        <button type="button" id="btn-contrast-toggle" onclick="toggleContrast()" class="touch-target px-2.5 py-1.5 rounded-lg border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition flex items-center gap-1" aria-pressed="false">
+          <span>Kontrast<span class="sr-only"> (Alt+K)</span></span>
+          <span role="img" aria-label="(ikona oka)">👁️</span>
+        </button>
+
+        <div class="flex items-center rounded-lg border border-slate-700 bg-slate-800 p-0.5" role="group" aria-label="Rozmiar tekstu">
+          <button type="button" onclick="applyFontSize('normal')" class="px-2 py-1 text-xs font-bold text-slate-300 hover:text-white" aria-label="Czcionka domyślna (A)">A</button>
+          <button type="button" onclick="applyFontSize('large')" class="px-2 py-1 text-sm font-bold text-slate-300 hover:text-white border-l border-slate-700" aria-label="Czcionka powiększona (A plus)">A+</button>
+          <button type="button" onclick="applyFontSize('xlarge')" class="px-2 py-1 text-base font-bold text-slate-300 hover:text-white border-l border-slate-700" aria-label="Czcionka bardzo duża (A dwa plusy)">A++</button>
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Główny czysty kontener roboczy -->
+  <main id="main-content" class="max-w-5xl mx-auto px-3 sm:px-4 py-5 sm:py-8 flex-grow w-full">
+
+    <!-- NAGŁÓWEK POZIOMU 1: DZIEŃ I ETAP NAUKI -->
+    <header class="mb-6 sm:mb-8 p-5 sm:p-6 rounded-3xl bg-slate-900 border border-slate-800 shadow-xl flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <span id="day-stage-badge" class="text-xs uppercase font-extrabold tracking-wider text-indigo-400 block mb-1">
+          Etap 1: Pierwsze kroki i dekompozycja
+        </span>
+        <h1 id="day-main-heading" class="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight" tabindex="-1">
+          Dzień 1 z 34 • Zadania na dziś
+        </h1>
+        <p class="text-xs md:text-sm text-slate-400 mt-1">
+          Czysty widok bez rozpraszaczy. Skup się wyłącznie na poniższych 3 mikro-zadaniach i przydatnych narzędziach.
+        </p>
+      </div>
+
+      <!-- Wskaźnik ukończenia zadań z tego dnia -->
+      <div class="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800 text-center min-w-[130px] w-full sm:w-auto">
+        <span class="text-xs text-slate-400 block mb-0.5">Postęp dnia:</span>
+        <span id="day-progress-count" class="text-lg font-black text-amber-400">0 / 3 zadań</span>
+        <span id="day-progress-pct" class="text-[11px] text-emerald-400 font-bold block">(0%)</span>
+      </div>
+    </header>
+
+    <!-- SZYBKI SPIS ZADAŃ I NARZĘDZI (DLA NVDA, VOICEOVER I KLAWIATURY) -->
+    <nav aria-label="Szybkie skoki do zadań i narzędzi" class="mb-6 sm:mb-8 p-3.5 sm:p-4 rounded-2xl bg-slate-950/60 border border-slate-800">
+      <div class="flex flex-wrap items-center justify-between gap-2 text-xs">
+        <span class="font-bold text-slate-300 flex items-center gap-1.5">
+          <span>Skocz bezpośrednio:</span>
+          <span role="img" aria-label="(ikona błyskawicy)">⚡</span>
+        </span>
+        <div id="quick-task-links" class="flex flex-wrap items-center gap-2">
+          <!-- Wypełniane dynamicznie linkami do zadań (Nazwa najpierw, ikona na końcu) -->
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <a href="index.html#onboarding-safety-section" class="touch-target px-3 py-1.5 rounded-lg bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-700/50 text-emerald-200 font-semibold transition inline-flex items-center gap-1.5">
+            <span>Bezpieczeństwo i Narzędzia</span>
+            <span role="img" aria-label="(ikona tarczy)">🛡️</span>
+          </a>
+          <a href="#daily-tools-section" class="touch-target px-3 py-1.5 rounded-lg bg-indigo-950/80 hover:bg-indigo-900 border border-indigo-700/50 text-indigo-200 font-semibold transition inline-flex items-center gap-1.5">
+            <span>Narzędzia do zadań</span>
+            <span role="img" aria-label="(ikona narzędzi, strzałka w dół)">🛠️ &darr;</span>
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- ZŁOTE MYŚLI EKSPERTÓW I TWÓRCÓW AI (TRYB SKUPIENIA) -->
+    <div class="mb-6 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-indigo-950/60 to-purple-950/50 border border-indigo-800/50 shadow-md" role="region" aria-label="Złote myśli ekspertów i twórców AI">
+      <div class="flex items-center justify-between gap-3 mb-2 pb-2 border-b border-indigo-900/60">
+        <span class="text-xs uppercase font-extrabold tracking-wider text-amber-300 flex items-center gap-1.5">
+          <span role="img" aria-label="(żarówka)">💡</span>
+          <span>Złota Myśl Eksperta AI</span>
+        </span>
+        <span id="focus-quote-counter" class="text-[11px] font-bold text-indigo-300 bg-indigo-950/80 px-2.5 py-0.5 rounded-full border border-indigo-700/50">
+          Myśl 1 z 10
+        </span>
+      </div>
+
+      <blockquote class="my-2">
+        <p id="focus-quote-text" class="text-xs sm:text-sm text-slate-100 italic leading-relaxed min-h-[40px]">
+          "Najgorętszym nowym językiem programowania jest teraz język naturalny: polski i angielski."
+        </p>
+        <cite id="focus-quote-author" class="block text-xs font-bold text-indigo-300 mt-2 not-italic">
+          — Andrej Karpathy, współzałożyciel OpenAI i były szef AI w Tesla
+        </cite>
+      </blockquote>
+
+      <div class="mt-3 pt-2.5 border-t border-indigo-900/60 flex items-center justify-between gap-2">
+        <button type="button" onclick="prevMotivationalQuote()" class="touch-target px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs transition flex items-center gap-1.5 shadow cursor-pointer" title="Wyświetl poprzednią złotą myśl eksperta">
+          <span role="img" aria-label="(strzałka w lewo)">&larr;</span>
+          <span>Poprzednia myśl</span>
+        </button>
+
+        <button type="button" onclick="nextMotivationalQuote()" class="touch-target px-4 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition flex items-center gap-1.5 shadow cursor-pointer" title="Wyświetl kolejną złotą myśl eksperta">
+          <span>Kolejna myśl</span>
+          <span role="img" aria-label="(strzałka w prawo)">&rarr;</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- SEKCJA ZADAŃ NA DANY DZIEŃ (KAŻDE ZADANIE TO NAGŁÓWEK POZIOMU 2)           -->
+    <!-- ========================================================================= -->
+    <section id="tasks-list-container" aria-label="Zadania do wykonania" class="space-y-6 sm:space-y-8">
+      <!-- Generowane dynamicznie przez renderDayView() -->
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- SEKCJA NARZĘDZI PRZYDATNYCH PRZY REALIZACJI (NAGŁÓWEK POZIOMU 2)          -->
+    <!-- ========================================================================= -->
+    <section id="daily-tools-section" aria-labelledby="tools-main-heading" class="mt-10 sm:mt-12 pt-8 border-t border-slate-800">
+      
+      <div class="mb-6">
+        <span class="text-xs uppercase font-extrabold tracking-wider text-amber-400 block mb-1">Przybornik Twórcy</span>
+        <h2 id="tools-main-heading" class="text-xl sm:text-2xl md:text-3xl font-extrabold text-white" tabindex="-1">
+          Narzędzia przydatne przy realizacji dzisiejszych zadań
+        </h2>
+        <p class="text-xs md:text-sm text-slate-400 mt-1">
+          Wszystko, czego potrzebujesz do testowania, uściślania poleceń i zapisywania wniosków w jednym miejscu.
+        </p>
+      </div>
+
+      <div class="space-y-6">
+        
+        <!-- NARZĘDZIE 1: ASYSTENCI AI (H3) -->
+        <article class="tool-card p-5 sm:p-6 rounded-3xl bg-slate-900/80 border border-slate-800 shadow-md">
+          <h3 id="tool-heading-ai" class="text-base sm:text-lg md:text-xl font-bold text-white mb-2 flex items-center gap-2">
+            <span>1. Asystenci AI i Narzędzia Chat (Szybkie uruchamianie)</span>
+            <span role="img" aria-label="(ikona robota)">🤖</span>
+          </h3>
+          <p class="text-xs text-slate-300 mb-4">
+            Wybierz asystenta, aby otworzyć go w osobnej karcie i wkleić skopiowany z zadania prompt:
+          </p>
+
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5 sm:gap-3">
+            <a href="https://gemini.google.com" target="_blank" rel="noopener noreferrer" class="touch-target p-3 rounded-xl bg-slate-850 hover:bg-indigo-950/60 border border-slate-700 hover:border-indigo-500 text-center transition flex flex-col items-center justify-center gap-1 group">
+              <strong class="text-xs text-white">Google Gemini</strong>
+              <span class="text-xl group-hover:scale-110 transition" role="img" aria-label="(ikona iskierek)">✨</span>
+              <span class="text-[10px] text-indigo-300">gemini.google.com &nearr;</span>
+            </a>
+
+            <a href="https://claude.ai" target="_blank" rel="noopener noreferrer" class="touch-target p-3 rounded-xl bg-slate-850 hover:bg-amber-950/60 border border-slate-700 hover:border-amber-500 text-center transition flex flex-col items-center justify-center gap-1 group">
+              <strong class="text-xs text-white">Anthropic Claude</strong>
+              <span class="text-xl group-hover:scale-110 transition" role="img" aria-label="(ikona mózgu)">🧠</span>
+              <span class="text-[10px] text-amber-300">claude.ai &nearr;</span>
+            </a>
+
+            <a href="https://chatgpt.com" target="_blank" rel="noopener noreferrer" class="touch-target p-3 rounded-xl bg-slate-850 hover:bg-emerald-950/60 border border-slate-700 hover:border-emerald-500 text-center transition flex flex-col items-center justify-center gap-1 group">
+              <strong class="text-xs text-white">ChatGPT (OpenAI)</strong>
+              <span class="text-xl group-hover:scale-110 transition" role="img" aria-label="(ikona błyskawicy)">⚡</span>
+              <span class="text-[10px] text-emerald-300">chatgpt.com &nearr;</span>
+            </a>
+
+            <a href="https://notebooklm.google.com" target="_blank" rel="noopener noreferrer" class="touch-target p-3 rounded-xl bg-slate-850 hover:bg-purple-950/60 border border-slate-700 hover:border-purple-500 text-center transition flex flex-col items-center justify-center gap-1 group">
+              <strong class="text-xs text-white">NotebookLM</strong>
+              <span class="text-xl group-hover:scale-110 transition" role="img" aria-label="(ikona mikrofonu)">🎙️</span>
+              <span class="text-[10px] text-purple-300">Podcasty i notatki &nearr;</span>
+            </a>
+
+            <a href="https://aistudio.google.com" target="_blank" rel="noopener noreferrer" class="touch-target col-span-2 sm:col-span-1 p-3 rounded-xl bg-slate-850 hover:bg-sky-950/60 border border-slate-700 hover:border-sky-500 text-center transition flex flex-col items-center justify-center gap-1 group">
+              <strong class="text-xs text-white">Google AI Studio</strong>
+              <span class="text-xl group-hover:scale-110 transition" role="img" aria-label="(ikona laboratorium)">🧪</span>
+              <span class="text-[10px] text-sky-300">Duży kontekst &nearr;</span>
+            </a>
+          </div>
+        </article>
+
+        <!-- NARZĘDZIE 2: PIASKOWNICA KODU NA ŻYWO (H3) -->
+        <article class="tool-card p-5 sm:p-6 rounded-3xl bg-slate-900/80 border border-slate-800 shadow-md">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+            <h3 id="tool-heading-sandbox" class="text-base sm:text-lg md:text-xl font-bold text-white flex items-center gap-2">
+              <span>2. Piaskownica kodu na żywo (Live Sandbox i Pobieranie pliku)</span>
+              <span role="img" aria-label="(ikona laboratorium)">🧪</span>
+            </h3>
+            <span class="text-xs text-slate-400">Podgląd bez Notatnika i bez instalacji</span>
+          </div>
+          <p class="text-xs text-slate-300 mb-4 leading-relaxed">
+            Wklej poniżej kod HTML/CSS/JavaScript wygenerowany przez asystenta AI. Kliknij <strong>„Uruchom podgląd na żywo”</strong>, aby natychmiast zobaczyć działającą stronę, lub <strong>„Usuń kod”</strong>, aby opróżnić edytor.
+          </p>
+
+          <div class="space-y-3">
+            <label for="sandbox-code-input" class="sr-only">Wklej kod HTML do podglądu</label>
+            <textarea id="sandbox-code-input" rows="6" placeholder="Wklej tutaj wygenerowany kod HTML (np. <!DOCTYPE html>...)" class="w-full p-3.5 rounded-xl bg-slate-950 border border-slate-700 text-xs font-mono text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-400 leading-relaxed"></textarea>
+
+            <div class="grid grid-cols-1 sm:flex sm:flex-wrap items-center gap-2.5">
+              <button type="button" onclick="runSandboxCode()" class="touch-target px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow">
+                <span>Uruchom podgląd na żywo</span>
+                <span role="img" aria-label="(ikona odtwarzania)">▶</span>
+              </button>
+
+              <button type="button" onclick="downloadSandboxFile()" class="touch-target px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow">
+                <span>Pobierz jako plik .html</span>
+                <span role="img" aria-label="(ikona zapisu)">💾</span>
+              </button>
+
+              <button type="button" onclick="clearSandbox()" class="touch-target px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-rose-950/60 text-slate-200 hover:text-rose-200 text-xs font-bold transition border border-slate-700 hover:border-rose-500/50 flex items-center justify-center gap-1.5">
+                <span>Usuń kod</span>
+                <span role="img" aria-label="(ikona kosza)">🗑️</span>
+              </button>
+            </div>
+
+            <!-- Ramka podglądu -->
+            <div id="sandbox-frame-wrapper" class="hidden mt-4 pt-3 border-t border-slate-800">
+              <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+                <span class="font-bold text-emerald-400">Podgląd na żywo aktywny:</span>
+                <button type="button" onclick="closeSandboxPreview()" class="touch-target px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold flex items-center gap-1">
+                  <span>Schowaj podgląd</span>
+                  <span role="img" aria-label="(ikona zamknięcia)">&times;</span>
+                </button>
+              </div>
+              <iframe id="sandbox-preview-frame" sandbox="allow-scripts allow-modals allow-forms allow-same-origin" class="w-full h-80 sm:h-96 rounded-2xl bg-white border-2 border-emerald-500/60 shadow-inner" title="Podgląd uruchomionego kodu strony. Użyj klawisza Tab lub Shift+Tab, aby poruszać się po elementach strony lub przejść do Studia ulepszeń."></iframe>
+              <div class="flex justify-end mt-2">
+                <button type="button" onclick="focusStudioInDayFocusFromSandbox()" class="touch-target text-xs px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-indigo-950/70 border border-slate-700 hover:border-indigo-500/50 text-indigo-300 font-bold transition flex items-center gap-1.5 shadow">
+                  <span>Przejdź do Studia Ulepszeń promptu</span>
+                  <span role="img" aria-label="(strzałka w dół)">↓</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- NARZĘDZIE 3: STUDIO EKSPERYMENTÓW I ROZWOJU PROJEKTU (H3) -->
+        <article class="tool-card p-5 sm:p-6 rounded-3xl bg-slate-900/80 border border-slate-800 shadow-md" id="focus-studio-card">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+            <h3 id="tool-heading-prompt-helper" tabindex="-1" class="text-base sm:text-lg md:text-xl font-bold text-white flex items-center gap-2 outline-none">
+              <span>3. Studio Eksperymentów i Rozwoju Projektu</span>
+              <span role="img" aria-label="(ikona laboratorium i iskier)">🧪✨</span>
+            </h3>
+            <span class="text-[11px] text-amber-300 font-bold bg-amber-950/60 border border-amber-500/30 px-2.5 py-1 rounded-full">
+              Złota Formuła Promptu w praktyce
+            </span>
+          </div>
+          <p class="text-xs text-slate-300 mb-3 leading-relaxed">
+            Chcesz rozwinąć swoją stronę (np. dodać licznik odsłon, zmienić styl, dodać dźwięki) lub stworzyć nowy pomysł od zera? Wybierz bazę, skorzystaj z gotowych inspiracji dopasowanych do Twojego zadania lub wpisz własny pomysł:
+          </p>
+
+          <!-- WYBÓR BAZY PROJEKTU -->
+          <div class="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 mb-3.5 space-y-2">
+            <span class="text-xs font-bold text-slate-200 block mb-1">Krok 1: Wybierz punkt wyjścia dla AI:</span>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+              <label for="ccof-mode-modify" class="touch-target p-2.5 rounded-xl border border-indigo-500/40 bg-indigo-950/30 hover:bg-indigo-900/40 cursor-pointer flex items-center gap-2.5 text-slate-200 font-semibold transition">
+                <input type="radio" name="ccof-mode" id="ccof-mode-modify" value="modify" checked onchange="toggleCcofMode()" class="w-4 h-4 text-indigo-500 cursor-pointer">
+                <span>Modyfikuj mój aktualny projekt (Zalecane)</span>
+              </label>
+              <label for="ccof-mode-scratch" class="touch-target p-2.5 rounded-xl border border-slate-700 bg-slate-900/60 hover:bg-slate-800 cursor-pointer flex items-center gap-2.5 text-slate-300 font-semibold transition">
+                <input type="radio" name="ccof-mode" id="ccof-mode-scratch" value="scratch" onchange="toggleCcofMode()" class="w-4 h-4 text-indigo-500 cursor-pointer">
+                <span>Stwórz zupełnie nową aplikację od zera</span>
+              </label>
+            </div>
+            <div id="ccof-base-badge" class="mt-2 text-[11px] text-emerald-300 bg-emerald-950/50 border border-emerald-500/30 p-2.5 rounded-xl flex flex-wrap items-center justify-between gap-2">
+              <span id="ccof-base-name">✓ Wykryto kod projektu (baza zostanie automatycznie dołączona do promptu)</span>
+              <div class="flex flex-wrap items-center gap-1.5" id="ccof-base-buttons">
+                <!-- Dynamicznie wstawiane przyciski bazy projektu -->
+              </div>
+            </div>
+          </div>
+
+          <!-- SZYBKIE INSPIRACJE I ULEPSZENIA DEDYKOWANE DO PROJEKTU (POLA WYBORU) -->
+          <div class="mb-3.5" id="focus-studio-presets-container">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+              <span class="text-xs font-bold text-amber-300 block" id="focus-studio-step2-heading">Krok 2: Zaznacz ulepszenia dopasowane do projektu (możesz wybrać kilka naraz):</span>
+              <span id="focus-preset-count-badge" class="text-[11px] font-bold text-slate-400">Wybrano: 0 ulepszeń</span>
+            </div>
+            <div id="focus-presets-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 text-xs" role="group" aria-labelledby="focus-studio-step2-heading">
+              <!-- Dynamiczne checkboxy dla wybranego zadania -->
+            </div>
+          </div>
+
+          <!-- POLA FORMULARZA -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs mb-3">
+            <div>
+              <label for="ccof-goal" class="font-bold text-amber-300 block mb-1">Co nowego chcesz dodać lub zmienić? (Główny cel):</label>
+              <textarea id="ccof-goal" rows="2" placeholder="np. Dodaj licznik zamówień z przyciskiem, który po każdym kliknięciu zwiększa liczbę o 1 i pamięta stan dzisiejszego dnia..." class="touch-target w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-400"></textarea>
+            </div>
+            <div>
+              <label for="ccof-constraints" class="font-bold text-rose-300 block mb-1">Styl i wymagania wizualne (Zasady):</label>
+              <textarea id="ccof-constraints" rows="2" placeholder="np. Wkomponuj licznik w obecny wygląd strony, zachowaj neonowe kolory i układ, użyj czystego kodu..." class="touch-target w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-rose-400"></textarea>
+            </div>
+            <div>
+              <label for="ccof-context" class="font-bold text-indigo-300 block mb-1">Rola asystenta AI (Kontekst):</label>
+              <input type="text" id="ccof-context" value="Jesteś doświadczonym programistą i moim asystentem Vibe Codingu." class="touch-target w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+            </div>
+            <div>
+              <label for="ccof-format" class="font-bold text-emerald-300 block mb-1">Format odpowiedzi od AI:</label>
+              <input type="text" id="ccof-format" value="Zwróć pojedynczy, kompletny plik HTML ze zaktualizowaną całą stroną, gotowy do wklejenia w piaskownicy." class="touch-target w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-400">
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="flex flex-wrap items-center gap-2">
+              <button type="button" onclick="buildAndCopyCcofPrompt()" class="touch-target px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold transition flex items-center gap-1.5 shadow">
+                <span>Połącz i skopiuj prompt z kodem do schowka</span>
+                <span role="img" aria-label="(ikona schowka)">📋</span>
+              </button>
+              <button type="button" onclick="clearCcofForm()" class="touch-target px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-rose-950/60 border border-slate-700 hover:border-rose-500/50 text-slate-300 hover:text-rose-200 text-xs font-bold transition flex items-center gap-1.5">
+                <span>Wyczyść</span>
+                <span role="img" aria-label="(ikona kosza)">🗑️</span>
+              </button>
+            </div>
+            <span id="ccof-status-text" class="text-xs text-emerald-400 font-bold" aria-live="polite"></span>
+          </div>
+        </article>
+
+        <!-- NARZĘDZIE 4: WŁASNE NOTATKI I DZIENNIK DNIA (H3) -->
+        <article class="tool-card p-5 sm:p-6 rounded-3xl bg-slate-900/80 border border-slate-800 shadow-md">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+            <h3 id="tool-heading-notes" class="text-base sm:text-lg md:text-xl font-bold text-white flex items-center gap-2">
+              <span>4. Własne notatki do Dnia <span id="notes-day-label">1</span></span>
+              <span role="img" aria-label="(ikona notatnika)">📝</span>
+            </h3>
+            <div class="flex items-center gap-3">
+              <span id="notes-saved-status" class="text-xs text-emerald-400 font-semibold" aria-live="polite">Zapisano automatycznie ✓</span>
+              <button type="button" onclick="deleteDailyNote()" class="touch-target px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-rose-950/60 border border-slate-700 hover:border-rose-500/50 text-slate-300 hover:text-rose-200 text-xs font-bold transition flex items-center gap-1.5">
+                <span>Usuń notatkę</span>
+                <span role="img" aria-label="(ikona kosza)">🗑️</span>
+              </button>
+            </div>
+          </div>
+          <p class="text-xs text-slate-300 mb-3">
+            Twoje prywatne zapiski, linki do wygenerowanych projektów lub trudności. Zapisują się automatycznie:
+          </p>
+          <label for="daily-notes-textarea" class="sr-only">Treść własnej notatki do bieżącego dnia</label>
+          <textarea id="daily-notes-textarea" rows="4" placeholder="Wpisz swoje notatki, pomysły lub linki z dzisiejszego dnia nauki..." class="w-full p-3.5 rounded-xl bg-slate-950 border border-slate-700 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-400 leading-relaxed"></textarea>
+        </article>
+
+        <!-- NARZĘDZIE 5: SKRÓTY KLAWISZOWE I POMOC DLA NVDA / VOICEOVER (H3) -->
+        <article class="tool-card p-5 sm:p-6 rounded-3xl bg-slate-900/80 border border-slate-800 shadow-md">
+          <h3 id="tool-heading-shortcuts" class="text-base sm:text-lg md:text-xl font-bold text-white mb-2 flex items-center gap-2">
+            <span>5. Ułatwienia nawigacji dla NVDA (PC) i VoiceOver (iPhone)</span>
+            <span role="img" aria-label="(ikona klawiatury)">⌨️</span>
+          </h3>
+          <p class="text-xs text-slate-300 mb-4 leading-relaxed">
+            Struktura nagłówków i przycisków została zoptymalizowana tak, aby czytnik ekranu zawsze podawał najpierw nazwę akcji, a dopiero po niej opis ikonki:
+          </p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-xs">
+            <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800">
+              <kbd class="px-2 py-0.5 rounded bg-slate-800 text-amber-300 font-mono font-bold">Klawisz 2 w NVDA</kbd>
+              <p class="text-slate-300 mt-1">Skok bezpośrednio między kolejnymi <strong>Zadaniami</strong> oraz <strong>Sekcją Narzędzi</strong>.</p>
+            </div>
+
+            <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800">
+              <kbd class="px-2 py-0.5 rounded bg-slate-800 text-amber-300 font-mono font-bold">Klawisz 3 w NVDA</kbd>
+              <p class="text-slate-300 mt-1">Skok do podsekcji zadania: <strong>Cel</strong>, <strong>Prompt</strong>, <strong>Rezultat</strong> oraz poszczególnych <strong>Narzędzi</strong>.</p>
+            </div>
+
+            <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800">
+              <kbd class="px-2 py-0.5 rounded bg-slate-800 text-indigo-300 font-mono font-bold">VoiceOver (Pokrętło)</kbd>
+              <p class="text-slate-300 mt-1">Ustaw pokrętło na <strong>Nagłówki</strong>, aby jednym gestem góra/dół przeskakiwać między zadaniami na iPhonie.</p>
+            </div>
+
+            <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800">
+              <kbd class="px-2 py-0.5 rounded bg-slate-800 text-indigo-300 font-mono font-bold">Alt + N / Alt + P</kbd>
+              <p class="text-slate-300 mt-1">Błyskawiczne przejście do <strong>Następnego</strong> lub <strong>Poprzedniego</strong> dnia kursu na PC.</p>
+            </div>
+
+            <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800">
+              <kbd class="px-2 py-0.5 rounded bg-slate-800 text-indigo-300 font-mono font-bold">Alt + K / Alt + M</kbd>
+              <p class="text-slate-300 mt-1">Przełącza <strong>Wysoki Kontrast</strong> (Alt+K) lub wycisza <strong>Dźwięki</strong> (Alt+M).</p>
+            </div>
+
+            <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800">
+              <kbd class="px-2 py-0.5 rounded bg-slate-800 text-rose-300 font-mono font-bold">Escape</kbd>
+              <p class="text-slate-300 mt-1">Chowa otwarty podgląd piaskownicy kodu.</p>
+            </div>
+          </div>
+        </article>
+
+        <!-- DOLNY PASEK NAWIGACJI DNIA W TRYBIE SKUPIENIA -->
+        <nav aria-label="Nawigacja między dniami na dole strony" class="mt-8 p-5 sm:p-6 rounded-3xl bg-slate-900/90 border-2 border-indigo-500/40 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div class="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-start">
+            <button type="button" onclick="changeDay(CURRENT_DAY - 1); window.scrollTo({top:0, behavior:'smooth'});" id="btn-bottom-prev-day" class="touch-target px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs sm:text-sm font-bold transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2 shadow">
+              <span role="img" aria-label="(strzałka w lewo)">←</span>
+              <span id="bottom-prev-day-label">Poprzedni dzień</span>
+            </button>
+          </div>
+
+          <div class="flex items-center gap-2 text-center">
+            <span class="text-xs text-slate-400 font-medium hidden md:inline">Jesteś na dole strony:</span>
+            <span id="bottom-current-day-label" class="text-xs sm:text-sm font-black text-amber-300 bg-amber-950/70 border border-amber-500/40 px-3.5 py-1.5 rounded-xl">
+              Dzień 1 z 34
+            </span>
+          </div>
+
+          <div class="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+            <button type="button" onclick="changeDay(CURRENT_DAY + 1); window.scrollTo({top:0, behavior:'smooth'});" id="btn-bottom-next-day" class="touch-target px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs sm:text-sm font-bold transition flex items-center gap-2 shadow-lg cursor-pointer">
+              <span id="bottom-next-day-label">Następny dzień (Dzień 2)</span>
+              <span role="img" aria-label="(strzałka w prawo)">→</span>
+            </button>
+          </div>
+        </nav>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Powiadomienie toast -->
+  <div id="toast-notification" class="fixed bottom-6 right-4 left-4 sm:left-auto sm:right-6 z-50 px-4 py-3 rounded-2xl bg-amber-400 text-slate-950 font-black text-xs text-center shadow-2xl transition-all duration-300 transform translate-y-20 opacity-0 pointer-events-none" role="status" aria-live="assertive"></div>
+
+  <!-- MODAL: CENTRUM ZROBIONYCH NOTATEK W TRYBIE SKUPIENIA -->
+  <div id="modal-focus-notes" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto hidden" role="dialog" aria-modal="true" aria-labelledby="focus-notes-modal-title" aria-hidden="true">
+    <div class="modal-content bg-slate-900 border border-purple-500/50 rounded-3xl max-w-4xl w-full p-5 sm:p-6 md:p-8 shadow-2xl relative max-h-[92dvh] overflow-y-auto focus:outline-none" tabindex="-1">
+      
+      <button type="button" onclick="closeFocusNotesModal()" class="touch-target absolute top-3 right-3 sm:top-5 sm:right-5 text-slate-400 hover:text-white text-2xl font-bold p-2 focus:ring-2 focus:ring-purple-400 rounded-lg flex items-center justify-center min-w-[44px]">
+        <span class="sr-only">Zamknij przeglądarkę notatek (Escape) </span>
+        <span role="img" aria-label="(ikona zamknięcia)">&times;</span>
+      </button>
+
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pr-10">
+        <div class="flex items-center gap-3">
+          <span class="text-3xl shrink-0" role="img" aria-label="(ikona notatnika)">📝</span>
+          <div>
+            <span class="text-xs uppercase font-extrabold tracking-wider text-purple-300 block">Prywatne wnioski i spostrzeżenia</span>
+            <h2 id="focus-notes-modal-title" class="text-lg sm:text-2xl font-black text-white focus:outline-none" tabindex="-1">
+              Twoje Zrobione Notatki (Przypisane do Zadań)
+            </h2>
+          </div>
+        </div>
+        <span id="focus-notes-modal-count-badge" class="text-xs font-bold text-purple-200 bg-purple-950/80 border border-purple-500/40 px-3 py-1 rounded-full self-start sm:self-auto">
+          0 notatek
+        </span>
+      </div>
+
+      <!-- PASEK PRZYCISKÓW AKCJI I EKSPORTU -->
+      <div class="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex flex-wrap items-center gap-2">
+          <button type="button" onclick="downloadFocusNotesMarkdown()" class="touch-target px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition flex items-center gap-1.5 shadow" title="Pobierz notatki jako uniwersalny plik Markdown">
+            <span role="img" aria-label="(pobierz)">📥</span>
+            <span>Pobierz jako Markdown (.md)</span>
+          </button>
+          <button type="button" onclick="downloadFocusNotesHtml()" class="touch-target px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition flex items-center gap-1.5 shadow" title="Pobierz notatki jako stronę HTML z WCAG">
+            <span role="img" aria-label="(strona)">🌐</span>
+            <span>Pobierz jako stronę HTML (WCAG)</span>
+          </button>
+        </div>
+
+        <div class="relative flex-grow sm:flex-grow-0 sm:w-64">
+          <label for="focus-notes-search-input" class="sr-only">Filtruj swoje notatki</label>
+          <input type="search" id="focus-notes-search-input" oninput="renderFocusNotesList(this.value)" placeholder="Filtruj notatki lub zadania..." class="w-full pl-8 pr-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-400">
+          <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs" role="img" aria-label="(szukaj)">🔍</span>
+        </div>
+      </div>
+
+      <!-- LISTA NOTATEK -->
+      <div id="focus-notes-manager-list" class="space-y-4 max-h-[58dvh] overflow-y-auto pr-2" role="region" aria-label="Lista zapisanych notatek"></div>
+
+      <div class="mt-6 pt-4 border-t border-slate-800 flex justify-end">
+        <button type="button" onclick="closeFocusNotesModal()" class="touch-target px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs transition">
+          Zamknij przeglądarkę notatek
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: UWAGI I SUGESTIE DLA TWÓRCY (TRYB SKUPIENIA) -->
+  <div id="modal-focus-feedback" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto hidden" role="dialog" aria-modal="true" aria-labelledby="focus-feedback-modal-title" aria-hidden="true">
+    <div class="modal-content bg-slate-900 border border-teal-500/50 rounded-3xl max-w-4xl w-full p-5 sm:p-6 md:p-8 shadow-2xl relative max-h-[92dvh] overflow-y-auto focus:outline-none" tabindex="-1">
+      
+      <button type="button" onclick="closeFocusFeedbackModal()" class="touch-target absolute top-3 right-3 sm:top-5 sm:right-5 text-slate-400 hover:text-white text-2xl font-bold p-2 focus:ring-2 focus:ring-teal-400 rounded-lg flex items-center justify-center min-w-[44px]">
+        <span class="sr-only">Zamknij okno uwag dla twórcy (Escape) </span>
+        <span role="img" aria-label="(ikona zamknięcia)">&times;</span>
+      </button>
+
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pr-10">
+        <div class="flex items-center gap-3">
+          <span class="text-3xl shrink-0" role="img" aria-label="(ikona wiadomości)">💬</span>
+          <div>
+            <span class="text-xs uppercase font-extrabold tracking-wider text-teal-300 block">Strefa Kontaktu i Rozwoju Kompendium</span>
+            <h2 id="focus-feedback-modal-title" class="text-lg sm:text-2xl font-black text-white focus:outline-none" tabindex="-1">
+              Uwagi i Sugestie dla Twórcy Kompendium
+            </h2>
+          </div>
+        </div>
+        <span id="focus-feedback-modal-count-badge" class="text-xs font-bold text-teal-200 bg-teal-950/80 border border-teal-500/40 px-3 py-1 rounded-full self-start sm:self-auto">
+          0 uwag
+        </span>
+      </div>
+
+      <!-- FORMULARZ DODAWANIA NOWEJ UWAGI -->
+      <div class="p-4 sm:p-5 rounded-2xl bg-slate-950/90 border border-slate-800 mb-4 shadow-inner">
+        <form id="form-focus-feedback" onsubmit="handleAddFocusFeedback(event)" class="space-y-3">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label for="focus-feedback-category-select" class="block text-xs font-bold text-slate-300 mb-1">
+                Kategoria uwagi:
+              </label>
+              <select id="focus-feedback-category-select" class="w-full p-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-400">
+                <option value="improvement">💡 Pomysł na ulepszenie / nowa funkcja</option>
+                <option value="bug">🐛 Zgłoszenie błędu / usterki / literówki</option>
+                <option value="task_feedback">📝 Uwaga do konkretnego zadania</option>
+                <option value="compliment">🌟 Pochwała / wrażenia</option>
+                <option value="other">💬 Inne spostrzeżenie</option>
+              </select>
+            </div>
+            <div>
+              <label for="focus-feedback-reference-input" class="block text-xs font-bold text-slate-300 mb-1">
+                Dotyczy (np. Dzień 1, Zadanie 3):
+              </label>
+              <input type="text" id="focus-feedback-reference-input" placeholder="np. Dzień 1, Zadanie 3" class="w-full p-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-400">
+            </div>
+          </div>
+          <div>
+            <label for="focus-feedback-text-input" class="block text-xs font-bold text-slate-300 mb-1">
+              Treść uwagi lub sugestii:
+            </label>
+            <textarea id="focus-feedback-text-input" rows="3" required placeholder="Napisz, co warto poprawić lub dodać..." class="w-full p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-400 leading-relaxed"></textarea>
+          </div>
+          <div class="flex items-center justify-between gap-2 pt-1">
+            <span id="focus-feedback-form-status" class="text-xs text-teal-400 font-semibold" aria-live="polite"></span>
+            <button type="submit" class="touch-target px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs transition flex items-center gap-1.5 shadow cursor-pointer">
+              <span>Zapisz uwagę</span>
+              <span role="img" aria-label="(plus)">➕</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- PASEK PRZYCISKÓW AKCJI I EKSPORTU -->
+      <div class="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex flex-wrap items-center gap-2">
+          <button type="button" onclick="downloadFocusFeedbackMarkdown()" class="touch-target px-3.5 py-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs transition flex items-center gap-1.5 shadow" title="Pobierz uwagi jako Markdown">
+            <span role="img" aria-label="(pobierz)">📥</span>
+            <span>Pobierz jako Markdown (.md)</span>
+          </button>
+          <button type="button" onclick="downloadFocusFeedbackHtml()" class="touch-target px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition flex items-center gap-1.5 shadow" title="Pobierz uwagi jako stronę HTML z WCAG">
+            <span role="img" aria-label="(strona)">🌐</span>
+            <span>Pobierz jako stronę HTML (WCAG)</span>
+          </button>
+          <button type="button" onclick="copyFocusFeedbackToClipboard()" class="touch-target px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs transition flex items-center gap-1.5" title="Skopiuj całość do schowka">
+            <span role="img" aria-label="(schowek)">📋</span>
+            <span>Kopiuj całość</span>
+          </button>
+        </div>
+
+        <div class="relative flex-grow sm:flex-grow-0 sm:w-64">
+          <label for="focus-feedback-search-input" class="sr-only">Filtruj uwagi dla twórcy</label>
+          <input type="search" id="focus-feedback-search-input" oninput="renderFocusFeedbackList(this.value)" placeholder="Filtruj uwagi..." class="w-full pl-8 pr-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-400">
+          <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs" role="img" aria-label="(szukaj)">🔍</span>
+        </div>
+      </div>
+
+      <!-- LISTA UWAG DLA TWÓRCY -->
+      <div id="focus-feedback-manager-list" class="space-y-3 max-h-[45dvh] overflow-y-auto pr-2" role="region" aria-label="Lista zapisanych uwag dla autora"></div>
+
+      <div class="mt-6 pt-4 border-t border-slate-800 flex justify-end">
+        <button type="button" onclick="closeFocusFeedbackModal()" class="touch-target px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs transition">
+          Zamknij okno uwag
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Baza Zadań i Skrypt Logiki Okna Skupienia -->
+  <script src="tasks_data.js"></script>
+  <script>
+    let CURRENT_DAY = 1;
+    let APP_STATE = {
+      completedTasks: new Set(),
+      taskStatuses: {},
+      soundEnabled: true,
+      contrastHigh: false,
+      fontSize: 'normal',
+      currentTheme: 'auto',
+      userProfile: { ageGroup: 'adult', interest: 'business' }
+    };
+
+    const MOTIVATIONAL_QUOTES = [
+      { quote: "Najgorętszym nowym językiem programowania jest teraz język naturalny: polski i angielski.", author: "Andrej Karpathy, współzałożyciel OpenAI i były szef AI w Tesla" },
+      { quote: "W erze AI nie wygrywa ten, kto pamięta składnię pętli for, lecz ten, kto potrafi precyzyjnie opisać problem i podzielić go na klocki.", author: "Simon Willison, twórca Django i badacz AI" },
+      { quote: "Sztuczna inteligencja nie zastąpi programistów. Ale programista i twórca używający AI zastąpi tego, który go unika.", author: "Jensen Huang, CEO Nvidia" },
+      { quote: "Wkraczamy w erę, w której pojedyncza osoba z wizją i sztuczną inteligencją może stworzyć to, na co kiedyś potrzebny był cały zespół programistów.", author: "Sam Altman, CEO OpenAI" },
+      { quote: "Najważniejszą umiejętnością przyszłości nie jest kodowanie znak po znaku, lecz zdolność do zadawania właściwych pytań i krytycznego myślenia.", author: "Satya Nadella, CEO Microsoft" },
+      { quote: "Sztuczna inteligencja to nowa elektryczność. Każdy z nas może nauczyć się korzystać z jej mocy do rozwiązywania realnych problemów.", author: "Prof. Andrew Ng, Stanford University & Google Brain" },
+      { quote: "Komputer to rower dla naszego umysłu. Sztuczna inteligencja to rakieta kosmiczna, ale to Ty decydujesz, dokąd nią polecisz.", author: "Inspiracja Steve Jobs & Nowa Era AI" },
+      { quote: "Najlepszy kod to taki, którego nie musiałeś pisać ręcznie, a działa bezbłędnie i rozwiązuje Twój problem.", author: "Złota Zasada Vibe Codingu" },
+      { quote: "Błąd w konsoli F12 to nie porażka – to najdokładniejsza instrukcja dla Twojego wirtualnego stażysty, co ma natychmiast poprawić.", author: "Zasada Vibe Debuggera" },
+      { quote: "Zacznij od zera. Zbuduj prostą wizytówkę, stoper, kalkulator. Za miesiąc będziesz tworzyć rzeczy, o których rok temu nawet nie marzyłeś.", author: "Manifest Twórców Nowej Ery" }
+    ];
+    let currentQuoteIndex = 0;
+
+    function renderFocusMotivationalQuote() {
+      const item = MOTIVATIONAL_QUOTES[currentQuoteIndex];
+      if (!item) return;
+      const qText = document.getElementById('focus-quote-text');
+      const qAuth = document.getElementById('focus-quote-author');
+      const qCounter = document.getElementById('focus-quote-counter');
+      if (qText) qText.textContent = `"${item.quote}"`;
+      if (qAuth) qAuth.textContent = `— ${item.author}`;
+      if (qCounter) qCounter.textContent = `Myśl ${currentQuoteIndex + 1} z ${MOTIVATIONAL_QUOTES.length}`;
+    }
+
+    function nextMotivationalQuote() {
+      playTone(520, 'sine', 0.1, 0.08);
+      currentQuoteIndex = (currentQuoteIndex + 1) % MOTIVATIONAL_QUOTES.length;
+      renderFocusMotivationalQuote();
+      const item = MOTIVATIONAL_QUOTES[currentQuoteIndex];
+      announceSR(`Kolejna złota myśl (${currentQuoteIndex + 1} z ${MOTIVATIONAL_QUOTES.length}): ${item.quote}`);
+    }
+
+    function prevMotivationalQuote() {
+      playTone(520, 'sine', 0.1, 0.08);
+      currentQuoteIndex = (currentQuoteIndex - 1 + MOTIVATIONAL_QUOTES.length) % MOTIVATIONAL_QUOTES.length;
+      renderFocusMotivationalQuote();
+      const item = MOTIVATIONAL_QUOTES[currentQuoteIndex];
+      announceSR(`Poprzednia złota myśl (${currentQuoteIndex + 1} z ${MOTIVATIONAL_QUOTES.length}): ${item.quote}`);
+    }
+
+    let audioCtx = null;
+    function playTone(freq, type = 'sine', duration = 0.15, gainVal = 0.1) {
+      if (!APP_STATE.soundEnabled) return;
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!audioCtx) audioCtx = new AudioContext();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(gainVal, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {}
+    }
+
+    function playSuccessChime() {
+      playTone(523.25, 'triangle', 0.12, 0.1);
+      setTimeout(() => playTone(659.25, 'triangle', 0.12, 0.1), 90);
+      setTimeout(() => playTone(783.99, 'triangle', 0.25, 0.12), 180);
+    }
+
+    function getTaskPoints(task) {
+      if (!task) return 10;
+      if (task.points) return task.points;
+      const s = task.stage || (task.day <= 5 ? 1 : task.day <= 12 ? 2 : task.day <= 19 ? 3 : task.day <= 24 ? 4 : task.day <= 29 ? 5 : 6);
+      if (s === 1) return 10;
+      if (s === 2) return 15;
+      if (s === 3) return 20;
+      if (s === 4) return 20;
+      if (s === 5) return 25;
+      return 30;
+    }
+
+    function getFocusTaskStatus(taskId) {
+      if (APP_STATE.taskStatuses && APP_STATE.taskStatuses[taskId]) {
+        return APP_STATE.taskStatuses[taskId];
+      }
+      if (APP_STATE.completedTasks && APP_STATE.completedTasks.has(taskId)) {
+        return 'passed';
+      }
+      return 'pending';
+    }
+
+    function setFocusTaskStatus(taskId, status) {
+      if (!APP_STATE.taskStatuses) APP_STATE.taskStatuses = {};
+      APP_STATE.taskStatuses[taskId] = status;
+      if (status === 'passed') {
+        APP_STATE.completedTasks.add(taskId);
+      } else {
+        APP_STATE.completedTasks.delete(taskId);
+      }
+      saveAppState();
+    }
+
+    function calculateFocusScore() {
+      let earnedPoints = 0;
+      let totalPoints = 0;
+      TASKS_DATA.forEach(t => {
+        const pts = getTaskPoints(t);
+        totalPoints += pts;
+        if (getFocusTaskStatus(t.id) === 'passed') {
+          earnedPoints += pts;
+        }
+      });
+      return { earnedPoints, totalPoints };
+    }
+
+    function skipFocusTask(taskId) {
+      setFocusTaskStatus(taskId, 'skipped');
+      playTone(300, 'sine', 0.1, 0.08);
+      announceSR(`Zadanie ${taskId} zostało pominięte. Możesz do niego wrócić w dowolnej chwili.`);
+      showToast(`Zadanie ${taskId} pominięte na razie.`);
+      updateSingleFocusTaskCard(taskId);
+      updateDayHeaderProgress();
+    }
+
+    function unskipFocusTask(taskId) {
+      setFocusTaskStatus(taskId, 'pending');
+      playTone(400, 'sine', 0.1, 0.08);
+      announceSR(`Przywrócono zadanie ${taskId} do wykonania.`);
+      showToast(`Przywrócono zadanie ${taskId}.`);
+      updateSingleFocusTaskCard(taskId);
+      updateDayHeaderProgress();
+    }
+
+    function focusTaskVerifyInput(taskId) {
+      const input = document.getElementById(`focus-verify-input-${taskId}`);
+      if (input) {
+        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        input.focus();
+      }
+    }
+
+    function isUserFocusInEditor() {
+      const active = document.activeElement;
+      if (!active) return false;
+      const tag = active.tagName ? active.tagName.toLowerCase() : '';
+      if (tag === 'textarea' || tag === 'input') return true;
+      if (active.closest && active.closest('.task-card, #sandbox-code-input, #daily-notes-textarea')) return true;
+      return false;
+    }
+
+    function loadAppState() {
+      try {
+        const raw = localStorage.getItem('vibe_coding_state_v2');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed.completedTasks)) {
+            APP_STATE.completedTasks = new Set(parsed.completedTasks);
+          }
+          if (parsed.taskStatuses && typeof parsed.taskStatuses === 'object') {
+            APP_STATE.taskStatuses = { ...parsed.taskStatuses };
+          } else {
+            APP_STATE.taskStatuses = {};
+            APP_STATE.completedTasks.forEach(id => {
+              APP_STATE.taskStatuses[id] = 'passed';
+            });
+          }
+          // Synchronizacja dwustronna
+          APP_STATE.completedTasks.forEach(id => {
+            if (!APP_STATE.taskStatuses[id]) {
+              APP_STATE.taskStatuses[id] = 'passed';
+            }
+          });
+
+          if (typeof parsed.soundEnabled === 'boolean') APP_STATE.soundEnabled = parsed.soundEnabled;
+          if (typeof parsed.contrastHigh === 'boolean') APP_STATE.contrastHigh = parsed.contrastHigh;
+          if (parsed.fontSize) APP_STATE.fontSize = parsed.fontSize;
+          if (parsed.currentTheme) APP_STATE.currentTheme = parsed.currentTheme;
+          if (parsed.userProfile) APP_STATE.userProfile = parsed.userProfile;
+        }
+      } catch (e) {
+        console.warn("Błąd odczytu localStorage w oknie skupienia:", e);
+      }
+    }
+
+    function saveAppState() {
+      try {
+        const raw = localStorage.getItem('vibe_coding_state_v2');
+        let currentData = {};
+        if (raw) currentData = JSON.parse(raw);
+
+        currentData.completedTasks = Array.from(APP_STATE.completedTasks);
+        currentData.taskStatuses = APP_STATE.taskStatuses;
+        currentData.currentDay = CURRENT_DAY;
+        currentData.contrastHigh = APP_STATE.contrastHigh;
+        currentData.fontSize = APP_STATE.fontSize;
+        currentData.soundEnabled = APP_STATE.soundEnabled;
+        
+        localStorage.setItem('vibe_coding_state_v2', JSON.stringify(currentData));
+      } catch (e) {
+        console.warn("Błąd zapisu localStorage:", e);
+      }
+    }
+
+    function determineInitialDay() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const dayParam = urlParams.get('day');
+      if (dayParam) {
+        const parsed = parseInt(dayParam, 10);
+        if (!isNaN(parsed) && parsed >= 1 && parsed <= 34) {
+          return parsed;
+        }
+      }
+
+      try {
+        const raw = localStorage.getItem('vibe_coding_state_v2');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed.currentDay && parsed.currentDay >= 1 && parsed.currentDay <= 34) {
+            return parsed.currentDay;
+          }
+        }
+      } catch (e) {}
+
+      return 1;
+    }
+
+    function populateDaySelector() {
+      const select = document.getElementById('day-select');
+      if (!select) return;
+
+      select.innerHTML = '';
+      for (let d = 1; d <= 34; d++) {
+        const stageId = d <= 5 ? 1 : d <= 12 ? 2 : d <= 19 ? 3 : d <= 24 ? 4 : d <= 29 ? 5 : 6;
+        const opt = document.createElement('option');
+        opt.value = d;
+        opt.textContent = `Dzień ${d} (Etap ${stageId})`;
+        select.appendChild(opt);
+      }
+    }
+
+    function changeDay(newDay) {
+      if (newDay < 1 || newDay > 34) return;
+      CURRENT_DAY = newDay;
+
+      try {
+        const url = new URL(window.location);
+        url.searchParams.set('day', CURRENT_DAY);
+        window.history.replaceState({}, '', url);
+      } catch (e) {}
+
+      saveAppState();
+      renderDayView();
+
+      const mainHeading = document.getElementById('day-main-heading');
+      if (mainHeading) mainHeading.focus();
+
+      announceSR(`Przełączono na Dzień ${CURRENT_DAY}.`);
+    }
+
+    function updateDayHeaderProgress() {
+      const dayTasks = TASKS_DATA.filter(t => t.day === CURRENT_DAY);
+      const passedCount = dayTasks.filter(t => getFocusTaskStatus(t.id) === 'passed').length;
+      const totalCount = dayTasks.length;
+      const pct = totalCount > 0 ? Math.round((passedCount / totalCount) * 100) : 0;
+
+      let dayEarned = 0;
+      let dayTotal = 0;
+      dayTasks.forEach(t => {
+        const p = getTaskPoints(t);
+        dayTotal += p;
+        if (getFocusTaskStatus(t.id) === 'passed') dayEarned += p;
+      });
+
+      const dayProgressCount = document.getElementById('day-progress-count');
+      if (dayProgressCount) {
+        dayProgressCount.textContent = `${passedCount} / ${totalCount} zadań`;
+      }
+      const dayProgressPct = document.getElementById('day-progress-pct');
+      if (dayProgressPct) {
+        dayProgressPct.textContent = `(${pct}% • ${dayEarned}/${dayTotal} pkt)`;
+      }
+
+      const score = calculateFocusScore();
+      const globalPtsEl = document.getElementById('focus-header-points-count');
+      if (globalPtsEl) {
+        globalPtsEl.textContent = score.earnedPoints;
+      }
+
+      const quickLinks = document.getElementById('quick-task-links');
+      if (quickLinks) {
+        quickLinks.innerHTML = dayTasks.map((t, idx) => {
+          const st = getFocusTaskStatus(t.id);
+          const isDone = st === 'passed';
+          const isFail = st === 'failed';
+          const isSkip = st === 'skipped';
+          const colorClass = isDone ? 'bg-emerald-950/70 text-emerald-300 border border-emerald-600/50' :
+                             isFail ? 'bg-rose-950/70 text-rose-300 border border-rose-600/50' :
+                             isSkip ? 'bg-slate-800 text-slate-400 border border-slate-700' :
+                             'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700';
+          const badgeIcon = isDone ? '✓' : isFail ? '❌' : isSkip ? '⏳' : '#' + (idx + 1);
+          return `
+            <a href="#task-heading-${t.id}" class="touch-target px-2.5 py-1.5 rounded-lg text-xs font-bold transition inline-flex items-center gap-1.5 ${colorClass}">
+              <span>Zadanie ${t.id}</span>
+              <span role="img" aria-label="(${st})">${badgeIcon}</span>
+            </a>
+          `;
+        }).join('');
+      }
+    }
+
+    function renderFocusDailyEncouragementHtml(day) {
+      return `
+        <div class="mb-6 p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-indigo-950/80 via-purple-950/70 to-slate-900 border border-indigo-500/40 shadow-xl" role="region" aria-label="Wskazówki praktyczne do zadań dnia">
+          <div class="flex items-start gap-3 sm:gap-4">
+            <span class="text-3xl shrink-0" role="img" aria-label="(żarówka)">💡</span>
+            <div class="space-y-2 flex-grow">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <h3 class="text-sm sm:text-base font-black text-amber-300">
+                  Złota zasada Vibe Codingu: Przenieś każde z 3 zadań do codziennego życia!
+                </h3>
+                <span class="text-[11px] font-bold text-indigo-200 bg-indigo-900/60 border border-indigo-500/40 px-2.5 py-0.5 rounded-full">
+                  Dzień ${day} • Teoria w Praktyce
+                </span>
+              </div>
+              <p class="text-xs sm:text-sm text-slate-200 leading-relaxed">
+                Samo przeklejenie promptu w kursie to rozgrzewka. Prawdziwe mistrzostwo rodzi się wtedy, gdy po wykonaniu zadania spróbujesz ten sam mechanizm zastosować do swoich spraw:
+              </p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1 text-xs text-slate-300">
+                <div class="p-3 rounded-2xl bg-slate-900/80 border border-indigo-500/30 flex items-start gap-2.5 shadow-sm">
+                  <span class="text-xl shrink-0" role="img" aria-label="(biuro)">🏢</span>
+                  <div>
+                    <strong class="text-indigo-300 block mb-0.5 font-bold">W Twojej pracy zawodowej:</strong>
+                    <span class="leading-relaxed">Zautomatyzuj nudny e-mail, stwórz pomocniczy kalkulator dla zespołu, podsumuj długi raport lub przygotuj schemat oferty.</span>
+                  </div>
+                </div>
+                <div class="p-3 rounded-2xl bg-slate-900/80 border border-emerald-500/30 flex items-start gap-2.5 shadow-sm">
+                  <span class="text-xl shrink-0" role="img" aria-label="(dom)">🏡</span>
+                  <div>
+                    <strong class="text-emerald-300 block mb-0.5 font-bold">W Twoim życiu osobistym:</strong>
+                    <span class="leading-relaxed">Stwórz planer domowych wydatków, harmonogram treningów lub leków, listę pakowania na wakacje albo quiz dla rodziny.</span>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-2 p-2.5 rounded-xl bg-purple-950/60 border border-purple-500/40 text-purple-200 text-xs flex items-center gap-2 font-bold shadow-inner">
+                <span class="text-base shrink-0" role="img" aria-label="(notatnik)">📝</span>
+                <span>Koniecznie zapisuj rezultaty, linki i wnioski w notatkach pod każdym zadaniem – budujesz w ten sposób swoje bezcenne portfolio!</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderDayView() {
+      const select = document.getElementById('day-select');
+      if (select) select.value = CURRENT_DAY;
+
+      const btnPrev = document.getElementById('btn-prev-day');
+      const btnNext = document.getElementById('btn-next-day');
+      if (btnPrev) btnPrev.disabled = CURRENT_DAY <= 1;
+      if (btnNext) btnNext.disabled = CURRENT_DAY >= 34;
+
+      const bBottomPrev = document.getElementById('btn-bottom-prev-day');
+      const bBottomNext = document.getElementById('btn-bottom-next-day');
+      const bBottomPrevLbl = document.getElementById('bottom-prev-day-label');
+      const bBottomNextLbl = document.getElementById('bottom-next-day-label');
+      const bBottomCurLbl = document.getElementById('bottom-current-day-label');
+
+      if (bBottomPrev) bBottomPrev.disabled = CURRENT_DAY <= 1;
+      if (bBottomNext) bBottomNext.disabled = CURRENT_DAY >= 34;
+      if (bBottomPrevLbl) bBottomPrevLbl.textContent = CURRENT_DAY > 1 ? `Poprzedni dzień (Dzień ${CURRENT_DAY - 1})` : 'Brak wcześniejszego';
+      if (bBottomNextLbl) bBottomNextLbl.textContent = CURRENT_DAY < 34 ? `Następny dzień (Dzień ${CURRENT_DAY + 1})` : 'Koniec kursu (Dzień 34)';
+      if (bBottomCurLbl) bBottomCurLbl.textContent = `Dzień ${CURRENT_DAY} z 34`;
+
+      const stageObj = STAGES.find(s => {
+        if (CURRENT_DAY <= 5) return s.id === 1;
+        if (CURRENT_DAY <= 12) return s.id === 2;
+        if (CURRENT_DAY <= 19) return s.id === 3;
+        if (CURRENT_DAY <= 24) return s.id === 4;
+        if (CURRENT_DAY <= 29) return s.id === 5;
+        return s.id === 6;
+      }) || STAGES[0];
+
+      document.getElementById('day-stage-badge').textContent = stageObj.name;
+      document.getElementById('day-main-heading').textContent = `Dzień ${CURRENT_DAY} z 34 • ${stageObj.name}`;
+
+      const dayTasks = TASKS_DATA.filter(t => t.day === CURRENT_DAY);
+
+      updateDayHeaderProgress();
+
+      const container = document.getElementById('tasks-list-container');
+      if (container) {
+        const encouragement = renderFocusDailyEncouragementHtml(CURRENT_DAY);
+        container.innerHTML = encouragement + dayTasks.map(task => renderTaskBox(task)).join('');
+      }
+
+      loadDailyNotes();
+      document.getElementById('notes-day-label').textContent = CURRENT_DAY;
+      initFocusStudio(CURRENT_DAY);
+    }
+
+    function isFocusTaskCode(task) {
+      if (task.isCode !== undefined) return task.isCode;
+      const p = (task.prompt || '').toLowerCase();
+      return p.includes('plik html') || p.includes('kod html') || p.includes('html, css');
+    }
+
+    function renderFocusTaskHeaderStatusHtml(status) {
+      if (status === 'passed') {
+        return '<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"><span>Wykonane poprawnie</span> <span role="img" aria-label="(zaliczone)">✓</span></span>';
+      }
+      if (status === 'failed') {
+        return '<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40"><span>Wymaga poprawy</span> <span role="img" aria-label="(błąd)">❌</span></span>';
+      }
+      if (status === 'skipped') {
+        return '<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-slate-700/50 text-slate-300 border border-slate-600"><span>Pominięte na razie</span> <span role="img" aria-label="(odłożone)">⏳</span></span>';
+      }
+      return '<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-300/80 border border-amber-500/20"><span>Do wykonania</span> <span role="img" aria-label="(oczekuje)">⏳</span></span>';
+    }
+
+    function renderFocusTaskBottomStatusHtml(task, status) {
+      const pts = getTaskPoints(task);
+      const isCode = isFocusTaskCode(task);
+
+      if (status === 'passed') {
+        return `
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 w-full bg-emerald-950/40 p-3.5 rounded-2xl border border-emerald-500/40">
+            <div class="flex items-center gap-2 text-xs sm:text-sm font-bold text-emerald-300">
+              <span class="text-lg" role="img" aria-label="(sukces)">🎉</span>
+              <div>
+                <span>Zadanie zaliczone poprawnie!</span>
+                <span class="text-xs text-emerald-200/80 block sm:inline sm:ml-2 font-normal">(Zdobyto: <strong>+${pts} pkt</strong>)</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <button type="button" onclick="focusTaskVerifyInput(${task.id})" class="touch-target text-xs px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1">
+                <span>Sprawdź ponownie / popraw kod</span>
+                <span role="img" aria-label="(odśwież)">🔄</span>
+              </button>
+              ${isCode ? `
+              <button type="button" onclick="sendPromptToSandbox(${task.id})" class="touch-target text-xs px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition flex items-center gap-1.5 shadow">
+                <span>Piaskownica</span>
+                <span role="img" aria-label="(laboratorium)">🧪</span>
+              </button>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      }
+
+      if (status === 'failed') {
+        return `
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 w-full bg-rose-950/40 p-3.5 rounded-2xl border border-rose-500/40">
+            <div class="flex items-center gap-2 text-xs sm:text-sm font-bold text-rose-300">
+              <span class="text-lg" role="img" aria-label="(ostrzeżenie)">❌</span>
+              <div>
+                <span>To zadanie wymaga poprawy</span>
+                <span class="text-xs text-rose-200/80 block sm:inline sm:ml-2 font-normal">(0 / ${pts} pkt – sprawdź wskazówki poniżej)</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <button type="button" onclick="focusTaskVerifyInput(${task.id})" class="touch-target text-xs px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition flex items-center gap-1 shadow">
+                <span>Popraw i sprawdź ponownie</span>
+                <span role="img" aria-label="(lupa)">🔍</span>
+              </button>
+              <button type="button" onclick="skipFocusTask(${task.id})" class="touch-target text-xs px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition flex items-center gap-1">
+                <span>Pomiń na razie</span>
+                <span role="img" aria-label="(pomiń)">⏳</span>
+              </button>
+            </div>
+          </div>
+        `;
+      }
+
+      if (status === 'skipped') {
+        return `
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 w-full bg-slate-950/60 p-3.5 rounded-2xl border border-slate-700">
+            <div class="flex items-center gap-2 text-xs sm:text-sm font-medium text-slate-300">
+              <span class="text-lg" role="img" aria-label="(zegar)">⏳</span>
+              <div>
+                <span>Zadanie pominięte na razie</span>
+                <span class="text-xs text-slate-400 block sm:inline sm:ml-2 font-normal">(Możesz wrócić do niego w każdej chwili i zdobyć ${pts} pkt)</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <button type="button" onclick="unskipFocusTask(${task.id})" class="touch-target text-xs px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition flex items-center gap-1 shadow">
+                <span>Wróć do zadania</span>
+                <span role="img" aria-label="(przywróć)">🔄</span>
+              </button>
+            </div>
+          </div>
+        `;
+      }
+
+      // 'pending'
+      return `
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 w-full">
+          <div class="text-xs text-slate-400 flex items-center gap-2">
+            <span role="img" aria-label="(wskazówka)" class="text-amber-400">💡</span>
+            <span>Aby zaliczyć zadanie i zdobyć <strong>${pts} pkt</strong>, wklej odpowiedź z AI do sprawdzacza powyżej.</span>
+          </div>
+          <div class="flex items-center gap-2 self-end sm:self-auto">
+            <button type="button" onclick="skipFocusTask(${task.id})" class="touch-target text-xs px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-slate-200 border border-slate-700 transition flex items-center gap-1">
+              <span>Pomiń na razie</span>
+              <span role="img" aria-label="(pomiń)">⏳</span>
+            </button>
+            ${isCode ? `
+            <button type="button" onclick="sendPromptToSandbox(${task.id})" class="touch-target text-xs px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition flex items-center gap-1.5 shadow">
+              <span>Piaskownica</span>
+              <span role="img" aria-label="(laboratorium)">🧪</span>
+            </button>
+            ` : `
+            <span class="text-xs text-slate-400 px-3 py-1.5 rounded-xl bg-slate-950 border border-slate-800 flex items-center gap-1 select-none">
+              <span>Prompting</span>
+              <span role="img" aria-label="(dymek)">💬</span>
+            </span>
+            `}
+          </div>
+        </div>
+      `;
+    }
+
+    function updateSingleFocusTaskCard(taskId) {
+      const task = TASKS_DATA.find(t => t.id === taskId);
+      const card = document.getElementById(`task-box-${taskId}`);
+      if (!task || !card) return;
+
+      const status = getFocusTaskStatus(taskId);
+      card.className = `task-card p-5 sm:p-6 md:p-8 rounded-3xl border transition-all duration-200 shadow-xl relative ${
+        status === 'passed' ? 'is-completed border-emerald-500/60 bg-emerald-950/20' :
+        status === 'failed' ? 'border-rose-500/60 bg-rose-950/20' :
+        status === 'skipped' ? 'border-slate-700/60 bg-slate-900/60 opacity-80' :
+        'border-slate-800 bg-slate-900/90'
+      }`;
+
+      const headerBadge = document.getElementById(`focus-task-status-badge-${taskId}`);
+      if (headerBadge) {
+        headerBadge.innerHTML = renderFocusTaskHeaderStatusHtml(status);
+      }
+
+      const bottomBar = document.getElementById(`focus-task-bottom-bar-${taskId}`);
+      if (bottomBar) {
+        bottomBar.innerHTML = renderFocusTaskBottomStatusHtml(task, status);
+      }
+    }
+
+    function renderTaskBox(task) {
+      const status = getFocusTaskStatus(task.id);
+      const isDone = status === 'passed';
+      const isCode = isFocusTaskCode(task);
+      const pts = getTaskPoints(task);
+      const taskNote = localStorage.getItem(`vibe_coding_task_notes_${task.id}`) || '';
+
+      return `
+        <article class="task-card p-5 sm:p-6 md:p-8 rounded-3xl border transition-all duration-200 shadow-xl relative ${
+          status === 'passed' ? 'is-completed border-emerald-500/60 bg-emerald-950/20' :
+          status === 'failed' ? 'border-rose-500/60 bg-rose-950/20' :
+          status === 'skipped' ? 'border-slate-700/60 bg-slate-900/60 opacity-80' :
+          'border-slate-800 bg-slate-900/90'
+        }" id="task-box-${task.id}" aria-labelledby="task-heading-${task.id}">
+          
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-[11px] sm:text-xs font-black uppercase tracking-wider bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                Zadanie ${task.id} z 100 • Dzień ${task.day}
+              </span>
+              <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/10 text-amber-300 border border-amber-500/20">
+                <span>⭐ Wartość: ${pts} pkt</span>
+              </span>
+              <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold ${isCode ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' : 'bg-sky-500/20 text-sky-300 border border-sky-500/30'}">
+                <span>${isCode ? 'Aplikacja / Kod HTML' : 'Rozmowa z AI / Prompting'}</span>
+                <span role="img" aria-label="${isCode ? '(ikona aplikacji)' : '(ikona rozmowy)'}">${isCode ? '💻' : '💬'}</span>
+              </span>
+            </div>
+            <div id="focus-task-status-badge-${task.id}">
+              ${renderFocusTaskHeaderStatusHtml(status)}
+            </div>
+          </div>
+
+          <h2 id="task-heading-${task.id}" class="text-lg sm:text-xl md:text-2xl font-black text-white mb-4 tracking-tight" tabindex="-1">
+            Zadanie ${task.id}: ${task.title}
+          </h2>
+
+          <div class="mb-5">
+            <h3 id="goal-heading-${task.id}" class="text-xs sm:text-sm font-extrabold text-indigo-300 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+              <span>Cel i instrukcja zadania:</span>
+              <span role="img" aria-label="(ikona celu)">🎯</span>
+            </h3>
+            <div class="p-4 rounded-2xl bg-slate-950/60 border border-slate-800 space-y-2 text-xs md:text-sm text-slate-200 leading-relaxed">
+              <p><strong class="text-white">Cel ćwiczenia:</strong> ${task.goal}</p>
+              <p class="text-slate-300">${task.desc}</p>
+            </div>
+          </div>
+
+          <div class="mb-5">
+            <div class="flex flex-col sm:flex-row sm:flex-wrap sm:items-center justify-between gap-2.5 mb-2.5">
+              <h3 id="prompt-heading-${task.id}" class="text-xs sm:text-sm font-extrabold text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
+                <span>Gotowy prompt do wklejenia do AI:</span>
+                <span role="img" aria-label="(ikona schowka)">📋</span>
+              </h3>
+              <div class="grid grid-cols-2 sm:flex items-center gap-2">
+                <button type="button" class="touch-target text-xs px-3.5 py-2 sm:py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold transition flex items-center justify-center gap-1.5 shadow" onclick="copyPromptText(${task.id})" id="copy-btn-${task.id}">
+                  <span>Kopiuj Prompt<span class="sr-only"> zadania ${task.id}</span></span>
+                  <span role="img" aria-label="(ikona schowka)">📋</span>
+                </button>
+                <button type="button" class="touch-target text-xs px-3 py-2 sm:py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center justify-center gap-1.5" onclick="copyAndOpenGemini(${task.id})">
+                  <span>Otwórz w Gemini</span>
+                  <span role="img" aria-label="(nowa karta)">&nearr;</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="p-4 rounded-2xl border border-slate-700 bg-slate-950/90 shadow-inner">
+              <pre id="prompt-text-${task.id}" class="prompt-code font-mono text-xs md:text-sm text-slate-100 whitespace-pre-wrap select-all leading-relaxed">${escapeHtml(task.prompt)}</pre>
+            </div>
+          </div>
+
+          <div class="mb-6">
+            <h3 id="result-heading-${task.id}" class="text-xs sm:text-sm font-extrabold text-emerald-300 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+              <span>Oczekiwany rezultat i wskazówka:</span>
+              <span role="img" aria-label="(ikona żarówki)">💡</span>
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs md:text-sm">
+              <div class="p-4 rounded-2xl bg-emerald-950/20 border border-emerald-800/40">
+                <strong class="text-emerald-300 mb-1 flex items-center gap-1.5">
+                  <span>Oczekiwany rezultat:</span>
+                  <span role="img" aria-label="(ikona potwierdzenia)">✓</span>
+                </strong>
+                <span class="text-slate-200 leading-relaxed">${task.expected}</span>
+              </div>
+              <div class="p-4 rounded-2xl bg-indigo-950/20 border border-indigo-800/40">
+                <strong class="text-indigo-300 mb-1 flex items-center gap-1.5">
+                  <span>Wskazówka z życia codziennego:</span>
+                  <span role="img" aria-label="(ikona żarówki)">💡</span>
+                </strong>
+                <span class="text-slate-200 leading-relaxed">${task.tip}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- PODSEKCJA WERYFIKACJI POPRAWNOŚCI (SPRAWDZACZ) -->
+          <div class="my-5 p-4 sm:p-5 rounded-2xl bg-slate-950/90 border border-slate-700/80 shadow-md">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+              <label for="focus-verify-input-${task.id}" class="text-xs uppercase tracking-wider font-extrabold ${isDone ? 'text-emerald-400' : 'text-sky-300'} flex items-center gap-1.5">
+                <span>Sprawdź poprawność wykonania (Weryfikator AI):</span>
+                <span role="img" aria-label="(ikona lupy)">🔍</span>
+              </label>
+              <span class="text-[11px] text-slate-400 font-medium">
+                ${isCode ? 'Wklej kod od AI' : 'Wklej odpowiedź tekstową od AI'}
+              </span>
+            </div>
+            <p class="text-xs text-slate-300 mb-2.5 leading-relaxed">
+              ${isCode 
+                ? 'Wklej tutaj kod HTML wygenerowany przez sztuczną inteligencję, aby sprawdzić poprawność:' 
+                : 'Skopiuj to, co odpisała Ci sztuczna inteligencja (np. w darmowym ChatGPT lub Gemini), i wklej poniżej, aby weryfikator ocenił jej pracę:'}
+            </p>
+            <textarea id="focus-verify-input-${task.id}" rows="3" placeholder="${isCode ? 'Wklej tutaj wygenerowany kod strony (np. <!DOCTYPE html>...)...' : 'Wklej tutaj to, co ODPISAŁA Ci sztuczna inteligencja (nie wpisuj własnego tekstu)...'}" class="w-full p-3 rounded-xl bg-slate-900 border border-slate-700 text-xs font-mono text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-400"></textarea>
+            
+            <div class="flex flex-wrap items-center gap-2 mt-2.5">
+              <button type="button" onclick="verifyFocusTaskAnswer(${task.id})" class="touch-target px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition flex items-center justify-center gap-1.5 shadow">
+                <span>Sprawdź odpowiedź od AI</span>
+                <span role="img" aria-label="(ikona sprawdzania)">✓</span>
+              </button>
+              <button type="button" onclick="toggleFocusSampleSolution(${task.id})" id="focus-sample-btn-${task.id}" class="touch-target px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-semibold transition flex items-center justify-center gap-1.5">
+                <span>Pokaż wzorcową odpowiedź</span>
+                <span role="img" aria-label="(ikona oka)">👁️</span>
+              </button>
+            </div>
+
+            <div id="focus-verify-feedback-${task.id}" class="hidden" role="status" aria-live="polite"></div>
+
+            <div id="focus-sample-solution-${task.id}" class="hidden mt-3 p-3.5 rounded-xl bg-slate-900 border border-indigo-500/40 text-xs text-slate-200">
+              <strong class="text-indigo-300 font-bold block mb-1.5 flex items-center gap-1.5">
+                <span>Wzorcowy przykład odpowiedzi od AI:</span>
+                <span role="img" aria-label="(ikona gwiazdki)">⭐</span>
+              </strong>
+              <pre class="font-mono text-xs text-slate-300 whitespace-pre-wrap select-all leading-relaxed">${escapeHtml(task.sampleSolution || task.expected)}</pre>
+            </div>
+          </div>
+
+          ${(isFocusTaskCode(task) || (task.sampleSolution && task.sampleSolution.includes('<html'))) ? (() => {
+            const enhData = (typeof getTaskEnhancementPresets === 'function') ? getTaskEnhancementPresets(task.id) : null;
+            const presetKeys = enhData && enhData.presets ? Object.keys(enhData.presets) : [];
+            const previewNames = presetKeys.slice(0, 3).map(k => enhData.presets[k].title.replace(/^[^\w\s\u00C0-\u024F]+/u, '').trim()).join(', ') + '...';
+            return `
+          <!-- BANER ROZWOJU PROJEKTU: DEDYKOWANE ULEPSZENIA DLA TEGO ZADANIA -->
+          <div class="my-4 p-4 rounded-2xl bg-amber-950/40 border border-amber-500/50 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow">
+            <div>
+              <span class="text-xs font-black uppercase tracking-wider text-amber-300 block mb-0.5 flex items-center gap-1.5">
+                <span>✨ Chcesz ulepszyć tę stronę? (${previewNames || 'Nowe funkcje, dźwięki, pamięć'})</span>
+                <span role="img" aria-label="(gwiazdki)">⭐</span>
+              </span>
+              <p class="text-xs text-slate-200 leading-relaxed">
+                W Studiu Eksperymentów możesz zaznaczyć <strong>pola wyboru (checkboxy)</strong> przygotowane specjalnie dla <strong>Zadania ${task.id}</strong>!
+              </p>
+            </div>
+            <button type="button" onclick="focusStudioInDayFocus(${task.id})" class="touch-target px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition flex items-center justify-center gap-1.5 shrink-0 shadow cursor-pointer">
+              <span>Otwórz ulepszenia dla Zadania ${task.id}</span>
+              <span role="img" aria-label="(strzałka w dół)">↓</span>
+            </button>
+          </div>
+          `;
+          })() : ''}
+
+          <!-- PODSEKCJA TWOJE WŁASNE NOTATKI DO ZADANIA -->
+          <div class="my-4 p-4 rounded-2xl bg-slate-950/90 border border-purple-500/40 shadow-inner">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+              <label for="focus-task-note-${task.id}" class="text-xs uppercase tracking-wider font-extrabold text-purple-300 flex items-center gap-1.5 cursor-pointer">
+                <span>Twoja notatka i wnioski do Zadania ${task.id}:</span>
+                <span role="img" aria-label="(ikona notatnika)">📝</span>
+              </label>
+              <div class="flex items-center gap-2">
+                <span id="focus-task-note-status-${task.id}" class="text-[11px] text-emerald-400 font-semibold" aria-live="polite"></span>
+                <button type="button" onclick="clearFocusTaskNote(${task.id})" class="text-[11px] text-slate-400 hover:text-rose-300 underline font-semibold cursor-pointer">
+                  Wyczyść notatkę
+                </button>
+              </div>
+            </div>
+
+            <!-- ZACHĘTA DO PRZEĆWICZENIA W PRACY I DOMU ORAZ ZAPISYWANIA WYNIKÓW -->
+            <div class="mb-3 p-3 rounded-xl bg-purple-950/40 border border-purple-500/30 text-xs text-purple-200 flex items-start gap-2.5">
+              <span class="text-lg shrink-0" role="img" aria-label="(rakieta)">🚀</span>
+              <div class="space-y-1">
+                <strong class="text-amber-300 block font-bold">Przećwicz to w codziennym życiu (praca i dom) & zanotuj rezultat:</strong>
+                <p class="text-slate-300 leading-relaxed text-[11px] sm:text-xs">
+                  Wykorzystaj ten prompt do realnej sprawy: w <strong>pracy</strong> (np. ułatwienie raportu, formularz, szablon maila) lub w <strong>życiu osobistym</strong> (np. lista zadań, kalkulator domowy, hobby).
+                </p>
+                <p class="text-purple-300 font-semibold text-[11px] sm:text-xs flex items-center gap-1">
+                  <span role="img" aria-label="(ołówek)">✏️</span>
+                  <span>Wklej poniżej swoje wyniki, wnioski lub linki – Twoje notatki zostaną bezpiecznie zapisane i możesz je w każdej chwili pobrać!</span>
+                </p>
+              </div>
+            </div>
+
+            <textarea id="focus-task-note-${task.id}" rows="3"
+              placeholder="Wklej wyniki swoich prób w pracy/domu, wnioski, pytania do AI lub linki do stworzonych stron..."
+              oninput="handleFocusTaskNoteInput(${task.id}, this.value)"
+              class="w-full p-3 rounded-xl bg-slate-900 border border-slate-700 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-400 font-sans leading-relaxed">${escapeHtml(taskNote)}</textarea>
+          </div>
+
+          <div id="focus-task-bottom-bar-${task.id}" class="pt-4 border-t border-slate-800 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center justify-between gap-3">
+            ${renderFocusTaskBottomStatusHtml(task, status)}
+          </div>
+
+        </article>
+      `;
+    }
+
+    function verifyFocusTaskAnswer(taskId) {
+      const task = TASKS_DATA.find(t => t.id === taskId);
+      if (!task) return;
+
+      const input = document.getElementById(`focus-verify-input-${taskId}`);
+      const feedback = document.getElementById(`focus-verify-feedback-${taskId}`);
+      if (!input || !feedback) return;
+
+      const val = input.value.trim();
+      if (!val) {
+        feedback.className = "mt-3 p-3.5 rounded-xl bg-amber-950/80 border border-amber-500/70 text-amber-200 text-xs flex items-start gap-2 shadow";
+        feedback.innerHTML = `
+          <span role="img" aria-label="(uwaga)" class="text-base shrink-0">⚠️</span>
+          <div>
+            <strong class="text-amber-300 block mb-0.5">Wklej najpierw odpowiedź od sztucznej inteligencji!</strong>
+            Skopiuj wynik z ChatGPT lub Gemini i wklej w powyższe pole, a następnie kliknij 'Sprawdź odpowiedź od AI'.
+          </div>
+        `;
+        feedback.classList.remove('hidden');
+        feedback.setAttribute('tabindex', '-1');
+        feedback.focus({ preventScroll: false });
+        showToast("Wklej najpierw odpowiedź od AI!");
+        announceSR("Wklej najpierw odpowiedź od sztucznej inteligencji.");
+        return;
+      }
+
+      const isCode = isFocusTaskCode(task);
+      const lower = val.toLowerCase();
+
+      // 1. Wykrywanie bezpośrednich komentarzy użytkownika / odmowy
+      const userCommentTriggers = [
+        /nie mam ochoty/i,
+        /nie chce(?:sz)? mi si[eę]/i,
+        /nie ch(?:c[eę]|ia[łl]em|ia[łl]am)/i,
+        /nie b[eę]d[eę]/i,
+        /nie mam zamiaru/i,
+        /nie odpowiem/i,
+        /odpowiada[cć] (?:ci|tobie|na )/i,
+        /spadaj/i,
+        /odczep si[eę]/i,
+        /daj (?:mi )?spok[oó]j/i,
+        /bez sensu/i,
+        /g[lł]upi[ea]/i,
+        /sam sobie/i,
+        /nie wiem/i,
+        /nie rozumiem nic/i,
+        /co to ma by[cć]/i,
+        /nie podoba mi si[eę]/i,
+        /żadne pytania/i,
+        /zadne pytania/i
+      ];
+      if (userCommentTriggers.some(rgx => rgx.test(lower))) {
+        setFocusTaskStatus(task.id, 'failed');
+        feedback.className = "mt-3 p-3.5 rounded-xl bg-rose-950/85 border border-rose-500/70 text-rose-200 text-xs flex items-start gap-2.5 shadow-lg";
+        feedback.innerHTML = `
+          <span role="img" aria-label="(komentarz)" class="text-lg shrink-0">💬</span>
+          <div>
+            <strong class="text-rose-300 font-bold block mb-1 text-sm">To wygląda na Twój własny komentarz, a nie odpowiedź od AI!</strong>
+            <p class="leading-relaxed text-slate-200 mb-2">W to pole nie wpisujemy własnych odpowiedzi, przemyśleń ani uwag do kursu. Zadanie polega na tym, by skopiować prompt po polsku do darmowego ChatGPT lub Gemini, a następnie wkleić tutaj to, co ODPISAŁA Ci sztuczna inteligencja.</p>
+            <button type="button" onclick="toggleFocusSampleSolution(${task.id})" class="text-[11px] text-rose-200 hover:text-white underline font-semibold">
+              Kliknij tutaj, aby podejrzeć przykładową poprawną odpowiedź od AI
+            </button>
+          </div>
+        `;
+        feedback.classList.remove('hidden');
+        feedback.setAttribute('tabindex', '-1');
+        feedback.focus({ preventScroll: false });
+        updateSingleFocusTaskCard(task.id);
+        updateDayHeaderProgress();
+        playTone(220, 'sawtooth', 0.25, 0.08);
+        announceSR("Uwaga: To wygląda na Twój własny komentarz, a nie odpowiedź z AI.");
+        return;
+      }
+
+      let status = 'off_topic';
+      let title = '';
+      let msg = '';
+
+      if (isCode) {
+        const hasTags = lower.includes('<html') || lower.includes('<body') || lower.includes('<div') || lower.includes('<button') || lower.includes('<script') || lower.includes('<!doctype') || lower.includes('<style');
+        if (hasTags) {
+          status = 'success';
+          title = "Znakomicie! Kod jest kompletny i poprawny! 🎉";
+          msg = "Twój kod ma poprawną strukturę strony internetowej! Możesz teraz kliknąć przycisk 'Przetestuj kod w piaskownicy', aby zobaczyć aplikację w akcji.";
+        } else {
+          status = 'off_topic';
+          title = "Wklejony tekst nie jest kodem strony WWW!";
+          msg = "W tym zadaniu sztuczna inteligencja miała wygenerować kod strony (zaczynający się od &lt;!DOCTYPE html&gt; lub zawierający znaczniki HTML). Upewnij się, że skopiowałeś cały wygenerowany przez AI kod.";
+        }
+      } else {
+        if (val.length < 25) {
+          status = 'too_short';
+          title = "Odpowiedź jest zbyt krótka";
+          msg = "Wklejona wypowiedź ma zaledwie kilka słów. Skopiuj pełną odpowiedź od sztucznej inteligencji.";
+        } else if (task.id === 4) {
+          if (!val.includes('?')) {
+            status = 'off_topic';
+            title = "Brak pytań uściślających od AI";
+            msg = "Celem tego zadania było zmuszenie sztucznej inteligencji do zadania Ci pytań uściślających (zamiast pisania kodu na oślep). Wklejona odpowiedź nie zawiera ani jednego znaku zapytania (?). Sprawdź, czy wkleiłeś do AI pełny prompt z zadania.";
+          } else {
+            status = 'success';
+            title = "Świetnie! AI zachowało się jak idealny kelner! 🎉";
+            msg = "Sztuczna inteligencja powstrzymała się przed pochopnym kodowaniem i zadała pytania uściślające. Dokładnie o to chodziło w tej lekcji!";
+          }
+        } else if (task.checkKeywords && task.checkKeywords.length > 0) {
+          const matched = task.checkKeywords.filter(k => lower.includes(k.toLowerCase()));
+          if (matched.length >= 2 || (matched.length >= 1 && val.length > 90)) {
+            status = 'success';
+            title = "Znakomicie! Zadanie wykonane poprawnie! 🎉";
+            msg = "Sztuczna inteligencja poprawnie zrozumiała Twoje polecenie! Odpowiedź zawiera kluczowe punkty i jest w pełni poprawna.";
+          } else if (matched.length === 1 && val.length >= 45) {
+            status = 'near';
+            title = "Jesteś na dobrej drodze! Wskazówka:";
+            msg = `Odpowiedź od AI zawiera część wymaganych informacji, ale brakuje w niej niektórych elementów. Wskazówka: ${task.expected}`;
+          } else {
+            status = 'off_topic';
+            title = "Ta odpowiedź nie pasuje do tego zadania";
+            msg = `Wklejona treść nie zawiera kluczowych elementów oczekiwanych w tym ćwiczeniu. Upewnij się, że skopiowałeś całą odpowiedź z ChatGPT/Gemini wygenerowaną na podstawie promptu z tego zadania.`;
+          }
+        } else if (val.length >= 60) {
+          status = 'success';
+          title = "Znakomicie! Zadanie zaliczone! 🎉";
+          msg = "Odpowiedź od sztucznej inteligencji została pomyślnie sprawdzona i spełnia kryteria zadania!";
+        } else {
+          status = 'off_topic';
+          title = "Ta odpowiedź nie pasuje do zadania";
+          msg = "Odpowiedź jest zbyt ogólna lub niekompletna. Upewnij się, że AI przygotowało pełną odpowiedź na zadany prompt.";
+        }
+      }
+
+      const pts = getTaskPoints(task);
+
+      if (status === 'success') {
+        setFocusTaskStatus(task.id, 'passed');
+        feedback.className = "mt-3 p-3.5 rounded-xl bg-emerald-950/80 border border-emerald-500/70 text-emerald-200 text-xs flex items-start gap-2 shadow-lg";
+        feedback.innerHTML = `
+          <span role="img" aria-label="(sukces)" class="text-lg shrink-0">🟢</span>
+          <div>
+            <strong class="text-emerald-300 font-bold text-sm block mb-1">${title}</strong>
+            <p class="leading-relaxed text-slate-200 mb-2">${msg}</p>
+            <span class="inline-flex items-center gap-1 font-bold text-emerald-300 bg-emerald-900/60 px-2.5 py-1 rounded-lg border border-emerald-500/40">
+              <span>Zadanie ${task.id} zaliczone poprawnie! (+${pts} pkt)</span>
+              <span role="img" aria-label="(potwierdzenie)">✓</span>
+            </span>
+          </div>
+        `;
+        feedback.classList.remove('hidden');
+        feedback.setAttribute('tabindex', '-1');
+        feedback.focus({ preventScroll: false });
+
+        updateSingleFocusTaskCard(task.id);
+        updateDayHeaderProgress();
+        playSuccessChime();
+        if (typeof confetti === 'function') {
+          confetti({ particleCount: 70, spread: 60, origin: { y: 0.7 } });
+        }
+        showToast(`Zadanie ${task.id} sprawdzone pomyślnie (+${pts} pkt)!`);
+        announceSR(`Zadanie ${task.id} wykonane poprawnie! Zdobywasz ${pts} punktów.`);
+      } else if (status === 'near') {
+        setFocusTaskStatus(task.id, 'failed');
+        feedback.className = "mt-3 p-3.5 rounded-xl bg-amber-950/80 border border-amber-500/70 text-amber-200 text-xs flex items-start gap-2 shadow-lg";
+        feedback.innerHTML = `
+          <span role="img" aria-label="(wskazówka)" class="text-lg shrink-0">🟡</span>
+          <div>
+            <strong class="text-amber-300 font-bold block mb-1">${title}</strong>
+            <p class="leading-relaxed text-slate-200 mb-2">${msg}</p>
+            <button type="button" onclick="toggleFocusSampleSolution(${task.id})" class="text-[11px] text-amber-200 hover:text-white underline font-semibold">
+              Kliknij tutaj, aby podejrzeć wzorcową odpowiedź
+            </button>
+          </div>
+        `;
+        feedback.classList.remove('hidden');
+        feedback.setAttribute('tabindex', '-1');
+        feedback.focus({ preventScroll: false });
+        updateSingleFocusTaskCard(task.id);
+        updateDayHeaderProgress();
+        playTone(330, 'triangle', 0.15, 0.08);
+        announceSR(`Zadanie ${task.id} wymaga poprawy. Jesteś blisko celu.`);
+      } else {
+        setFocusTaskStatus(task.id, 'failed');
+        feedback.className = "mt-3 p-3.5 rounded-xl bg-rose-950/85 border border-rose-500/70 text-rose-200 text-xs flex items-start gap-2.5 shadow-lg";
+        feedback.innerHTML = `
+          <span role="img" aria-label="(nie na temat)" class="text-lg shrink-0">🔴</span>
+          <div>
+            <strong class="text-rose-300 font-bold block mb-1 text-sm">${title}</strong>
+            <p class="leading-relaxed text-slate-200 mb-2">${msg}</p>
+            <button type="button" onclick="toggleFocusSampleSolution(${task.id})" class="text-[11px] text-rose-200 hover:text-white underline font-semibold">
+              Kliknij tutaj, aby podejrzeć przykładową poprawną odpowiedź od AI
+            </button>
+          </div>
+        `;
+        feedback.classList.remove('hidden');
+        feedback.setAttribute('tabindex', '-1');
+        feedback.focus({ preventScroll: false });
+        updateSingleFocusTaskCard(task.id);
+        updateDayHeaderProgress();
+        playTone(220, 'sawtooth', 0.25, 0.08);
+        announceSR(`Zadanie ${task.id} wymaga poprawy. Odpowiedź nie pasuje do zadania.`);
+      }
+    }
+
+    function toggleFocusSampleSolution(taskId) {
+      const box = document.getElementById(`focus-sample-solution-${taskId}`);
+      const btn = document.getElementById(`focus-sample-btn-${taskId}`);
+      if (!box) return;
+
+      const isHidden = box.classList.contains('hidden');
+      if (isHidden) {
+        box.classList.remove('hidden');
+        if (btn) btn.innerHTML = '<span>Schowaj wzorzec</span> <span role="img" aria-label="(zwiń)">▲</span>';
+      } else {
+        box.classList.add('hidden');
+        if (btn) btn.innerHTML = '<span>Pokaż wzorcową odpowiedź</span> <span role="img" aria-label="(rozwiń)">👁️</span>';
+      }
+      playTone(400, 'sine', 0.05, 0.05);
+    }
+
+    function escapeHtml(str) {
+      return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function copyPromptText(taskId) {
+      const task = TASKS_DATA.find(t => t.id === taskId);
+      if (!task) return;
+
+      const onSuccess = () => {
+        const btn = document.getElementById(`copy-btn-${taskId}`);
+        if (btn) {
+          btn.innerHTML = '<span>Skopiowano!</span> <span role="img" aria-label="(ikona potwierdzenia)">✓</span>';
+          btn.classList.add('bg-emerald-500', 'text-white');
+          setTimeout(() => {
+            btn.innerHTML = `<span>Kopiuj Prompt<span class="sr-only"> zadania ${taskId}</span></span> <span role="img" aria-label="(ikona schowka)">📋</span>`;
+            btn.classList.remove('bg-emerald-500', 'text-white');
+          }, 2000);
+        }
+        playTone(660, 'sine', 0.1, 0.08);
+        showToast(`Skopiowano prompt do Zadania ${taskId}!`);
+        announceSR(`Prompt do zadania ${taskId} został skopiowany do schowka.`);
+      };
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(task.prompt).then(onSuccess).catch(() => fallbackCopy(task.prompt, onSuccess));
+      } else {
+        fallbackCopy(task.prompt, onSuccess);
+      }
+    }
+
+    function fallbackCopy(text, cb) {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        if (cb) cb();
+      } catch (e) {
+        alert("Zaznacz i skopiuj tekst ręcznie.");
+      }
+    }
+
+    function copyAndOpenGemini(taskId) {
+      copyPromptText(taskId);
+      window.open('https://gemini.google.com', '_blank');
+    }
+
+    function toggleTaskStatus(taskId) {
+      const current = getFocusTaskStatus(taskId);
+      if (current === 'passed') {
+        setFocusTaskStatus(taskId, 'pending');
+        playTone(280, 'sine', 0.1, 0.08);
+        announceSR(`Zadanie ${taskId} zostało cofnięte do ponownego wykonania.`);
+      } else {
+        setFocusTaskStatus(taskId, 'passed');
+        playSuccessChime();
+        announceSR(`Zadanie ${taskId} zostało zaliczone.`);
+      }
+      updateSingleFocusTaskCard(taskId);
+      updateDayHeaderProgress();
+    }
+
+    function sendPromptToSandbox(taskId) {
+      const task = TASKS_DATA.find(t => t.id === taskId);
+      if (!task) return;
+
+      const verifyInput = document.getElementById(`focus-verify-input-${taskId}`);
+      let codeToRun = '';
+      if (verifyInput && verifyInput.value.trim().length > 15 && verifyInput.value.includes('<')) {
+        codeToRun = verifyInput.value.trim();
+      } else if (task.sampleSolution && task.sampleSolution.includes('<html')) {
+        codeToRun = task.sampleSolution;
+      } else {
+        codeToRun = `<!-- Gotowy podgląd dla Zadania ${task.id}: ${task.title} -->\n<!DOCTYPE html>\n<html lang="pl">\n<head>\n  <meta charset="UTF-8">\n  <title>${task.title}</title>\n  <script src="https://cdn.tailwindcss.com"><\/script>\n</head>\n<body class="bg-slate-900 text-white p-6 font-sans min-h-screen flex items-center justify-center">\n  <div class="max-w-md w-full p-6 rounded-2xl bg-slate-800 border border-slate-700 shadow-xl text-center">\n    <h1 class="text-xl font-bold mb-2 text-amber-300">${task.title}</h1>\n    <p class="text-sm text-slate-300 mb-4">${task.goal}</p>\n    <button onclick="alert('Działa świetnie!')" class="px-5 py-3 bg-emerald-600 hover:bg-emerald-500 rounded-xl text-white font-bold transition">Kliknij i przetestuj</button>\n  </div>\n</body>\n</html>`;
+      }
+
+      const sandboxInput = document.getElementById('sandbox-code-input');
+      if (sandboxInput) {
+        sandboxInput.value = codeToRun;
+        sandboxInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        runSandboxCode();
+        showToast(`Wstawiono kod zadania ${task.id} do piaskownicy i uruchomiono podgląd na żywo!`);
+      }
+    }
+
+    function runSandboxCode() {
+      const input = document.getElementById('sandbox-code-input');
+      let code = input ? input.value : '';
+
+      if (!code.trim()) {
+        const currentDayTasks = TASKS_DATA.filter(t => t.day === CURRENT_DAY);
+        const codeTask = currentDayTasks.find(t => isFocusTaskCode(t));
+        if (codeTask) {
+          const verifyInput = document.getElementById(`focus-verify-input-${codeTask.id}`);
+          if (verifyInput && verifyInput.value.trim().length > 15 && verifyInput.value.includes('<')) {
+            code = verifyInput.value.trim();
+            if (input) input.value = code;
+          } else if (codeTask.sampleSolution && codeTask.sampleSolution.includes('<html')) {
+            code = codeTask.sampleSolution;
+            if (input) input.value = code;
+          }
+        }
+      }
+
+      if (!code.trim()) {
+        alert("Wklej najpierw kod HTML do pola piaskownicy lub kliknij fioletowy przycisk 'Przetestuj kod w piaskownicy' na karcie wybranego zadania.");
+        if (input) {
+          input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          input.focus();
+        }
+        return;
+      }
+
+      const frameWrapper = document.getElementById('sandbox-frame-wrapper');
+      const frame = document.getElementById('sandbox-preview-frame');
+      if (frameWrapper && frame) {
+        frameWrapper.classList.remove('hidden');
+        frame.srcdoc = code;
+        frameWrapper.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+        playTone(440, 'triangle', 0.1, 0.08);
+        showToast("Podgląd na żywo został uruchomiony!");
+        announceSR("Podgląd kodu został uruchomiony w ramce piaskownicy.");
+      }
+    }
+
+    function downloadSandboxFile() {
+      const code = document.getElementById('sandbox-code-input').value;
+      if (!code.trim()) {
+        alert("Wklej najpierw kod HTML do pola piaskownicy, aby go pobrać.");
+        return;
+      }
+
+      const blob = new Blob([code], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `vibe_kod_dzien_${CURRENT_DAY}.html`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      playTone(550, 'sine', 0.15, 0.1);
+      showToast("Pobrano plik .html!");
+      announceSR(`Plik vibe_kod_dzien_${CURRENT_DAY}.html został pobrany.`);
+    }
+
+    function clearSandbox() {
+      document.getElementById('sandbox-code-input').value = '';
+      closeSandboxPreview();
+      showToast("Usunięto kod z piaskownicy.");
+      announceSR("Usunięto kod z piaskownicy.");
+    }
+
+    function closeSandboxPreview() {
+      const frameWrapper = document.getElementById('sandbox-frame-wrapper');
+      frameWrapper.classList.add('hidden');
+    }
+
+    let SELECTED_CCOF_BASE = 'current';
+    let FOCUS_ACTIVE_STUDIO_TASK_ID = 13;
+    let CURRENT_FOCUS_STUDIO_PRESETS = {};
+
+    function focusStudioInDayFocusFromSandbox() {
+      const heading = document.getElementById('tool-heading-prompt-helper') || document.getElementById('focus-studio-presets-container');
+      if (heading) {
+        heading.setAttribute('tabindex', '-1');
+        heading.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        heading.focus();
+        announceSR("Przeniesiono kursor do Studia Eksperymentów i Rozwoju Projektu.");
+      }
+    }
+
+    function renderFocusStudioBaseButtons(day, selectedBaseType) {
+      const codeTasks = (typeof getAvailableCodeTasksUpToDay === 'function') ? getAvailableCodeTasksUpToDay(day) : [];
+      const list = codeTasks.length > 0 ? codeTasks.slice(0, 5) : [TASKS_DATA.find(t => t.id === 13), TASKS_DATA.find(t => t.id === 5), TASKS_DATA.find(t => t.id === 3)].filter(Boolean);
+
+      let html = '';
+      list.forEach(t => {
+        const isSelected = selectedBaseType === ('task' + t.id);
+        const shortTitle = t.title.replace(/^[^:]+:\s*/, '').replace(/^[^\w\s\u00C0-\u024F]+/u, '').trim();
+        const btnText = `${shortTitle} (Zad. ${t.id})`;
+        html += `
+          <button type="button" onclick="selectCcofBaseCode('task${t.id}')" id="btn-focus-base-task-${t.id}" class="touch-target px-2.5 py-1 rounded-lg ${isSelected ? 'bg-indigo-600 text-white font-bold ring-2 ring-indigo-400' : 'bg-slate-800 hover:bg-slate-700 text-slate-200'} text-[10px] font-bold transition cursor-pointer">
+            ${btnText}
+          </button>
+        `;
+      });
+
+      const isSandboxSelected = selectedBaseType === 'sandbox';
+      html += `
+        <button type="button" onclick="selectCcofBaseCode('sandbox')" id="btn-focus-base-sandbox" class="touch-target px-2.5 py-1 rounded-lg ${isSandboxSelected ? 'bg-indigo-600 text-white font-bold ring-2 ring-indigo-400' : 'bg-slate-800 hover:bg-slate-700 text-slate-200'} text-[10px] font-bold transition cursor-pointer">
+          Własny kod z piaskownicy
+        </button>
+      `;
+      const container = document.getElementById('ccof-base-buttons');
+      if (container) container.innerHTML = html;
+    }
+
+    function updateFocusStudioBaseButtons(selectedType) {
+      const container = document.getElementById('ccof-base-buttons');
+      if (!container) return;
+      const buttons = container.querySelectorAll('button');
+      buttons.forEach(btn => {
+        const isCurrent = btn.id === `btn-focus-base-${selectedType}` || (selectedType.startsWith('task') && btn.id === `btn-focus-base-task-${selectedType.replace('task', '')}`);
+        if (isCurrent) {
+          btn.className = "touch-target px-2.5 py-1 rounded-lg bg-indigo-600 text-white font-bold ring-2 ring-indigo-400 text-[10px] transition cursor-pointer";
+        } else {
+          btn.className = "touch-target px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-[10px] font-bold transition cursor-pointer";
+        }
+      });
+    }
+
+    function renderFocusStudioPresets(taskId) {
+      FOCUS_ACTIVE_STUDIO_TASK_ID = parseInt(taskId, 10) || 13;
+      const enh = (typeof getTaskEnhancementPresets === 'function') ? getTaskEnhancementPresets(FOCUS_ACTIVE_STUDIO_TASK_ID) : null;
+      if (!enh || !enh.presets) return;
+
+      CURRENT_FOCUS_STUDIO_PRESETS = enh.presets;
+      const keys = Object.keys(enh.presets);
+
+      const grid = document.getElementById('focus-presets-grid');
+      if (grid) {
+        grid.innerHTML = keys.map(k => {
+          const p = enh.presets[k];
+          return `
+            <label for="focus-chk-preset-${k}" class="touch-target p-3 rounded-xl border border-slate-700 bg-slate-950 hover:border-amber-400 cursor-pointer flex items-start gap-2.5 transition" id="lbl-focus-preset-${k}">
+              <input type="checkbox" id="focus-chk-preset-${k}" value="${k}" onchange="handleFocusPresetCheckboxChange()" class="w-4 h-4 mt-0.5 rounded text-amber-500 focus:ring-amber-400 cursor-pointer">
+              <div>
+                <span class="font-bold text-amber-400 text-[11px] block mb-0.5">${p.title}</span>
+                <span class="text-[10px] text-slate-400 block">${p.desc}</span>
+              </div>
+            </label>
+          `;
+        }).join('');
+      }
+
+      const badge = document.getElementById('focus-preset-count-badge');
+      if (badge) {
+        badge.textContent = `Wybrano: 0 z ${keys.length} ulepszeń`;
+        badge.className = 'text-[11px] font-bold text-slate-400';
+      }
+
+      const goalEl = document.getElementById('ccof-goal');
+      const constrEl = document.getElementById('ccof-constraints');
+      if (goalEl && goalEl.value.includes('Dodaj do mojej strony poniższe ulepszenia')) {
+        goalEl.value = '';
+      }
+      if (constrEl && constrEl.value.includes('Zasady wykonania ulepszeń:')) {
+        constrEl.value = '';
+      }
+    }
+
+    function selectCcofBaseCode(type) {
+      SELECTED_CCOF_BASE = type;
+      const badge = document.getElementById('ccof-base-name');
+      let selectedTaskId = null;
+
+      if (type.startsWith('task')) {
+        const taskId = parseInt(type.replace('task', ''), 10);
+        const task = TASKS_DATA.find(t => t.id === taskId);
+        if (task) {
+          selectedTaskId = task.id;
+          if (badge) {
+            badge.textContent = `✓ Wybrano bazę: ${task.title} (Zadanie ${task.id}) – kod zostanie dołączony do promptu`;
+          }
+        }
+      } else if (type === 'sandbox') {
+        if (badge) {
+          badge.textContent = "✓ Wybrano bazę: Twój kod z piaskownicy – kod zostanie dołączony do promptu";
+        }
+        const currentTasks = TASKS_DATA.filter(t => t.day === CURRENT_DAY);
+        const codeTask = currentTasks.find(t => isFocusTaskCode(t));
+        selectedTaskId = codeTask ? codeTask.id : 13;
+      } else {
+        const currentTasks = TASKS_DATA.filter(t => t.day === CURRENT_DAY);
+        const codeTask = currentTasks.find(t => isFocusTaskCode(t));
+        if (codeTask) {
+          selectedTaskId = codeTask.id;
+          SELECTED_CCOF_BASE = 'task' + codeTask.id;
+          if (badge) {
+            badge.textContent = `✓ Wybrano bazę: ${codeTask.title} (Zadanie ${codeTask.id}) – kod zostanie dołączony do promptu`;
+          }
+        } else {
+          selectedTaskId = 13;
+          if (badge) {
+            badge.textContent = "✓ Wybrano aktualny kod z piaskownicy / dzisiejszego zadania";
+          }
+        }
+      }
+
+      renderFocusStudioPresets(selectedTaskId || 13);
+      updateFocusStudioBaseButtons(type);
+      playClickSound();
+      showToast("Zmieniono bazę projektu!");
+      announceSR(`Zmieniono bazę projektu na ${selectedTaskId ? 'Zadanie ' + selectedTaskId : 'kod z piaskownicy'}. Zaktualizowano listę ulepszeń.`);
+    }
+
+    function initFocusStudio(day) {
+      const availableCodeTasks = (typeof getAvailableCodeTasksUpToDay === 'function') ? getAvailableCodeTasksUpToDay(day) : [];
+      const primaryTask = availableCodeTasks.find(t => t.day === day) || availableCodeTasks[0] || TASKS_DATA.find(t => t.id === 13) || TASKS_DATA.find(t => t.id === 3);
+      const targetTaskId = primaryTask ? primaryTask.id : 13;
+
+      SELECTED_CCOF_BASE = 'task' + targetTaskId;
+      const badge = document.getElementById('ccof-base-name');
+      if (badge && primaryTask) {
+        badge.textContent = `✓ Wybrano bazę: ${primaryTask.title} (Zadanie ${primaryTask.id}) – kod zostanie dołączony do promptu`;
+      }
+      renderFocusStudioBaseButtons(day, 'task' + targetTaskId);
+      renderFocusStudioPresets(targetTaskId);
+    }
+
+    function toggleCcofMode() {
+      const modifyRadio = document.getElementById('ccof-mode-modify');
+      const isModify = modifyRadio ? modifyRadio.checked : true;
+      const badge = document.getElementById('ccof-base-badge');
+      if (badge) {
+        if (isModify) {
+          badge.classList.remove('hidden');
+        } else {
+          badge.classList.add('hidden');
+        }
+      }
+      playClickSound();
+    }
+
+    function handleFocusPresetCheckboxChange() {
+      const keys = Object.keys(CURRENT_FOCUS_STUDIO_PRESETS);
+      const selected = [];
+      const activeEl = document.activeElement;
+
+      keys.forEach(k => {
+        const chk = document.getElementById(`focus-chk-preset-${k}`);
+        const lbl = document.getElementById(`lbl-focus-preset-${k}`);
+        if (chk && chk.checked) {
+          selected.push(k);
+          if (lbl) {
+            lbl.classList.add('border-amber-400', 'bg-amber-950/40');
+            lbl.classList.remove('border-slate-700', 'bg-slate-950');
+          }
+        } else if (lbl) {
+          lbl.classList.remove('border-amber-400', 'bg-amber-950/40');
+          lbl.classList.add('border-slate-700', 'bg-slate-950');
+        }
+      });
+
+      const badge = document.getElementById('focus-preset-count-badge');
+      if (badge) {
+        badge.textContent = `Wybrano: ${selected.length} z ${keys.length} ulepszeń`;
+        badge.className = selected.length > 0 
+          ? 'text-[11px] font-bold text-amber-300 bg-amber-950/70 border border-amber-500/40 px-2 py-0.5 rounded-full' 
+          : 'text-[11px] font-bold text-slate-400';
+      }
+
+      const goalEl = document.getElementById('ccof-goal');
+      const constrEl = document.getElementById('ccof-constraints');
+      const fmtEl = document.getElementById('ccof-format');
+      if (!goalEl || !constrEl) return;
+
+      if (selected.length === 0) {
+        goalEl.value = '';
+        constrEl.value = '';
+      } else {
+        let goalText = "Dodaj do mojej strony poniższe ulepszenia za jednym razem:\n";
+        selected.forEach((k, idx) => {
+          goalText += `${idx + 1}. ${CURRENT_FOCUS_STUDIO_PRESETS[k].goal}\n`;
+        });
+
+        let constrText = "Zasady wykonania ulepszeń:\n";
+        constrText += "- Wkomponuj wszystkie wybrane elementy harmonijnie w obecny wygląd strony.\n";
+        constrText += "- Zadbaj o to, aby wszystkie funkcje działały jednocześnie bez konfliktów.\n";
+        selected.forEach(k => {
+          constrText += `- ${CURRENT_FOCUS_STUDIO_PRESETS[k].constraint}\n`;
+        });
+
+        goalEl.value = goalText.trim();
+        constrEl.value = constrText.trim();
+        if (fmtEl) {
+          fmtEl.value = "Zwróć POJEDYNCZY, KOMPLETNY plik HTML z całą dotychczasową stroną oraz wszystkimi nowymi funkcjami wbudowanymi w kod, gotowy do natychmiastowego wklejenia w piaskownicy.";
+        }
+      }
+
+      // Zabezpieczenie NVDA przed utratą fokusu
+      if (activeEl && activeEl.type === 'checkbox' && document.activeElement !== activeEl) {
+        activeEl.focus();
+      }
+
+      playClickSound();
+      showToast(`Zaznaczono ${selected.length} ulepszeń.`);
+      announceSR(`Zaznaczono ${selected.length} ulepszeń. Zaktualizowano formularz promptu.`);
+    }
+
+    function applyCcofPreset(preset) {
+      const chk = document.getElementById(`focus-chk-preset-${preset}`);
+      if (chk) {
+        chk.checked = !chk.checked;
+        handleFocusPresetCheckboxChange();
+      }
+    }
+
+    function clearCcofForm() {
+      ['ccof-goal', 'ccof-constraints'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      const keys = Object.keys(CURRENT_FOCUS_STUDIO_PRESETS);
+      keys.forEach(k => {
+        const chk = document.getElementById(`focus-chk-preset-${k}`);
+        const lbl = document.getElementById(`lbl-focus-preset-${k}`);
+        if (chk) chk.checked = false;
+        if (lbl) {
+          lbl.classList.remove('border-amber-400', 'bg-amber-950/40');
+          lbl.classList.add('border-slate-700', 'bg-slate-950');
+        }
+      });
+      const badge = document.getElementById('focus-preset-count-badge');
+      if (badge) {
+        badge.textContent = "Wybrano: 0 ulepszeń";
+        badge.className = "text-[11px] font-bold text-slate-400";
+      }
+      showToast("Wyczyszczono formularz!");
+    }
+
+    let focusNoteTimers = {};
+    function handleFocusTaskNoteInput(taskId, val) {
+      const statusEl = document.getElementById(`focus-task-note-status-${taskId}`);
+      if (statusEl) statusEl.textContent = "Zapisywanie...";
+      clearTimeout(focusNoteTimers[taskId]);
+      focusNoteTimers[taskId] = setTimeout(() => {
+        localStorage.setItem(`vibe_coding_task_notes_${taskId}`, val);
+        if (statusEl) statusEl.textContent = "Zapisano automatycznie ✓";
+        updateFocusNotesCounter();
+      }, 400);
+    }
+
+    function clearFocusTaskNote(taskId) {
+      const input = document.getElementById(`focus-task-note-${taskId}`);
+      if (!input || !input.value.trim()) return;
+      if (!confirm(`Czy na pewno usunąć notatkę do Zadania ${taskId}?`)) return;
+      input.value = '';
+      localStorage.removeItem(`vibe_coding_task_notes_${taskId}`);
+      const statusEl = document.getElementById(`focus-task-note-status-${taskId}`);
+      if (statusEl) statusEl.textContent = "Notatka usunięta ✓";
+      updateFocusNotesCounter();
+      playClickSound();
+    }
+
+    function updateFocusNotesCounter() {
+      let count = 0;
+      for (let i = 1; i <= 100; i++) {
+        const n = localStorage.getItem(`vibe_coding_task_notes_${i}`);
+        if (n && n.trim()) count++;
+      }
+      for (let d = 1; d <= 34; d++) {
+        const dn = localStorage.getItem(`vibe_coding_notes_day_${d}`);
+        if (dn && dn.trim()) count++;
+      }
+      const badge = document.getElementById('focus-header-notes-counter');
+      if (badge) {
+        badge.textContent = count;
+        if (count > 0) badge.classList.remove('hidden');
+        else badge.classList.add('hidden');
+      }
+      const mBadge = document.getElementById('focus-notes-modal-count-badge');
+      if (mBadge) {
+        mBadge.textContent = `${count} ${count === 1 ? 'notatka' : (count < 5 ? 'notatki' : 'notatek')}`;
+      }
+      return count;
+    }
+
+    function openFocusNotesModal() {
+      const modal = document.getElementById('modal-focus-notes');
+      if (!modal) return;
+      renderFocusNotesList('');
+      updateFocusNotesCounter();
+      modal.classList.remove('hidden');
+      modal.removeAttribute('aria-hidden');
+      playClickSound();
+    }
+
+    function closeFocusNotesModal() {
+      const modal = document.getElementById('modal-focus-notes');
+      if (!modal) return;
+      modal.classList.add('hidden');
+      modal.setAttribute('aria-hidden', 'true');
+    }
+
+    function renderFocusNotesList(query = '') {
+      const container = document.getElementById('focus-notes-manager-list');
+      if (!container) return;
+      const q = (query || '').toLowerCase().trim();
+      const list = [];
+
+      for (let d = 1; d <= 34; d++) {
+        const tasks = TASKS_DATA.filter(t => t.day === d);
+        const taskNotes = [];
+        tasks.forEach(t => {
+          const n = localStorage.getItem(`vibe_coding_task_notes_${t.id}`);
+          if (n && n.trim()) {
+            if (!q || n.toLowerCase().includes(q) || t.title.toLowerCase().includes(q) || `zadanie ${t.id}`.includes(q)) {
+              taskNotes.push({ task: t, note: n.trim() });
+            }
+          }
+        });
+        const dn = localStorage.getItem(`vibe_coding_notes_day_${d}`);
+        if (taskNotes.length > 0 || (dn && dn.trim() && (!q || dn.toLowerCase().includes(q)))) {
+          list.push({ day: d, taskNotes, dayNote: (dn && (!q || dn.toLowerCase().includes(q))) ? dn.trim() : null });
+        }
+      }
+
+      if (list.length === 0) {
+        container.innerHTML = '<div class="p-6 text-center text-xs text-slate-400">Brak notatek do wyświetlenia. Wpisz uwagi w zadaniach!</div>';
+        return;
+      }
+
+      container.innerHTML = list.map(g => `
+        <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2.5">
+          <h3 class="text-xs font-bold text-amber-300 uppercase tracking-wider">Dzień ${g.day}</h3>
+          ${g.taskNotes.map(item => `
+            <div class="p-3 rounded-xl bg-slate-900 border border-purple-500/30 text-xs space-y-1.5">
+              <div class="flex items-center justify-between">
+                <strong class="text-white">Zadanie ${item.task.id}: ${escapeHtml(item.task.title)}</strong>
+                <button type="button" onclick="closeFocusNotesModal(); changeDay(${item.task.day});" class="text-indigo-300 underline font-bold cursor-pointer">Skocz do zadania ↗</button>
+              </div>
+              <p class="text-slate-200 whitespace-pre-wrap">${escapeHtml(item.note)}</p>
+            </div>
+          `).join('')}
+        </div>
+      `).join('');
+    }
+
+    function downloadFocusNotesMarkdown() {
+      let md = "# Akademia Vibe Codingu - Moje Notatki\\n\\n";
+      for (let d = 1; d <= 34; d++) {
+        const tasks = TASKS_DATA.filter(t => t.day === d);
+        let dNotes = "";
+        tasks.forEach(t => {
+          const n = localStorage.getItem(`vibe_coding_task_notes_${t.id}`);
+          if (n && n.trim()) {
+            dNotes += `### Zadanie ${t.id}: ${t.title}\\n- **Cel:** ${t.goal}\\n> ${n.trim()}\\n\\n`;
+          }
+        });
+        if (dNotes) {
+          md += `## Dzień ${d}\\n\\n` + dNotes;
+        }
+      }
+      const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = "Vibe_Coding_Notatki.md";
+      a.click();
+    }
+
+    function downloadFocusNotesHtml() {
+      let html = "<!DOCTYPE html><html lang='pl'><head><meta charset='UTF-8'><title>Notatki Vibe Coding</title><style>body{font-family:sans-serif;max-width:800px;margin:2rem auto;padding:1rem;background:#0f172a;color:#fff;}blockquote{background:#1e293b;border-left:4px solid #a855f7;padding:0.75rem;margin:0.5rem 0;}</style></head><body><h1>Notatki Kursanta</h1>";
+      for (let d = 1; d <= 34; d++) {
+        const tasks = TASKS_DATA.filter(t => t.day === d);
+        let dNotes = "";
+        tasks.forEach(t => {
+          const n = localStorage.getItem(`vibe_coding_task_notes_${t.id}`);
+          if (n && n.trim()) {
+            dNotes += `<h3>Zadanie ${t.id}: ${escapeHtml(t.title)}</h3><p><em>${escapeHtml(t.goal)}</em></p><blockquote>${escapeHtml(n.trim())}</blockquote>`;
+          }
+        });
+        if (dNotes) {
+          html += `<h2>Dzień ${d}</h2>` + dNotes;
+        }
+      }
+      html += "</body></html>";
+      const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = "Vibe_Coding_Notatki.html";
+      a.click();
+    }
+
+    // =========================================================================
+    // SYSTEM UWAG I SUGESTII DLA TWÓRCY (TRYB SKUPIENIA)
+    // =========================================================================
+    function openFocusFeedbackModal() {
+      const modal = document.getElementById('modal-focus-feedback');
+      if (!modal) return;
+      renderFocusFeedbackList('');
+      updateFocusFeedbackCounter();
+      modal.classList.remove('hidden');
+      modal.removeAttribute('aria-hidden');
+      playTone(520, 'sine', 0.1, 0.08);
+      announceSR("Otwarto okno uwag i sugestii dla twórcy kompendium.");
+    }
+
+    function closeFocusFeedbackModal() {
+      const modal = document.getElementById('modal-focus-feedback');
+      if (!modal) return;
+      modal.classList.add('hidden');
+      modal.setAttribute('aria-hidden', 'true');
+      const btn = document.getElementById('btn-focus-header-feedback');
+      if (btn) btn.focus();
+    }
+
+    function handleAddFocusFeedback(e) {
+      if (e) e.preventDefault();
+      const catEl = document.getElementById('focus-feedback-category-select');
+      const refEl = document.getElementById('focus-feedback-reference-input');
+      const textEl = document.getElementById('focus-feedback-text-input');
+      const statusEl = document.getElementById('focus-feedback-form-status');
+
+      if (!textEl || !textEl.value.trim()) {
+        alert("Wpisz treść swojej uwagi lub sugestii.");
+        return;
+      }
+
+      const feedbacks = getStoredAuthorFeedbacks();
+      const newFb = {
+        id: 'fb_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+        date: new Date().toISOString(),
+        category: catEl ? catEl.value : 'improvement',
+        reference: refEl ? refEl.value.trim() : `Dzień ${CURRENT_DAY}`,
+        text: textEl.value.trim()
+      };
+      feedbacks.unshift(newFb);
+      saveStoredAuthorFeedbacks(feedbacks);
+
+      textEl.value = '';
+      if (refEl) refEl.value = '';
+
+      if (statusEl) {
+        statusEl.textContent = "Zapisano Twoją uwagę pomyślnie! ✓";
+        setTimeout(() => { if (statusEl) statusEl.textContent = ""; }, 3000);
+      }
+
+      showToast("Zapisano uwagę dla autora!");
+      updateFocusFeedbackCounter();
+      renderFocusFeedbackList();
+      playTone(880, 'sine', 0.15, 0.1);
+      announceSR("Twoja uwaga dla twórcy została pomyślnie zapisana.");
+    }
+
+    function getStoredAuthorFeedbacks() {
+      try {
+        const raw = localStorage.getItem('vibe_coding_author_feedback');
+        return raw ? JSON.parse(raw) : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveStoredAuthorFeedbacks(arr) {
+      localStorage.setItem('vibe_coding_author_feedback', JSON.stringify(arr));
+    }
+
+    function renderFocusFeedbackList(query = '') {
+      const container = document.getElementById('focus-feedback-manager-list');
+      const badge = document.getElementById('focus-feedback-modal-count-badge');
+      if (!container) return;
+
+      const feedbacks = getStoredAuthorFeedbacks();
+      if (badge) badge.textContent = `${feedbacks.length} uwag`;
+
+      const q = (query || '').toLowerCase().trim();
+      const filtered = feedbacks.filter(fb => {
+        if (!q) return true;
+        return (fb.text && fb.text.toLowerCase().includes(q)) ||
+               (fb.reference && fb.reference.toLowerCase().includes(q));
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<div class="p-6 text-center text-xs text-slate-400">Brak zapisanych uwag dla autora. Wpisz pierwszą sugestię powyżej!</div>';
+        return;
+      }
+
+      const catLabels = {
+        improvement: '💡 Ulepszenie',
+        bug: '🐛 Błąd / Literówka',
+        task_feedback: '📝 Do zadania',
+        compliment: '🌟 Pochwała',
+        other: '💬 Inne'
+      };
+
+      container.innerHTML = filtered.map(fb => {
+        const dt = new Date(fb.date).toLocaleString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        return `
+          <div class="p-3.5 rounded-2xl bg-slate-900 border border-teal-500/30 text-xs space-y-1.5 shadow-sm">
+            <div class="flex items-center justify-between gap-2 border-b border-slate-800 pb-1.5">
+              <div class="flex items-center gap-1.5">
+                <span class="px-2 py-0.5 rounded-full bg-teal-950 text-teal-300 font-bold border border-teal-500/40 text-[11px]">${catLabels[fb.category] || fb.category}</span>
+                ${fb.reference ? `<span class="px-2 py-0.5 rounded-full bg-indigo-950 text-indigo-300 font-semibold border border-indigo-700/40 text-[10px]">${escapeHtml(fb.reference)}</span>` : ''}
+              </div>
+              <div class="flex items-center gap-2">
+                <time class="text-[10px] text-slate-400">${dt}</time>
+                <button type="button" onclick="deleteFocusFeedback('${fb.id}')" class="text-rose-400 hover:text-rose-300 font-bold text-xs" title="Usuń uwagę">🗑️</button>
+              </div>
+            </div>
+            <p class="text-slate-200 whitespace-pre-wrap select-all leading-relaxed">${escapeHtml(fb.text)}</p>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function deleteFocusFeedback(id) {
+      if (!confirm("Czy na pewno chcesz usunąć tę uwagę?")) return;
+      let feedbacks = getStoredAuthorFeedbacks();
+      feedbacks = feedbacks.filter(f => f.id !== id);
+      saveStoredAuthorFeedbacks(feedbacks);
+      updateFocusFeedbackCounter();
+      renderFocusFeedbackList();
+      showToast("Usunięto uwagę.");
+      announceSR("Usunięto wybraną uwagę.");
+    }
+
+    function updateFocusFeedbackCounter() {
+      const feedbacks = getStoredAuthorFeedbacks();
+      const count = feedbacks.length;
+      const badge = document.getElementById('focus-header-feedback-counter');
+      if (badge) {
+        badge.textContent = count;
+        if (count > 0) badge.classList.remove('hidden');
+        else badge.classList.add('hidden');
+      }
+      const mBadge = document.getElementById('focus-feedback-modal-count-badge');
+      if (mBadge) mBadge.textContent = `${count} uwag`;
+    }
+
+    function downloadFocusFeedbackMarkdown() {
+      const feedbacks = getStoredAuthorFeedbacks();
+      if (feedbacks.length === 0) {
+        alert("Brak uwag do pobrania.");
+        return;
+      }
+      let md = "# Uwagi i Sugestie dla Twórcy Kompendium\\n\\n*Wygenerowano: " + new Date().toLocaleString('pl-PL') + "*\\n\\n---\\n\\n";
+      feedbacks.forEach((fb, idx) => {
+        md += `## ${idx + 1}. [${fb.category}] ${fb.reference || 'Ogólne'}\\n`;
+        md += `- **Data:** ${new Date(fb.date).toLocaleString('pl-PL')}\\n`;
+        md += `- **Treść:**\\n> ${fb.text.replace(/\\n/g, '\\n> ')}\\n\\n---\\n\\n`;
+      });
+      const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = "Vibe_Coding_Uwagi_Dla_Tworcy.md";
+      a.click();
+      announceSR("Pobrano plik Markdown z uwagami dla twórcy.");
+    }
+
+    function downloadFocusFeedbackHtml() {
+      const feedbacks = getStoredAuthorFeedbacks();
+      if (feedbacks.length === 0) {
+        alert("Brak uwag do pobrania.");
+        return;
+      }
+      let html = "<!DOCTYPE html><html lang='pl'><head><meta charset='UTF-8'><title>Uwagi dla Twórcy</title><style>body{font-family:sans-serif;max-width:800px;margin:2rem auto;padding:1rem;background:#0f172a;color:#fff;}article{background:#1e293b;border-left:4px solid #14b8a6;padding:1rem;margin:1rem 0;border-radius:8px;}blockquote{margin:0.5rem 0;color:#e2e8f0;}</style></head><body><h1>Uwagi i Sugestie dla Twórcy Kompendium</h1>";
+      feedbacks.forEach((fb, idx) => {
+        html += `<article><h2>${idx + 1}. ${escapeHtml(fb.reference || fb.category)}</h2><p><small>${new Date(fb.date).toLocaleString('pl-PL')} • Kategoria: ${escapeHtml(fb.category)}</small></p><blockquote>${escapeHtml(fb.text).replace(/\\n/g, '<br>')}</blockquote></article>`;
+      });
+      html += "</body></html>";
+      const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = "Vibe_Coding_Uwagi_Dla_Tworcy.html";
+      a.click();
+      announceSR("Pobrano stronę HTML z uwagami dla twórcy.");
+    }
+
+    function copyFocusFeedbackToClipboard() {
+      const feedbacks = getStoredAuthorFeedbacks();
+      if (feedbacks.length === 0) {
+        alert("Brak uwag do skopiowania.");
+        return;
+      }
+      let text = `AKADEMIA VIBE CODINGU - UWAGI DLA TWÓRCY\\nLiczba uwag: ${feedbacks.length}\\n\\n`;
+      feedbacks.forEach((fb, i) => {
+        text += `[${i + 1}] ${fb.category} (${fb.reference || 'Ogólne'})\nData: ${new Date(fb.date).toLocaleString('pl-PL')}\n${fb.text}\n\n---\n\n`;
+      });
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          showToast("Skopiowano uwagi do schowka!");
+          announceSR("Skopiowano uwagi do schowka.");
+        });
+      } else {
+        fallbackCopy(text, () => {
+          showToast("Skopiowano uwagi do schowka!");
+          announceSR("Skopiowano uwagi do schowka.");
+        });
+      }
+    }
+
+    function focusStudioInDayFocus(taskId) {
+      const id = parseInt(taskId, 10);
+      selectCcofBaseCode('task' + id);
+      const el = document.getElementById('focus-studio-presets-container') || document.getElementById('tool-heading-prompt-helper');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        const heading = document.getElementById('tool-heading-prompt-helper') || el;
+        if (heading) {
+          heading.setAttribute('tabindex', '-1');
+          heading.focus();
+        }
+        el.classList.add('ring-2', 'ring-amber-400', 'p-2', 'rounded-2xl');
+        setTimeout(() => el.classList.remove('ring-2', 'ring-amber-400', 'p-2'), 2500);
+      }
+      announceSR(`Otwarto Studio Eksperymentów dla Zadania ${id}. Zaznacz pola wyboru ulepszeń.`);
+    }
+
+    function getCcofBaseCode() {
+      if (SELECTED_CCOF_BASE && SELECTED_CCOF_BASE.startsWith('task')) {
+        const taskId = parseInt(SELECTED_CCOF_BASE.replace('task', ''), 10);
+        const t = TASKS_DATA.find(x => x.id === taskId);
+        if (t && t.sampleSolution) return t.sampleSolution;
+      }
+      const sInput = document.getElementById('sandbox-code-input');
+      if (sInput && sInput.value.trim().length > 30) {
+        return sInput.value.trim();
+      }
+      const currentTasks = TASKS_DATA.filter(t => t.day === CURRENT_DAY);
+      const codeTask = currentTasks.find(t => isFocusTaskCode(t));
+      if (codeTask && codeTask.sampleSolution) return codeTask.sampleSolution;
+
+      const fallbackTask = TASKS_DATA.find(t => t.id === 13) || TASKS_DATA.find(t => t.id === 9) || TASKS_DATA.find(t => t.id === 5) || TASKS_DATA.find(t => t.id === 3);
+      return fallbackTask ? fallbackTask.sampleSolution : '';
+    }
+
+    function buildAndCopyCcofPrompt() {
+      const modifyRadio = document.getElementById('ccof-mode-modify');
+      const isModify = modifyRadio ? modifyRadio.checked : true;
+      const ctx = document.getElementById('ccof-context').value.trim();
+      const goal = document.getElementById('ccof-goal').value.trim();
+      const constr = document.getElementById('ccof-constraints').value.trim();
+      const fmt = document.getElementById('ccof-format').value.trim();
+
+      if (!goal) {
+        alert("Wpisz w polu cel, co chcesz dodać lub zmienić, albo kliknij jeden z gotowych kafelków (np. 'Licznik zamówień').");
+        document.getElementById('ccof-goal').focus();
+        return;
+      }
+
+      let fullPrompt = "";
+      if (isModify) {
+        const baseCode = getCcofBaseCode();
+        fullPrompt = `${ctx || "Jesteś doświadczonym programistą i moim asystentem Vibe Codingu."}
+
+OTO AKTUALNY KOD MOJEJ STRONY:
+\`\`\`html
+${baseCode}
+\`\`\`
+
+TWOJE ZADANIE:
+Zmodyfikuj powyższą stronę, dodając do niej nowe ulepszenie:
+- CO DODAĆ: ${goal}
+- ZASADY I STYL: ${constr || "Wkomponuj nową funkcję harmonijnie w istniejący wygląd strony (zachowaj klimat, kolory i układ)."}
+- OCZEKIWANY FORMAT: ${fmt || "Zwróć POJEDYNCZY, KOMPLETNY i zaktualizowany plik HTML (z całą dotychczasową zawartością + nowa funkcja), gotowy do natychmiastowego wklejenia w piaskownicy."}`;
+      } else {
+        let parts = [];
+        if (ctx) parts.push(`KONTEKST I ROLA:\n${ctx}`);
+        parts.push(`GŁÓWNY CEL:\n${goal}`);
+        if (constr) parts.push(`OGRANICZENIA I ZASADY:\n${constr}`);
+        if (fmt) parts.push(`OCZEKIWANY FORMAT WYJŚCIOWY:\n${fmt}`);
+        fullPrompt = parts.join('\n\n');
+      }
+
+      const onCopied = () => {
+        playTone(660, 'sine', 0.12, 0.1);
+        const status = document.getElementById('ccof-status-text');
+        status.textContent = "Skopiowano prompt ulepszający z kodem do schowka ✓";
+        setTimeout(() => { status.textContent = ""; }, 3500);
+        showToast("Prompt ulepszający gotowy w schowku!");
+        announceSR("Twój prompt ulepszający z dołączonym kodem został skopiowany do schowka.");
+      };
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(fullPrompt).then(onCopied).catch(() => fallbackCopy(fullPrompt, onCopied));
+      } else {
+        fallbackCopy(fullPrompt, onCopied);
+      }
+    }
+
+    function clearCcofForm() {
+      ['ccof-goal', 'ccof-constraints'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      showToast("Wyczyszczono formularz.");
+      announceSR("Wyczyszczono pola formularza.");
+    }
+
+    function getNotesStorageKey() {
+      return `vibe_coding_notes_day_${CURRENT_DAY}`;
+    }
+
+    function loadDailyNotes() {
+      const textarea = document.getElementById('daily-notes-textarea');
+      if (!textarea) return;
+      const saved = localStorage.getItem(getNotesStorageKey()) || '';
+      textarea.value = saved;
+    }
+
+    function deleteDailyNote() {
+      const textarea = document.getElementById('daily-notes-textarea');
+      if (!textarea || !textarea.value.trim()) {
+        announceSR("Notatka dla tego dnia jest już pusta.");
+        return;
+      }
+      if (!confirm(`Czy na pewno usunąć notatkę z Dnia ${CURRENT_DAY}?`)) return;
+      textarea.value = '';
+      localStorage.removeItem(getNotesStorageKey());
+      const status = document.getElementById('notes-saved-status');
+      if (status) status.textContent = "Notatka usunięta ✓";
+      showToast("Usunięto notatkę dnia.");
+      announceSR(`Usunięto notatkę z Dnia ${CURRENT_DAY}.`);
+    }
+
+    function initNotesAutoSave() {
+      const textarea = document.getElementById('daily-notes-textarea');
+      if (!textarea) return;
+
+      let timer = null;
+      textarea.addEventListener('input', () => {
+        const status = document.getElementById('notes-saved-status');
+        if (status) status.textContent = "Zapisywanie...";
+
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+          localStorage.setItem(getNotesStorageKey(), textarea.value);
+          if (status) status.textContent = "Zapisano automatycznie ✓";
+        }, 400);
+      });
+    }
+
+    function toggleContrast() {
+      APP_STATE.contrastHigh = !APP_STATE.contrastHigh;
+      const btn = document.getElementById('btn-contrast-toggle');
+      if (APP_STATE.contrastHigh) {
+        document.documentElement.setAttribute('data-contrast', 'high');
+        if (btn) {
+          btn.setAttribute('aria-pressed', 'true');
+          btn.classList.add('bg-amber-400', 'text-slate-950', 'border-amber-400');
+        }
+        announceSR("Włączono tryb wysokiego kontrastu.");
+      } else {
+        document.documentElement.removeAttribute('data-contrast');
+        if (btn) {
+          btn.setAttribute('aria-pressed', 'false');
+          btn.classList.remove('bg-amber-400', 'text-slate-950', 'border-amber-400');
+        }
+        announceSR("Wyłączono tryb wysokiego kontrastu.");
+      }
+      saveAppState();
+    }
+
+    function syncSoundBtn() {
+      const btn = document.getElementById('btn-sound-toggle');
+      const icon = document.getElementById('sound-icon');
+      const srText = document.getElementById('sound-sr-text');
+      if (APP_STATE.soundEnabled) {
+        if (btn) btn.setAttribute('aria-pressed', 'true');
+        if (icon) {
+          icon.textContent = '🔊';
+          icon.setAttribute('aria-label', '(ikona głośnika)');
+        }
+        if (srText) srText.textContent = 'Dźwięk: Włączony (Alt+M) ';
+      } else {
+        if (btn) btn.setAttribute('aria-pressed', 'false');
+        if (icon) {
+          icon.textContent = '🔇';
+          icon.setAttribute('aria-label', '(ikona wyciszenia)');
+        }
+        if (srText) srText.textContent = 'Dźwięk: Wyciszony (Alt+M) ';
+      }
+    }
+
+    function toggleSound() {
+      APP_STATE.soundEnabled = !APP_STATE.soundEnabled;
+      syncSoundBtn();
+      if (APP_STATE.soundEnabled) {
+        playTone(440, 'sine', 0.1, 0.08);
+        announceSR("Dźwięki włączone.");
+      } else {
+        announceSR("Dźwięki wyciszone.");
+      }
+      saveAppState();
+    }
+
+    function applyFontSize(size) {
+      APP_STATE.fontSize = size;
+      document.documentElement.classList.remove('font-size-large', 'font-size-xlarge');
+      if (size === 'large') document.documentElement.classList.add('font-size-large');
+      if (size === 'xlarge') document.documentElement.classList.add('font-size-xlarge');
+      saveAppState();
+      announceSR(`Zmieniono rozmiar czcionki na ${size === 'large' ? 'powiększony' : size === 'xlarge' ? 'bardzo duży' : 'domyślny'}.`);
+    }
+
+    function applySavedTheme() {
+      const theme = APP_STATE.currentTheme;
+      document.body.classList.remove('theme-teen', 'theme-adult', 'theme-senior', 'theme-creative');
+      if (theme && theme !== 'auto') {
+        document.body.classList.add(`theme-${theme}`);
+      } else if (APP_STATE.userProfile && APP_STATE.userProfile.ageGroup) {
+        document.body.classList.add(`theme-${APP_STATE.userProfile.ageGroup}`);
+      }
+    }
+
+    function announceSR(msg) {
+      const announcer = document.getElementById('sr-announcer');
+      if (announcer) {
+        announcer.textContent = '';
+        setTimeout(() => { announcer.textContent = msg; }, 50);
+      }
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast-notification');
+      if (!toast) return;
+      toast.textContent = msg;
+      toast.classList.remove('opacity-0', 'translate-y-20');
+      toast.classList.add('opacity-100', 'translate-y-0');
+      setTimeout(() => {
+        toast.classList.remove('opacity-100', 'translate-y-0');
+        toast.classList.add('opacity-0', 'translate-y-20');
+      }, 3000);
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const fbModal = document.getElementById('modal-focus-feedback');
+        if (fbModal && !fbModal.classList.contains('hidden')) {
+          e.preventDefault();
+          closeFocusFeedbackModal();
+          return;
+        }
+        const nModal = document.getElementById('modal-focus-notes');
+        if (nModal && !nModal.classList.contains('hidden')) {
+          e.preventDefault();
+          closeFocusNotesModal();
+          return;
+        }
+        if (!document.getElementById('sandbox-frame-wrapper').classList.contains('hidden')) {
+          closeSandboxPreview();
+          return;
+        }
+      }
+
+      if (e.altKey && !e.ctrlKey) {
+        if (e.key === 'u' || e.key === 'U') {
+          e.preventDefault();
+          openFocusFeedbackModal();
+        } else if (e.key === 'n' || e.key === 'N') {
+          e.preventDefault();
+          changeDay(CURRENT_DAY + 1);
+        } else if (e.key === 'p' || e.key === 'P') {
+          e.preventDefault();
+          changeDay(CURRENT_DAY - 1);
+        } else if (e.key === 'k' || e.key === 'K') {
+          e.preventDefault();
+          toggleContrast();
+        } else if (e.key === 'm' || e.key === 'M') {
+          e.preventDefault();
+          toggleSound();
+        }
+      }
+    });
+
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'vibe_coding_state_v2') {
+        if (isUserFocusInEditor()) return;
+        loadAppState();
+        syncSoundBtn();
+        renderDayView();
+      }
+      if (e.key === 'vibe_coding_author_feedback') {
+        updateFocusFeedbackCounter();
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadAppState();
+      CURRENT_DAY = determineInitialDay();
+      populateDaySelector();
+      applySavedTheme();
+      syncSoundBtn();
+
+      if (APP_STATE.contrastHigh) {
+        document.documentElement.setAttribute('data-contrast', 'high');
+        const btn = document.getElementById('btn-contrast-toggle');
+        if (btn) btn.setAttribute('aria-pressed', 'true');
+      }
+
+      if (APP_STATE.fontSize) {
+        applyFontSize(APP_STATE.fontSize);
+      }
+
+      renderDayView();
+      renderFocusMotivationalQuote();
+      initNotesAutoSave();
+      updateFocusNotesCounter();
+      updateFocusFeedbackCounter();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,3 @@
+@echo off
+chcp 65001 >nul
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$f = Join-Path '%~dp0' 'Kod_Chmura_Google_iPhone.gs'; if (Test-Path $f) { Get-Content -Path $f -Raw -Encoding UTF8 | Set-Clipboard; [System.Console]::Beep(880, 90); [System.Console]::Beep(1175, 130); Write-Host 'SUKCES! Kod Kompendium dla chmury Google (script.google.com) został skopiowany do schowka.' -ForegroundColor Green; Write-Host 'Otwórz https://script.google.com -> Nowy projekt -> Wklej (Ctrl+V) -> Wdróż jako Aplikację internetową.' -ForegroundColor Yellow; Start-Sleep -Seconds 3; } else { Write-Host 'Błąd: Nie znaleziono pliku Kod_Chmura_Google_iPhone.gs' -ForegroundColor Red; pause; }"
