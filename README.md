@@ -1,4 +1,4 @@
-# Akademia Vibe Codingu i Sztuki Promptingu (Od Zera do Twórcy) — Wersja 3.5.0
+# Akademia Vibe Codingu i Sztuki Promptingu (Od Zera do Twórcy) — Wersja 3.7.0
 
 > 🚀 **Uruchom Akademię online (działa od razu w przeglądarce):**  
 > 👉 **[https://strugo10.github.io/vibe-coding-kompendium/](https://strugo10.github.io/vibe-coding-kompendium/)**
@@ -8,7 +8,14 @@
 
 Kompletne, interaktywne kompendium obejmujące **100 praktycznych zadań** podzielonych na **34 dni nauki** (po 3 zadania dziennie), w pełni dostosowane do standardów dostępności cyfrowej **WCAG 2.1 / 2.2 AA/AAA** (czytniki ekranu **NVDA** na Windows oraz **VoiceOver** na iPhone/iOS). Wszystkie postępy kursanta, punkty, notatki i dyplom zapisują się w 100% lokalnie i bezpiecznie w pamięci przeglądarki (`localStorage`) bez konieczności instalowania czegokolwiek.
 
-## Co nowego w Wersji 3.5.0 (Dedykowane Ulepszenia Każdego Zadania, Niezależne Projekty i Stabilność Fokusu NVDA)?
+## Co nowego w Wersji 3.7.0 (Dostępność WCAG: Pełna Obsługa Odwrócenia Kolorów i Smart Invert na iPhone)?
+- **Rozwiązanie problemu jasnego tła przy inwersji kolorów na iPhone (Safari / iOS):**
+  - **Diagnoza problemu:** Gdy użytkownik na iPhone korzysta z systemowej funkcji *„Odwrócenie kolorów”* (Classic Invert) lub *„Inteligentne odwrócenie kolorów”* (Smart Invert), witryny o ciemnym kodowaniu tła były automatycznie odwracane przez procesor telefonu na jaskrawe, białe/jasne tło. Dodatkowo brak deklaracji `color-scheme` i brak zdefiniowanego koloru tła na korzeniu `<html>` powodował, że silnik Safari traktował canvas strony jako biały i gubił się przy próbie inteligentnego odwracania.
+  - **Fundamenty HTML/CSS:** Wprowadzono deklaracje `<meta name="color-scheme" content="dark light">` oraz `:root { color-scheme: dark light; }`, a także twarde przypisanie natywnego ciemnego tła (`#0b0f19`) bezpośrednio do elementów `<html>` oraz `<body>`. Dzięki temu Safari nigdy nie wyświetla białego canvasu ani białych błysków przy przewijaniu (overscroll bounce).
+  - **Automatyczna adaptacja sprzętowa (`@media (inverted-colors: inverted)`):** Dodano regułę CSS Media Queries Level 4 natywnie wspieraną przez Safari na iOS. Gdy system iPhone'a włącza odwrócenie kolorów, kompendium natychmiast dostarcza odpowiednio spreparowaną bazę, dzięki czemu **po odwróceniu przez ekran telefonu tło widoczne dla oczu użytkownika jest głęboko czarne (#000000)**, a litery krystalicznie białe i czytelne.
+  - **Dedykowany przycisk na górnym pasku (`🌓 Inwersja iPhone` / Alt+I):** Dostępny bezpośrednio w nagłówku aplikacji (zarówno na telefonie, jak i na komputerze). Umożliwia natychmiastowe, ręczne wymuszenie adaptacji do inwersji kolorów jednym stuknięciem palca lub skrótem klawiszowym `Alt+I`, z pełnym komunikatem dla VoiceOver i NVDA.
+  - **Zsynchronizowany Tryb Skupienia (`day_focus.html`):** Wszystkie mechanizmy adaptacji do inwersji iOS i WCAG AA/AAA zostały wdrożone również w osobnym oknie zadań dnia.
+- **Odporność na brak połączenia / opóźnienia CDN:** Wbudowano natywne style awaryjne (fallbacki) dla kart, nagłówka i formularzy, dzięki czemu nawet przy słabym zasięgu Wi-Fi strona zawsze zachowuje ciemne tło i wysoki kontrast.
 - **Dedykowane, logiczne ulepszenia (pola wyboru) dla każdego zadania kodowego z osobna:**
   - Całkowicie wyeliminowano problem, w którym Studio Eksperymentów oferowało ulepszenia kawiarni (np. zamówienia kawy) w zadaniach o zupełnie innej tematyce.
   - **W Zadaniu 13 (Generator Komplementów):** Użytkownik ma teraz do dyspozycji ulepszenia stworzone specjalnie dla tej aplikacji:

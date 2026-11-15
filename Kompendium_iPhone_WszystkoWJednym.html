@@ -7,7 +7,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Vibe Coding">
   <meta name="theme-color" content="#0f172a">
-  <title>Akademia Vibe Codingu i Sztuki Promptingu v3.6.0 (Od Zera do Twórcy)</title>
+  <meta name="color-scheme" content="dark light">
+  <title>Akademia Vibe Codingu i Sztuki Promptingu v3.7.0 (Od Zera do Twórcy)</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -20,6 +21,189 @@
   <link rel="apple-touch-icon" href="https://fav.farm/⚡" />
 
   <style>
+    /* =========================================================================
+       WCAG 2.1 / 2.2 AA & AAA: FUNDAMENTY KOLORÓW I DOSTĘPNOŚCI (SAFARI / IPHONE)
+       ========================================================================= */
+    :root {
+      color-scheme: dark light;
+    }
+
+    /* Gwarancja natywnego ciemnego tła na poziomie HTML i BODY dla Safari iOS i WebKit */
+    html {
+      background-color: #0b0f19;
+      color: #f8fafc;
+      min-height: 100%;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      background-color: #0b0f19;
+      color: #f8fafc;
+      min-height: 100%;
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      -webkit-tap-highlight-color: rgba(99, 102, 241, 0.25);
+      overflow-x: hidden;
+    }
+
+    /* Fallbacki bazowe dla kart przed załadowaniem skryptów CDN */
+    .task-card, .tool-card, .modal-content, [role="region"], .subpage-view {
+      background-color: #0f172a;
+      color: #f8fafc;
+    }
+
+    /* =========================================================================
+       SPECJALNY TRYB ADAPTACJI DO ODWRÓCENIA KOLORÓW NA IPHONE (WCAG AA/AAA)
+       Dla systemowych funkcji iOS: "Odwrócenie kolorów" oraz "Inteligentne odwrócenie"
+       Zapewnia głębokie ciemne tło i krystalicznie czyste jasne litery na ekranie.
+       ========================================================================= */
+    [data-invert="iphone"] {
+      color-scheme: light !important;
+    }
+    [data-invert="iphone"],
+    [data-invert="iphone"] body {
+      background-color: #ffffff !important;
+      background-image: none !important;
+      color: #050505 !important;
+    }
+    [data-invert="iphone"] header,
+    [data-invert="iphone"] nav,
+    [data-invert="iphone"] main,
+    [data-invert="iphone"] section,
+    [data-invert="iphone"] article,
+    [data-invert="iphone"] aside,
+    [data-invert="iphone"] footer,
+    [data-invert="iphone"] .subpage-view,
+    [data-invert="iphone"] .task-card,
+    [data-invert="iphone"] .tool-card,
+    [data-invert="iphone"] .modal-content,
+    [data-invert="iphone"] .reward-card {
+      background-color: #ffffff !important;
+      color: #050505 !important;
+      border-color: #1e293b !important;
+    }
+    [data-invert="iphone"] .bg-slate-900,
+    [data-invert="iphone"] .bg-slate-950,
+    [data-invert="iphone"] .bg-slate-800,
+    [data-invert="iphone"] .bg-slate-800\/80,
+    [data-invert="iphone"] .bg-slate-900\/90,
+    [data-invert="iphone"] .bg-slate-950\/95,
+    [data-invert="iphone"] .bg-slate-950\/80,
+    [data-invert="iphone"] .bg-slate-950\/85,
+    [data-invert="iphone"] .bg-indigo-950,
+    [data-invert="iphone"] .bg-indigo-950\/40,
+    [data-invert="iphone"] .bg-indigo-950\/60,
+    [data-invert="iphone"] .bg-amber-950,
+    [data-invert="iphone"] .bg-amber-950\/40,
+    [data-invert="iphone"] .bg-purple-950,
+    [data-invert="iphone"] .bg-teal-950 {
+      background-color: #f8fafc !important;
+      color: #09090b !important;
+    }
+    [data-invert="iphone"] .text-white,
+    [data-invert="iphone"] .text-slate-100,
+    [data-invert="iphone"] .text-slate-200,
+    [data-invert="iphone"] .text-slate-300 {
+      color: #0f172a !important;
+    }
+    [data-invert="iphone"] .prompt-code {
+      background-color: #f1f5f9 !important;
+      color: #000000 !important;
+      border: 2px solid #000000 !important;
+    }
+    [data-invert="iphone"] button,
+    [data-invert="iphone"] select,
+    [data-invert="iphone"] input,
+    [data-invert="iphone"] textarea {
+      background-color: #ffffff !important;
+      color: #000000 !important;
+      border-color: #0f172a !important;
+    }
+    [data-invert="iphone"] button:hover,
+    [data-invert="iphone"] button:focus {
+      background-color: #e2e8f0 !important;
+      color: #000000 !important;
+      outline: 3px solid #000000 !important;
+    }
+    [data-invert="iphone"] .subpage-tab-btn[aria-current="page"] {
+      background-color: #0f172a !important;
+      color: #ffffff !important;
+      border-color: #000000 !important;
+    }
+    [data-invert="iphone"] #btn-iphone-invert-toggle {
+      background-color: #000000 !important;
+      color: #fef08a !important;
+      border: 2px solid #f59e0b !important;
+      font-weight: 900 !important;
+    }
+
+    /* Automatyczna detekcja sprzętowej inwersji kolorów w Safari iOS */
+    @media (inverted-colors: inverted) {
+      :root {
+        color-scheme: light !important;
+      }
+      html, body {
+        background-color: #ffffff !important;
+        background-image: none !important;
+        color: #050505 !important;
+      }
+      header, nav, main, section, article, aside, footer,
+      .subpage-view, .task-card, .tool-card, .modal-content, .reward-card {
+        background-color: #ffffff !important;
+        color: #050505 !important;
+        border-color: #1e293b !important;
+      }
+      .bg-slate-900, .bg-slate-950, .bg-slate-800, .bg-indigo-950, .bg-amber-950 {
+        background-color: #f8fafc !important;
+        color: #09090b !important;
+      }
+      .text-white, .text-slate-100, .text-slate-200, .text-slate-300 {
+        color: #0f172a !important;
+      }
+      .prompt-code {
+        background-color: #f1f5f9 !important;
+        color: #000000 !important;
+        border: 2px solid #000000 !important;
+      }
+      button, select, input, textarea {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        border-color: #0f172a !important;
+      }
+    }
+
+    /* Łączone z Wysokim Kontrastem WCAG AAA */
+    [data-contrast="high"][data-invert="iphone"] body,
+    [data-contrast="high"][data-invert="iphone"] {
+      background-color: #ffffff !important;
+      color: #000000 !important;
+    }
+    [data-contrast="high"][data-invert="iphone"] header,
+    [data-contrast="high"][data-invert="iphone"] nav,
+    [data-contrast="high"][data-invert="iphone"] section,
+    [data-contrast="high"][data-invert="iphone"] article,
+    [data-contrast="high"][data-invert="iphone"] aside,
+    [data-contrast="high"][data-invert="iphone"] .modal-content,
+    [data-contrast="high"][data-invert="iphone"] .task-card,
+    [data-contrast="high"][data-invert="iphone"] .tool-card {
+      background-color: #ffffff !important;
+      border: 3px solid #000000 !important;
+      color: #000000 !important;
+    }
+    [data-contrast="high"][data-invert="iphone"] button,
+    [data-contrast="high"][data-invert="iphone"] select,
+    [data-contrast="high"][data-invert="iphone"] input,
+    [data-contrast="high"][data-invert="iphone"] textarea {
+      background-color: #ffffff !important;
+      border: 3px solid #000000 !important;
+      color: #000000 !important;
+    }
+    [data-contrast="high"][data-invert="iphone"] .prompt-code {
+      background-color: #ffffff !important;
+      color: #000000 !important;
+      border: 2px solid #000000 !important;
+    }
+
     /* Dostępność WCAG AAA: Stylizacja Wysokiego Kontrastu */
     [data-contrast="high"] body {
       background-color: #000000 !important;
@@ -232,7 +416,7 @@
               Vibe Coding Academy
             </span>
             <span class="text-[10px] text-amber-400 font-bold block">
-              Wersja 3.6.0 • Pakiety Ratunkowe Zadań, Dodatki Biznesowe i WCAG AA
+              Wersja 3.7.0 • Pełna obsługa Inwersji Kolorów iPhone, Pakiety Zadań i WCAG AA/AAA
             </span>
           </div>
         </a>
@@ -244,7 +428,7 @@
         </div>
       </div>
 
-      <!-- Szybkie przełączniki ułatwień dostępu (Notatki, Instrukcja, Słowniczek, Dźwięk, Kontrast, Czcionka, Motyw) -->
+      <!-- Szybkie przełączniki ułatwień dostępu (Notatki, Instrukcja, Słowniczek, Dźwięk, Kontrast, Inwersja iPhone, Czcionka, Motyw) -->
       <div class="flex items-center gap-1.5 sm:gap-2">
 
         <!-- Przycisk Przeglądania Notatek (Dostępny w każdym momencie kursu) -->
@@ -280,9 +464,16 @@
         </button>
 
         <!-- Przełącznik Wysokiego Kontrastu -->
-        <button type="button" id="btn-contrast-toggle" onclick="toggleContrast()" class="touch-target px-2.5 py-1.5 rounded-lg border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition flex items-center gap-1" aria-pressed="false">
+        <button type="button" id="btn-contrast-toggle" onclick="toggleContrast()" class="touch-target px-2.5 py-1.5 rounded-lg border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition flex items-center gap-1" aria-pressed="false" title="Przełącz wysoki kontrast WCAG AAA (Alt+K)">
           <span class="hidden sm:inline">Kontrast</span>
           <span role="img" aria-label="(ikona oka)">👁️</span>
+        </button>
+
+        <!-- Przycisk Adaptacji do Inwersji Kolorów (iPhone Smart/Classic Invert) -->
+        <button type="button" id="btn-iphone-invert-toggle" onclick="toggleIphoneInvertMode()" class="touch-target px-2.5 py-1.5 rounded-lg border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition flex items-center gap-1 shadow-sm" aria-pressed="false" title="Wymuś ciemne tło przy włączonym Odwróceniu Kolorów / Smart Invert w iPhone (Alt+I)">
+          <span role="img" aria-label="(ikona inwersji)">🌓</span>
+          <span class="hidden sm:inline">Inwersja iPhone</span>
+          <span class="sr-only" id="invert-sr-status">Tryb adaptacji do inwersji iPhone: wyłączony</span>
         </button>
 
         <!-- Wielkość czcionki -->
@@ -1687,6 +1878,20 @@
             Tak jak prawdziwa piaskownica na placu zabaw pozwala dzieciom lepić babki z piasku bez brudzenia salonu, tak nasza komputerowa piaskownica to <strong>bezpieczny podgląd wewnątrz przeglądarki</strong>. Wklejasz tam kod od AI i od razu widzisz działające przyciski i animacje. Nic na Twoim komputerze nie może się zepsuć ani usunąć!
           </p>
         </div>
+
+        <!-- Dostępność na iPhone i Inwersja Kolorów -->
+        <div class="p-4 rounded-2xl bg-slate-950/80 border border-purple-500/40">
+          <strong class="text-purple-300 font-bold block mb-1 flex items-center gap-1.5">
+            <span>Dostępność WCAG i obsługa iPhone (Inwersja / Odwrócenie Kolorów)</span>
+            <span role="img" aria-label="(ikona telefonu)">📱</span>
+          </strong>
+          <p class="text-slate-300 mb-2">
+            Jeśli korzystasz z kompendium na <strong>iPhone</strong> i masz włączoną w telefonie opcję <em>„Odwrócenie kolorów”</em> lub <em>„Inteligentne odwrócenie kolorów”</em> (Ustawienia &rarr; Dostępność &rarr; Ekran i wielkość tekstu), strona automatycznie dostosowuje barwy, aby tło na Twoim ekranie pozostało <strong>głęboko ciemne</strong>, a litery były wyraźne i czytelne.
+          </p>
+          <p class="text-slate-300">
+            Możesz także w dowolnej chwili kliknąć przycisk <strong>„🌓 Inwersja iPhone”</strong> na górnym pasku (lub wcisnąć <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700">Alt+I</kbd>), aby natychmiast wymusić adaptację pod sprzętowe odwracanie kolorów.
+          </p>
+        </div>
       </div>
 
       <div class="mt-6 pt-4 border-t border-slate-800 flex justify-end">
@@ -1848,7 +2053,7 @@
     <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-6">
       <div>
         <p class="font-bold text-slate-300 mb-1">
-          Akademia Vibe Codingu i Sztuki Promptingu • Wersja 3.6.0 • WCAG 2.1 / 2.2 Poziom AA/AAA
+          Akademia Vibe Codingu i Sztuki Promptingu • Wersja 3.7.0 • WCAG 2.1 / 2.2 Poziom AA/AAA (Obsługa Inwersji iOS)
         </p>
         <p>
           Akademia Vibe Codingu i Sztuki Promptingu • Projekt dostępny w chmurze na GitHubie: <a href="https://github.com/strugo10/vibe-coding-kompendium" target="_blank" rel="noopener noreferrer" class="underline text-slate-300 hover:text-white">strugo10/vibe-coding-kompendium</a> oraz online: <a href="https://strugo10.github.io/vibe-coding-kompendium/" target="_blank" rel="noopener noreferrer" class="underline text-teal-400 hover:text-teal-300">Wersja webowa na żywo</a>. Praktyka w pracy i życiu osobistym, dedykowany panel uwag dla twórcy i uniwersalny eksport notatek.
@@ -4033,6 +4238,7 @@ const STATE = {
   showImprovementList: false,  // czy rozwinięto listę zadań do poprawy
   soundEnabled: true,
   contrastHigh: false,
+  iphoneInvertMode: false, // czy włączono tryb adaptacji do inwersji kolorów iPhone
   fontSize: 'normal', // 'normal' | 'large' | 'xlarge'
   filterStage: 'all',
   filterStatus: 'all',
@@ -8935,6 +9141,71 @@ function toggleContrast(forceVal) {
   saveState();
 }
 
+// =========================================================================
+// ZARZĄDZANIE ADAPTACJĄ DO INWERSJI KOLORÓW IPHONE (WCAG 2.1/2.2 AA & AAA)
+// Dla funkcji iOS: "Odwrócenie kolorów" oraz "Inteligentne odwrócenie"
+// =========================================================================
+function toggleIphoneInvertMode(forceVal) {
+  const newVal = typeof forceVal === 'boolean' ? forceVal : !STATE.iphoneInvertMode;
+  applyIphoneInvertMode(newVal, true);
+}
+
+function applyIphoneInvertMode(isActive, shouldAnnounce = false) {
+  STATE.iphoneInvertMode = Boolean(isActive);
+  const btn = document.getElementById('btn-iphone-invert-toggle');
+  const srText = document.getElementById('invert-sr-status');
+
+  if (STATE.iphoneInvertMode) {
+    document.documentElement.setAttribute('data-invert', 'iphone');
+    if (btn) {
+      btn.setAttribute('aria-pressed', 'true');
+      btn.classList.add('bg-amber-400', 'text-slate-950', 'border-amber-400', 'font-black');
+      btn.classList.remove('bg-slate-800', 'text-slate-200', 'border-slate-700');
+    }
+    if (srText) srText.textContent = 'Tryb adaptacji do inwersji iPhone: włączony (ciemne tło aktywne).';
+    if (shouldAnnounce) {
+      announceSR('Włączono tryb adaptacji do inwersji iPhone. Tło po odwróceniu kolorów w telefonie pozostaje głęboko ciemne.');
+      playClickSound();
+    }
+  } else {
+    document.documentElement.removeAttribute('data-invert');
+    if (btn) {
+      btn.setAttribute('aria-pressed', 'false');
+      btn.classList.remove('bg-amber-400', 'text-slate-950', 'border-amber-400', 'font-black');
+      btn.classList.add('bg-slate-800', 'text-slate-200', 'border-slate-700');
+    }
+    if (srText) srText.textContent = 'Tryb adaptacji do inwersji iPhone: wyłączony.';
+    if (shouldAnnounce) {
+      announceSR('Wyłączono tryb adaptacji do inwersji iPhone. Przywrócono domyślne ciemne tło kompendium.');
+      playClickSound();
+    }
+  }
+  saveState();
+}
+
+function setupInvertedColorsDetection() {
+  if (window.matchMedia) {
+    try {
+      const mediaInvert = window.matchMedia('(inverted-colors: inverted)');
+      const handleMediaChange = (e) => {
+        if (e.matches && !STATE.iphoneInvertMode) {
+          applyIphoneInvertMode(true, true);
+        }
+      };
+      if (mediaInvert.matches && !STATE.iphoneInvertMode) {
+        applyIphoneInvertMode(true, false);
+      }
+      if (typeof mediaInvert.addEventListener === 'function') {
+        mediaInvert.addEventListener('change', handleMediaChange);
+      } else if (typeof mediaInvert.addListener === 'function') {
+        mediaInvert.addListener(handleMediaChange);
+      }
+    } catch(err) {
+      console.warn("Wykrywanie inverted-colors:", err);
+    }
+  }
+}
+
 function applyFontSize(size) {
   playClickSound();
   STATE.fontSize = size;
@@ -9718,7 +9989,7 @@ function downloadAuthorFeedbackMarkdown() {
   }
 
   let md = `# Uwagi i Sugestie dla Twórcy Kompendium Vibe Codingu\n`;
-  md += `*Wygenerowano: ${new Date().toLocaleString('pl-PL')} • Akademia Vibe Codingu v3.6.0*\n`;
+  md += `*Wygenerowano: ${new Date().toLocaleString('pl-PL')} • Akademia Vibe Codingu v3.7.0*\n`;
   md += `*Kursant / Użytkownik: ${STATE.learnerName || 'Adept'}*\n`;
   md += `*Łączna liczba zgłoszonych uwag: ${feedbacks.length}*\n\n`;
   md += `Prześlij ten plik do autora kompendium jako załącznik e-mail lub skopiuj jego treść do wiadomości.\n\n`;
@@ -9759,7 +10030,7 @@ function downloadAuthorFeedbackHtml() {
 
   let bodyContent = `
     <header class="doc-header">
-      <div class="badge">Akademia Vibe Codingu v3.6.0 • Raport Uwag i Sugestii</div>
+      <div class="badge">Akademia Vibe Codingu v3.7.0 • Raport Uwag i Sugestii</div>
       <h1>Uwagi i Sugestie dla Twórcy Kompendium</h1>
       <div class="meta">
         <p><strong>Użytkownik / Kursant:</strong> ${escapeHtmlText(STATE.learnerName || 'Adept')}</p>
@@ -10949,6 +11220,7 @@ function loadSavedState() {
       if (parsed.viewMode) STATE.viewMode = parsed.viewMode;
       if (parsed.soundEnabled !== undefined) STATE.soundEnabled = parsed.soundEnabled;
       if (parsed.contrastHigh !== undefined) STATE.contrastHigh = parsed.contrastHigh;
+      if (parsed.iphoneInvertMode !== undefined) STATE.iphoneInvertMode = parsed.iphoneInvertMode;
       if (parsed.fontSize) STATE.fontSize = parsed.fontSize;
       if (parsed.streakDays) STATE.streakDays = parsed.streakDays;
       if (parsed.lastActiveDate) STATE.lastActiveDate = parsed.lastActiveDate;
@@ -11022,6 +11294,7 @@ function saveState() {
       viewMode: STATE.viewMode,
       soundEnabled: STATE.soundEnabled,
       contrastHigh: STATE.contrastHigh,
+      iphoneInvertMode: Boolean(STATE.iphoneInvertMode),
       fontSize: STATE.fontSize,
       streakDays: STATE.streakDays,
       lastActiveDate: STATE.lastActiveDate,
@@ -11072,9 +11345,9 @@ function requestPushNotification() {
 }
 
 // =========================================================================
-// INICJALIZACJA APLIKACJI PO ZAŁADOWANIU DOM
+// INICJALIZACJA APLIKACJI PO ZAŁADOWANIU DOM (LUB NATYCHMIAST GDY DOM GOTOWY)
 // =========================================================================
-document.addEventListener('DOMContentLoaded', () => {
+function initializeAcademyApp() {
   loadSavedState();
   populateQuickDayJump();
   syncProfileFormValues();
@@ -11083,6 +11356,8 @@ document.addEventListener('DOMContentLoaded', () => {
   applyTheme(STATE.currentTheme);
   syncSoundButtonUI();
   if (STATE.contrastHigh) toggleContrast(true);
+  if (STATE.iphoneInvertMode) applyIphoneInvertMode(true, false);
+  setupInvertedColorsDetection();
   if (STATE.fontSize !== 'normal') applyFontSize(STATE.fontSize);
 
   updateProgressUI();
@@ -11208,6 +11483,9 @@ document.addEventListener('DOMContentLoaded', () => {
       } else if (e.key === 'k' || e.key === 'K') {
         e.preventDefault();
         toggleContrast();
+      } else if (e.key === 'i' || e.key === 'I') {
+        e.preventDefault();
+        toggleIphoneInvertMode();
       } else if (e.key === 'n' || e.key === 'N') {
         e.preventDefault();
         openNotesManagerModal();
@@ -11290,7 +11568,14 @@ document.addEventListener('DOMContentLoaded', () => {
       updateClearSearchButtonVisibility();
     });
   }
-});
+}
+
+// Uruchomienie aplikacji natychmiast lub po zdarzeniu DOMContentLoaded
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeAcademyApp);
+} else {
+  initializeAcademyApp();
+}
 
   </script>
 </body>

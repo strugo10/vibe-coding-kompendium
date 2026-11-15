@@ -32,6 +32,7 @@ const STATE = {
   showImprovementList: false,  // czy rozwinięto listę zadań do poprawy
   soundEnabled: true,
   contrastHigh: false,
+  iphoneInvertMode: false, // czy włączono tryb adaptacji do inwersji kolorów iPhone
   fontSize: 'normal', // 'normal' | 'large' | 'xlarge'
   filterStage: 'all',
   filterStatus: 'all',
@@ -4934,6 +4935,71 @@ function toggleContrast(forceVal) {
   saveState();
 }
 
+// =========================================================================
+// ZARZĄDZANIE ADAPTACJĄ DO INWERSJI KOLORÓW IPHONE (WCAG 2.1/2.2 AA & AAA)
+// Dla funkcji iOS: "Odwrócenie kolorów" oraz "Inteligentne odwrócenie"
+// =========================================================================
+function toggleIphoneInvertMode(forceVal) {
+  const newVal = typeof forceVal === 'boolean' ? forceVal : !STATE.iphoneInvertMode;
+  applyIphoneInvertMode(newVal, true);
+}
+
+function applyIphoneInvertMode(isActive, shouldAnnounce = false) {
+  STATE.iphoneInvertMode = Boolean(isActive);
+  const btn = document.getElementById('btn-iphone-invert-toggle');
+  const srText = document.getElementById('invert-sr-status');
+
+  if (STATE.iphoneInvertMode) {
+    document.documentElement.setAttribute('data-invert', 'iphone');
+    if (btn) {
+      btn.setAttribute('aria-pressed', 'true');
+      btn.classList.add('bg-amber-400', 'text-slate-950', 'border-amber-400', 'font-black');
+      btn.classList.remove('bg-slate-800', 'text-slate-200', 'border-slate-700');
+    }
+    if (srText) srText.textContent = 'Tryb adaptacji do inwersji iPhone: włączony (ciemne tło aktywne).';
+    if (shouldAnnounce) {
+      announceSR('Włączono tryb adaptacji do inwersji iPhone. Tło po odwróceniu kolorów w telefonie pozostaje głęboko ciemne.');
+      playClickSound();
+    }
+  } else {
+    document.documentElement.removeAttribute('data-invert');
+    if (btn) {
+      btn.setAttribute('aria-pressed', 'false');
+      btn.classList.remove('bg-amber-400', 'text-slate-950', 'border-amber-400', 'font-black');
+      btn.classList.add('bg-slate-800', 'text-slate-200', 'border-slate-700');
+    }
+    if (srText) srText.textContent = 'Tryb adaptacji do inwersji iPhone: wyłączony.';
+    if (shouldAnnounce) {
+      announceSR('Wyłączono tryb adaptacji do inwersji iPhone. Przywrócono domyślne ciemne tło kompendium.');
+      playClickSound();
+    }
+  }
+  saveState();
+}
+
+function setupInvertedColorsDetection() {
+  if (window.matchMedia) {
+    try {
+      const mediaInvert = window.matchMedia('(inverted-colors: inverted)');
+      const handleMediaChange = (e) => {
+        if (e.matches && !STATE.iphoneInvertMode) {
+          applyIphoneInvertMode(true, true);
+        }
+      };
+      if (mediaInvert.matches && !STATE.iphoneInvertMode) {
+        applyIphoneInvertMode(true, false);
+      }
+      if (typeof mediaInvert.addEventListener === 'function') {
+        mediaInvert.addEventListener('change', handleMediaChange);
+      } else if (typeof mediaInvert.addListener === 'function') {
+        mediaInvert.addListener(handleMediaChange);
+      }
+    } catch(err) {
+      console.warn("Wykrywanie inverted-colors:", err);
+    }
+  }
+}
+
 function applyFontSize(size) {
   playClickSound();
   STATE.fontSize = size;
@@ -5717,7 +5783,7 @@ function downloadAuthorFeedbackMarkdown() {
   }
 
   let md = `# Uwagi i Sugestie dla Twórcy Kompendium Vibe Codingu\n`;
-  md += `*Wygenerowano: ${new Date().toLocaleString('pl-PL')} • Akademia Vibe Codingu v3.6.0*\n`;
+  md += `*Wygenerowano: ${new Date().toLocaleString('pl-PL')} • Akademia Vibe Codingu v3.7.0*\n`;
   md += `*Kursant / Użytkownik: ${STATE.learnerName || 'Adept'}*\n`;
   md += `*Łączna liczba zgłoszonych uwag: ${feedbacks.length}*\n\n`;
   md += `Prześlij ten plik do autora kompendium jako załącznik e-mail lub skopiuj jego treść do wiadomości.\n\n`;
@@ -5758,7 +5824,7 @@ function downloadAuthorFeedbackHtml() {
 
   let bodyContent = `
     <header class="doc-header">
-      <div class="badge">Akademia Vibe Codingu v3.6.0 • Raport Uwag i Sugestii</div>
+      <div class="badge">Akademia Vibe Codingu v3.7.0 • Raport Uwag i Sugestii</div>
       <h1>Uwagi i Sugestie dla Twórcy Kompendium</h1>
       <div class="meta">
         <p><strong>Użytkownik / Kursant:</strong> ${escapeHtmlText(STATE.learnerName || 'Adept')}</p>
@@ -6948,6 +7014,7 @@ function loadSavedState() {
       if (parsed.viewMode) STATE.viewMode = parsed.viewMode;
       if (parsed.soundEnabled !== undefined) STATE.soundEnabled = parsed.soundEnabled;
       if (parsed.contrastHigh !== undefined) STATE.contrastHigh = parsed.contrastHigh;
+      if (parsed.iphoneInvertMode !== undefined) STATE.iphoneInvertMode = parsed.iphoneInvertMode;
       if (parsed.fontSize) STATE.fontSize = parsed.fontSize;
       if (parsed.streakDays) STATE.streakDays = parsed.streakDays;
       if (parsed.lastActiveDate) STATE.lastActiveDate = parsed.lastActiveDate;
@@ -7021,6 +7088,7 @@ function saveState() {
       viewMode: STATE.viewMode,
       soundEnabled: STATE.soundEnabled,
       contrastHigh: STATE.contrastHigh,
+      iphoneInvertMode: Boolean(STATE.iphoneInvertMode),
       fontSize: STATE.fontSize,
       streakDays: STATE.streakDays,
       lastActiveDate: STATE.lastActiveDate,
@@ -7071,9 +7139,9 @@ function requestPushNotification() {
 }
 
 // =========================================================================
-// INICJALIZACJA APLIKACJI PO ZAŁADOWANIU DOM
+// INICJALIZACJA APLIKACJI PO ZAŁADOWANIU DOM (LUB NATYCHMIAST GDY DOM GOTOWY)
 // =========================================================================
-document.addEventListener('DOMContentLoaded', () => {
+function initializeAcademyApp() {
   loadSavedState();
   populateQuickDayJump();
   syncProfileFormValues();
@@ -7082,6 +7150,8 @@ document.addEventListener('DOMContentLoaded', () => {
   applyTheme(STATE.currentTheme);
   syncSoundButtonUI();
   if (STATE.contrastHigh) toggleContrast(true);
+  if (STATE.iphoneInvertMode) applyIphoneInvertMode(true, false);
+  setupInvertedColorsDetection();
   if (STATE.fontSize !== 'normal') applyFontSize(STATE.fontSize);
 
   updateProgressUI();
@@ -7207,6 +7277,9 @@ document.addEventListener('DOMContentLoaded', () => {
       } else if (e.key === 'k' || e.key === 'K') {
         e.preventDefault();
         toggleContrast();
+      } else if (e.key === 'i' || e.key === 'I') {
+        e.preventDefault();
+        toggleIphoneInvertMode();
       } else if (e.key === 'n' || e.key === 'N') {
         e.preventDefault();
         openNotesManagerModal();
@@ -7289,4 +7362,11 @@ document.addEventListener('DOMContentLoaded', () => {
       updateClearSearchButtonVisibility();
     });
   }
-});
+}
+
+// Uruchomienie aplikacji natychmiast lub po zdarzeniu DOMContentLoaded
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeAcademyApp);
+} else {
+  initializeAcademyApp();
+}
