@@ -258,7 +258,39 @@ const TASKS_DATA = [
     desc: "Ikony to uniwersalny język wizualny. Zamiast szukać obrazków w Google, używamy fontów wektorowych, które ładują się natychmiast i nigdy nie tracą ostrości.",
     prompt: "Dodaj do baneru surfingowego ikony z darmowej biblioteki FontAwesome (CDN): ikonę fali morskiej obok tytułu, ikonę kalendarza na przycisku rezerwacji oraz ikonę telefonu w prawym górnym rogu.",
     expected: "Piękne, ostre symbole wektorowe pojawią się w wyznaczonych miejscach.",
-    tip: "Ikony traktowane są jak zwykły tekst – możesz zmieniać ich kolor klasą text-amber-400 i rozmiar text-2xl."
+    tip: "Ikony traktowane są jak zwykły tekst – możesz zmieniać ich kolor klasą text-amber-400 i rozmiar text-2xl.",
+    fallbackTitle: "Kod bazowy baneru surfingowego (z Zadania 21)",
+    fallbackDesc: "Zaczynasz od Dnia 8 lub nie masz pliku z wczoraj? Użyj poniższego kodu baneru surfingowego. Możesz kliknąć 'Kopiuj kod + prompt', aby od razu wkleić do AI cały pakiet!",
+    starterCode: `<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wypożyczalnia Desek Surfingowych WaveRider</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-white min-h-screen flex items-center justify-center p-4">
+  <section class="max-w-4xl w-full rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-r from-cyan-600 via-teal-600 to-blue-700 p-8 sm:p-14 text-center relative border border-cyan-400/30">
+    <span class="inline-block px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-sm text-cyan-100 text-xs sm:text-sm font-semibold mb-4 tracking-wide shadow-sm">
+      Sezon Bałtyk 2026 Otwarty
+    </span>
+    <h1 class="text-3xl sm:text-5xl md:text-6xl font-black text-white tracking-tight leading-tight mb-4 drop-shadow">
+      Złap Swoją Najlepszą Falę
+    </h1>
+    <p class="text-sm sm:text-lg text-cyan-100 max-w-2xl mx-auto mb-8 font-light leading-relaxed">
+      Wypożycz profesjonalną deskę surfingową lub piankę na Półwyspie Helskim. Dostarczamy sprzęt prosto na plażę w 15 minut.
+    </p>
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+      <button class="w-full sm:w-auto px-8 py-4 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-sm sm:text-base transition transform hover:scale-105 shadow-xl">
+        Zarezerwuj deskę teraz
+      </button>
+      <button class="w-full sm:w-auto px-8 py-4 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-sm sm:text-base border border-white/30 backdrop-blur-sm transition">
+        Cennik i modele
+      </button>
+    </div>
+  </section>
+</body>
+</html>`
   },
   {
     id: 23, day: 8, stage: 2,
@@ -267,7 +299,46 @@ const TASKS_DATA = [
     desc: "Najczęstszy błąd początkujących: 'Popraw przycisk, zmień kolor tła, dodaj bazę danych i zmień czcionkę'. AI gubi się i psuje kod. Złota zasada vibe codera to mikrokroki: jedna zmiana w jednym prompcie.",
     prompt: "W moim działającym pliku chcę zmienić TYLKO JEDNĄ rzecz: po kliknięciu przycisku 'Zarezerwuj deskę' ma pojawić się zielony dymek z napisem 'Termin zarezerwowany na 24h!'. Nie zmieniaj żadnych kolorów ani innych funkcji.",
     expected: "Model zwróci kod, w którym jedyną nowością jest dymek potwierdzenia.",
-    tip: "Jeśli masz 5 pomysłów, wyślij 5 kolejnych wiadomości po przetestowaniu każdej z nich."
+    tip: "Jeśli masz 5 pomysłów, wyślij 5 kolejnych wiadomości po przetestowaniu każdej z nich.",
+    fallbackTitle: "Kod baneru surfingowego z ikonami (z Zadania 22)",
+    fallbackDesc: "Nie masz pliku z Zadania 22? Użyj poniższego kodu z podpiętą biblioteką FontAwesome i ikonami, aby przećwiczyć dodanie zielonego dymku!",
+    starterCode: `<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wypożyczalnia Desek Surfingowych WaveRider</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body class="bg-slate-950 text-white min-h-screen flex items-center justify-center p-4">
+  <section class="max-w-4xl w-full rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-r from-cyan-600 via-teal-600 to-blue-700 p-8 sm:p-14 text-center relative border border-cyan-400/30">
+    <div class="absolute top-5 right-6 text-cyan-200 text-xs sm:text-sm font-bold flex items-center gap-2 bg-black/20 px-3 py-1.5 rounded-full">
+      <i class="fa-solid fa-phone"></i>
+      <span>+48 500 600 700</span>
+    </div>
+    <span class="inline-block px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-sm text-cyan-100 text-xs sm:text-sm font-semibold mb-4 tracking-wide shadow-sm">
+      Sezon Bałtyk 2026 Otwarty
+    </span>
+    <h1 class="text-3xl sm:text-5xl md:text-6xl font-black text-white tracking-tight leading-tight mb-4 drop-shadow flex items-center justify-center gap-3">
+      <span>Złap Swoją Najlepszą Falę</span>
+      <i class="fa-solid fa-water text-cyan-200 text-3xl sm:text-5xl"></i>
+    </h1>
+    <p class="text-sm sm:text-lg text-cyan-100 max-w-2xl mx-auto mb-8 font-light leading-relaxed">
+      Wypożycz profesjonalną deskę surfingową lub piankę na Półwyspie Helskim. Dostarczamy sprzęt prosto na plażę w 15 minut.
+    </p>
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+      <button class="w-full sm:w-auto px-8 py-4 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-sm sm:text-base transition transform hover:scale-105 shadow-xl flex items-center justify-center gap-2">
+        <i class="fa-solid fa-calendar-check"></i>
+        <span>Zarezerwuj deskę</span>
+      </button>
+      <button class="w-full sm:w-auto px-8 py-4 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-sm sm:text-base border border-white/30 backdrop-blur-sm transition">
+        Cennik i modele
+      </button>
+    </div>
+  </section>
+</body>
+</html>`
   },
   {
     id: 24, day: 8, stage: 2,
@@ -312,7 +383,58 @@ const TASKS_DATA = [
     desc: "Gdy lista zadań ma 30 pozycji, nikt nie chce ich przewijać. Wyszukiwarka filtrująca w czasie rzeczywistym to standard każdej aplikacji.",
     prompt: "Dodaj na samej górze listy To-Do pole wyszukiwania z lupką. Gdy użytkownik wpisuje np. 'zakupy', na liście mają pozostać widoczne TYLKO te zadania, które zawierają to słowo. Pozostałe mają płynnie zniknąć.",
     expected: "Błyskawiczne filtrowanie listy bez przeładowywania strony.",
-    tip: "Ta sama technika służy do filtrowania kontaktów w telefonie i produktów w Allegro."
+    tip: "Ta sama technika służy do filtrowania kontaktów w telefonie i produktów w Allegro.",
+    fallbackTitle: "Kod bazowy listy zadań To-Do (z Zadania 27)",
+    fallbackDesc: "Nie masz zapisanego pliku z Zadania 27 lub chcesz kontynuować od sprawdzonej bazy? Użyj poniższego kodu listy zadań z LocalStorage!",
+    starterCode: `<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Moja Lista Zadań To-Do</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex items-center justify-center p-4">
+  <main class="max-w-lg w-full bg-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-700">
+    <h1 class="text-2xl font-black text-white mb-6 text-center">📝 Moja Lista Zadań</h1>
+    <form id="todo-form" class="flex gap-2 mb-6">
+      <input type="text" id="todo-input" placeholder="Wpisz nowe zadanie..." required
+        class="flex-1 px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+      <button type="submit" class="px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm transition">
+        Dodaj
+      </button>
+    </form>
+    <ul id="todo-list" class="space-y-2"></ul>
+  </main>
+  <script>
+    const form = document.getElementById('todo-form');
+    const input = document.getElementById('todo-input');
+    const list = document.getElementById('todo-list');
+    let todos = JSON.parse(localStorage.getItem('my_todos') || '[]');
+    function saveAndRender() {
+      localStorage.setItem('my_todos', JSON.stringify(todos));
+      list.innerHTML = todos.map((t, idx) => \`
+        <li class="flex items-center justify-between p-3 rounded-xl bg-slate-900 border border-slate-700">
+          <label class="flex items-center gap-3 cursor-pointer flex-1">
+            <input type="checkbox" \${t.done ? 'checked' : ''} onchange="toggleTodo(\${idx})" class="w-4 h-4 text-indigo-500 rounded">
+            <span class="\${t.done ? 'line-through text-slate-500' : 'text-slate-100'} text-sm">\${t.text}</span>
+          </label>
+          <button onclick="removeTodo(\${idx})" class="text-rose-400 hover:text-rose-300 text-xs px-2 py-1 rounded">Usuń</button>
+        </li>
+      \`).join('');
+    }
+    window.toggleTodo = (idx) => { todos[idx].done = !todos[idx].done; saveAndRender(); };
+    window.removeTodo = (idx) => { todos.splice(idx, 1); saveAndRender(); };
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      todos.push({ text: input.value.trim(), done: false });
+      input.value = '';
+      saveAndRender();
+    });
+    saveAndRender();
+  </script>
+</body>
+</html>`
   },
   {
     id: 29, day: 10, stage: 2,
@@ -321,7 +443,63 @@ const TASKS_DATA = [
     desc: "Dźwięk wywołuje natychmiastowy wyrzut dopaminy. Przeglądarka potrafi sama syntetyzować fale dźwiękowe za pomocą Web Audio API – dokładnie tak jak instrumenty syntezatorowe.",
     prompt: "Wykorzystaj Web Audio API przeglądarki, aby w momencie odhaczenia zadania jako ukończone w liście To-Do odtworzył się krótki, ciepły, kojący dwuton sukcesu (fale sinusoidalne C5 -> G5) o głośności 15%. Dodaj w rogu przełącznik wyciszenia dźwięków.",
     expected: "Klikasz w checkbox i słyszysz miękki, gamingowy dźwięk sukcesu w głośnikach!",
-    tip: "Dźwięki w aplikacjach powinny być subtelne i mieć miękki atak, by nie drażnić przy setnym kliknięciu."
+    tip: "Dźwięki w aplikacjach powinny być subtelne i mieć miękki atak, by nie drażnić przy setnym kliknięciu.",
+    fallbackTitle: "Kod listy zadań To-Do z wyszukiwarką",
+    fallbackDesc: "Potrzebujesz gotowej bazy z wyszukiwarką do podpięcia dźwięków? Skopiuj ten kod!",
+    starterCode: `<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lista Zadań z Wyszukiwarką</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex items-center justify-center p-4">
+  <main class="max-w-lg w-full bg-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-700">
+    <h1 class="text-2xl font-black text-white mb-4 text-center">📝 Moja Lista Zadań</h1>
+    <input type="text" id="search-input" placeholder="🔍 Szukaj zadania..." oninput="filterTodos()"
+      class="w-full px-4 py-2.5 mb-4 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+    <form id="todo-form" class="flex gap-2 mb-6">
+      <input type="text" id="todo-input" placeholder="Wpisz nowe zadanie..." required
+        class="flex-1 px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+      <button type="submit" class="px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm transition">
+        Dodaj
+      </button>
+    </form>
+    <ul id="todo-list" class="space-y-2"></ul>
+  </main>
+  <script>
+    const form = document.getElementById('todo-form');
+    const input = document.getElementById('todo-input');
+    const searchInput = document.getElementById('search-input');
+    const list = document.getElementById('todo-list');
+    let todos = JSON.parse(localStorage.getItem('my_todos_v2') || '[]');
+    function saveAndRender(filter = '') {
+      localStorage.setItem('my_todos_v2', JSON.stringify(todos));
+      const filtered = todos.filter(t => t.text.toLowerCase().includes(filter.toLowerCase()));
+      list.innerHTML = filtered.map((t, idx) => \`
+        <li class="flex items-center justify-between p-3 rounded-xl bg-slate-900 border border-slate-700">
+          <label class="flex items-center gap-3 cursor-pointer flex-1">
+            <input type="checkbox" \${t.done ? 'checked' : ''} onchange="toggleTodo(\${idx})" class="w-4 h-4 text-indigo-500 rounded">
+            <span class="\${t.done ? 'line-through text-slate-500' : 'text-slate-100'} text-sm">\${t.text}</span>
+          </label>
+          <button onclick="removeTodo(\${idx})" class="text-rose-400 hover:text-rose-300 text-xs px-2 py-1 rounded">Usuń</button>
+        </li>
+      \`).join('');
+    }
+    window.filterTodos = () => saveAndRender(searchInput.value);
+    window.toggleTodo = (idx) => { todos[idx].done = !todos[idx].done; saveAndRender(searchInput.value); };
+    window.removeTodo = (idx) => { todos.splice(idx, 1); saveAndRender(searchInput.value); };
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      todos.push({ text: input.value.trim(), done: false });
+      input.value = '';
+      saveAndRender(searchInput.value);
+    });
+    saveAndRender();
+  </script>
+</body>
+</html>`
   },
   {
     id: 30, day: 10, stage: 2,
@@ -330,7 +508,54 @@ const TASKS_DATA = [
     desc: "Użytkownicy uwielbiają mieć poczucie kontroli nad swoimi danymi. Eksport do formatu CSV pozwala otworzyć dane w Excelu lub Arkuszach Google.",
     prompt: "Dodaj pod listą zadań przycisk 'Pobierz zadania do Excela (.csv)'. Po kliknięciu przeglądarka ma wygenerować plik tekstowy CSV z kolumnami: [Nazwa Zadania, Status, Data Utworzenia] i automatycznie rozpocząć jego pobieranie.",
     expected: "Klikasz przycisk i na Twoim dysku ląduje plik zadania.csv gotowy do otwarcia w arkuszu kalkulacyjnym.",
-    tip: "Generowanie plików po stronie przeglądarki (data URI lub Blob) nie zużywa ani jednego kilobajta transferu serwerowego."
+    tip: "Generowanie plików po stronie przeglądarki (data URI lub Blob) nie zużywa ani jednego kilobajta transferu serwerowego.",
+    fallbackTitle: "Kod listy zadań To-Do",
+    fallbackDesc: "Nie masz pod ręką pliku To-Do? Skopiuj ten kod, aby dodać eksport CSV!",
+    starterCode: `<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lista Zadań To-Do</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex items-center justify-center p-4">
+  <main class="max-w-lg w-full bg-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-700">
+    <h1 class="text-2xl font-black text-white mb-6 text-center">📝 Moja Lista Zadań</h1>
+    <form id="todo-form" class="flex gap-2 mb-6">
+      <input type="text" id="todo-input" placeholder="Wpisz nowe zadanie..." required
+        class="flex-1 px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+      <button type="submit" class="px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm transition">Dodaj</button>
+    </form>
+    <ul id="todo-list" class="space-y-2 mb-6"></ul>
+  </main>
+  <script>
+    const form = document.getElementById('todo-form');
+    const input = document.getElementById('todo-input');
+    const list = document.getElementById('todo-list');
+    let todos = JSON.parse(localStorage.getItem('my_todos_exp') || '[{"text":"Kupić świece","done":true,"created":"2026-03-01"},{"text":"Nauczyć się promptingu","done":false,"created":"2026-03-02"}]');
+    function saveAndRender() {
+      localStorage.setItem('my_todos_exp', JSON.stringify(todos));
+      list.innerHTML = todos.map((t, idx) => \`
+        <li class="flex items-center justify-between p-3 rounded-xl bg-slate-900 border border-slate-700">
+          <label class="flex items-center gap-3 cursor-pointer flex-1">
+            <input type="checkbox" \${t.done ? 'checked' : ''} onchange="toggleTodo(\${idx})" class="w-4 h-4 text-indigo-500 rounded">
+            <span class="\${t.done ? 'line-through text-slate-500' : 'text-slate-100'} text-sm">\${t.text}</span>
+          </label>
+        </li>
+      \`).join('');
+    }
+    window.toggleTodo = (idx) => { todos[idx].done = !todos[idx].done; saveAndRender(); };
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      todos.push({ text: input.value.trim(), done: false, created: new Date().toISOString().split('T')[0] });
+      input.value = '';
+      saveAndRender();
+    });
+    saveAndRender();
+  </script>
+</body>
+</html>`
   },
   {
     id: 31, day: 11, stage: 2,
@@ -339,7 +564,36 @@ const TASKS_DATA = [
     desc: "Nic tak nie niszczy zaufania do aplikacji jak przypadkowe skasowanie rocznej pracy jednym kliknięciem myszki. Okno potwierdzenia (Modal) to tarcza ochronna.",
     prompt: "Gdy użytkownik kliknie 'Wyczyść całą listę zadań', nie kasuj ich od razu. Wyświetl estetyczne okienko modalne na przyciemnionym tle z pytaniem: 'Czy na pewno chcesz usunąć wszystkie zadania? Te operacji nie można cofnąć.' z dwoma przyciskami: 'Anuluj' (szary) oraz 'Tak, usuń wszystko' (czerwony).",
     expected: "Pojawienie się eleganckiego okienka dialogowego z obsługą klawisza Escape.",
-    tip: "Zawsze daj użytkownikowi szansę na ratunek przed jego własną nieuwagą."
+    tip: "Zawsze daj użytkownikowi szansę na ratunek przed jego własną nieuwagą.",
+    fallbackTitle: "Kod listy zadań To-Do z przyciskiem czyszczenia",
+    fallbackDesc: "Użyj poniższego kodu, aby od razu wdrożyć bezpieczne okienko dialogowe!",
+    starterCode: `<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lista Zadań z Potwierdzeniem</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex items-center justify-center p-4">
+  <main class="max-w-lg w-full bg-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-700">
+    <div class="flex items-center justify-between mb-6">
+      <h1 class="text-2xl font-black text-white">📝 Lista Zadań</h1>
+      <button onclick="clearAll()" class="text-xs px-3 py-1.5 rounded-xl bg-rose-950 text-rose-300 border border-rose-800 hover:bg-rose-900 transition">Wyczyść listę</button>
+    </div>
+    <ul id="todo-list" class="space-y-2 mb-6">
+      <li class="p-3 rounded-xl bg-slate-900 border border-slate-700 text-sm">Ważny projekt dla firmy</li>
+      <li class="p-3 rounded-xl bg-slate-900 border border-slate-700 text-sm">Rezerwacja biletów lotniczych</li>
+    </ul>
+  </main>
+  <script>
+    function clearAll() {
+      // Tutaj w zadaniu dodamy okno modalne zamiast natychmiastowego kasowania!
+      alert("Kliknięto wyczyść listę!");
+    }
+  </script>
+</body>
+</html>`
   },
   {
     id: 32, day: 11, stage: 2,
@@ -348,7 +602,31 @@ const TASKS_DATA = [
     desc: "Wielu programistów, osób niewidomych lub z bólami nadgarstka nie używa myszki. Standard WCAG wymaga, aby każdy element dało się obsłużyć klawiaturą.",
     prompt: "Przejrzyj kod listy zadań i upewnij się, że spełnia zasady dostępności WCAG 2.1 AA: klawisz Tab przenosi fokus logicznie, pole tekstowe ma widoczną grubą ramkę fokusu (focus-visible: outline-3px), klawisz Enter dodaje zadanie, a Spacja zaznacza checkbox.",
     expected: "Oderwij rękę od myszki – jesteś w stanie w pełni obsłużyć całą aplikację samą klawiaturą!",
-    tip: "Dobre wsparcie klawiatury przyspiesza pracę każdemu zaawansowanemu użytkownikowi."
+    tip: "Dobre wsparcie klawiatury przyspiesza pracę każdemu zaawansowanemu użytkownikowi.",
+    fallbackTitle: "Kod listy zadań do audytu WCAG",
+    fallbackDesc: "Skopiuj ten kod, aby zbadać i poprawić obsługę klawiatury oraz dostępność cyfrową!",
+    starterCode: `<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lista Zadań do Audytu WCAG</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex items-center justify-center p-4">
+  <main class="max-w-lg w-full bg-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-700">
+    <h1 class="text-2xl font-black text-white mb-6">📝 Lista Zadań</h1>
+    <div class="flex gap-2 mb-4">
+      <input type="text" id="task-inp" placeholder="Zadanie..." class="flex-1 p-2 bg-slate-900 rounded border border-slate-700">
+      <button class="px-4 py-2 bg-indigo-600 rounded">Dodaj</button>
+    </div>
+    <ul class="space-y-2">
+      <li class="flex items-center gap-2 p-2 bg-slate-900 rounded"><input type="checkbox"> <span>Zrobić zakupy</span></li>
+      <li class="flex items-center gap-2 p-2 bg-slate-900 rounded"><input type="checkbox"> <span>Wysłać raport</span></li>
+    </ul>
+  </main>
+</body>
+</html>`
   },
   {
     id: 33, day: 11, stage: 2,
@@ -449,7 +727,65 @@ const TASKS_DATA = [
     desc: "Stworzyłeś rysunek na płótnie, ale jak go zapisać? Przeglądarka potrafi przekształcić płótno canvas w ciąg danych PNG i pobrać na Twój komputer.",
     prompt: "Dodaj do programu do rysowania z Zadania 42 przycisk 'Pobierz mój rysunek (.png)'. Po kliknięciu ma natychmiast pobrać narysowany obrazek na dysk twardy pod nazwą moj_szkic.png.",
     expected: "Klikasz przycisk i otwierasz pobrany plik PNG w standardowej przeglądarce zdjęć systemu Windows.",
-    tip: "Metoda canvas.toDataURL('image/png') tworzy obrazek z dowolnego rysunku w ułamku milisekundy."
+    tip: "Metoda canvas.toDataURL('image/png') tworzy obrazek z dowolnego rysunku w ułamku milisekundy.",
+    fallbackTitle: "Kod bazowy programu malarskiego Canvas (z Zadania 42)",
+    fallbackDesc: "Zaczynasz od Dnia 15 lub nie masz kodu płótna z Zadania 42? Skopiuj ten gotowy kod z paletą kolorów i suwakiem, aby dodać przycisk pobierania PNG!",
+    starterCode: `<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini Program Graficzny - Paint w Przeglądarce</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-white min-h-screen flex flex-col items-center justify-center p-4">
+  <header class="mb-4 text-center">
+    <h1 class="text-2xl font-black text-indigo-400">🎨 Studio Malarskie Canvas</h1>
+    <p class="text-xs text-slate-400">Rysuj myszką na białym płótnie</p>
+  </header>
+  <div class="flex flex-wrap items-center justify-center gap-3 mb-3 p-3 bg-slate-900 rounded-2xl border border-slate-800">
+    <div class="flex items-center gap-1.5" id="color-palette">
+      <button class="w-7 h-7 rounded-full bg-black border-2 border-white ring-2 ring-indigo-500" onclick="setColor('#000000')"></button>
+      <button class="w-7 h-7 rounded-full bg-red-500 border border-slate-700" onclick="setColor('#ef4444')"></button>
+      <button class="w-7 h-7 rounded-full bg-blue-500 border border-slate-700" onclick="setColor('#3b82f6')"></button>
+      <button class="w-7 h-7 rounded-full bg-emerald-500 border border-slate-700" onclick="setColor('#10b981')"></button>
+      <button class="w-7 h-7 rounded-full bg-amber-400 border border-slate-700" onclick="setColor('#f59e0b')"></button>
+      <button class="w-7 h-7 rounded-full bg-purple-500 border border-slate-700" onclick="setColor('#a855f7')"></button>
+    </div>
+    <div class="flex items-center gap-2 text-xs text-slate-300">
+      <span>Grubość:</span>
+      <input type="range" id="size-slider" min="1" max="25" value="4" class="w-24 accent-indigo-500">
+    </div>
+    <button onclick="clearCanvas()" class="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-rose-300 text-xs font-bold transition">
+      Wyczyść płótno
+    </button>
+  </div>
+  <canvas id="paint-canvas" width="600" height="400" class="bg-white rounded-2xl shadow-2xl cursor-crosshair border-4 border-slate-800 max-w-full"></canvas>
+  <script>
+    const canvas = document.getElementById('paint-canvas');
+    const ctx = canvas.getContext('2d');
+    const slider = document.getElementById('size-slider');
+    let painting = false;
+    let currentColor = '#000000';
+    window.setColor = (c) => currentColor = c;
+    window.clearCanvas = () => ctx.clearRect(0, 0, canvas.width, canvas.height);
+    canvas.addEventListener('mousedown', (e) => { painting = true; draw(e); });
+    canvas.addEventListener('mouseup', () => { painting = false; ctx.beginPath(); });
+    canvas.addEventListener('mousemove', draw);
+    function draw(e) {
+      if (!painting) return;
+      const rect = canvas.getBoundingClientRect();
+      ctx.lineWidth = slider.value;
+      ctx.lineCap = 'round';
+      ctx.strokeStyle = currentColor;
+      ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+    }
+  </script>
+</body>
+</html>`
   },
   {
     id: 44, day: 15, stage: 3,
@@ -503,7 +839,48 @@ const TASKS_DATA = [
     desc: "Co się stanie, gdy użytkownik wejdzie do tunelu lub odłączy Wi-Fi? Zamiast zepsutej strony wyświetlimy mu przyjazny, żółty pasek ostrzegawczy.",
     prompt: "Zmodyfikuj aplikację pobierającą fakty z API. Jeśli wystąpi błąd połączenia lub wyłączę Wi-Fi, zamiast ciszy wyświetl miły żółty baner: 'Brak połączenia z siecią. Sprawdź internet i spróbuj ponownie' z przyciskiem 'Spróbuj jeszcze raz'.",
     expected: "Wyłącz na chwilę Wi-Fi, kliknij przycisk – aplikacja grzecznie poinformuje o braku sieci bez błędów w konsoli.",
-    tip: "Zawsze przewiduj pesymistyczny scenariusz – w świecie IT nazywa się to Graceful Degradation."
+    tip: "Zawsze przewiduj pesymistyczny scenariusz – w świecie IT nazywa się to Graceful Degradation.",
+    fallbackTitle: "Kod bazowy aplikacji pobierającej fakty z API (z Zadania 48)",
+    fallbackDesc: "Nie masz pod ręką pliku z Zadania 48? Użyj poniższego kodu z funkcją fetch(), aby dodać żółty baner trybu offline!",
+    starterCode: `<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Losowe Fakty o Kotach z API</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-white min-h-screen flex items-center justify-center p-4">
+  <main class="max-w-md w-full bg-slate-800 rounded-3xl p-6 sm:p-8 text-center shadow-2xl border border-slate-700">
+    <div class="text-4xl mb-3">🐱</div>
+    <h1 class="text-xl font-black text-amber-300 mb-4">Losowy Koci Fakt z Chmury</h1>
+    <div id="fact-box" class="p-4 rounded-2xl bg-slate-900 border border-slate-700 text-xs sm:text-sm text-slate-200 min-h-[90px] flex items-center justify-center italic mb-6">
+      Kliknij przycisk poniżej, aby połączyć się z serwerem i pobrać ciekawostkę...
+    </div>
+    <button id="fetch-btn" onclick="fetchCatFact()" class="w-full px-6 py-3.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-sm transition shadow-lg flex items-center justify-center gap-2">
+      <span>Losuj kolejny fakt</span>
+      <span>⚡</span>
+    </button>
+  </main>
+  <script>
+    async function fetchCatFact() {
+      const box = document.getElementById('fact-box');
+      const btn = document.getElementById('fetch-btn');
+      box.textContent = "Pobieram najświeższy fakt z serwera...";
+      btn.disabled = true;
+      try {
+        const res = await fetch('https://catfact.ninja/fact');
+        const data = await res.json();
+        box.textContent = '"' + data.fact + '"';
+      } catch (err) {
+        box.textContent = "Wystąpił błąd podczas pobierania danych.";
+      } finally {
+        btn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>`
   },
   {
     id: 50, day: 17, stage: 3,
@@ -768,7 +1145,29 @@ const TASKS_DATA = [
     desc: "Teraz bierzemy dokument z Zadania 77 i wklejamy go w całości do Bolt.new, Lovable lub Claude Artifacts.",
     prompt: "Zbuduj kompletną aplikację ściśle według poniższego dokumentu wymagań PRD: [Tutaj wklej tekst wygenerowanego w poprzednim zadaniu dokumentu PRD]. Zadbaj o nowoczesny design i intuicyjną obsługę.",
     expected: "Powstaje dojrzała, przemyślana aplikacja z wszystkimi wymaganymi ekranami i funkcjami.",
-    tip: "Architektura przed kodowaniem to jedyna droga do budowy zaawansowanych systemów bez chaosu."
+    tip: "Architektura przed kodowaniem to jedyna droga do budowy zaawansowanych systemów bez chaosu.",
+    fallbackTitle: "Wzorcowy dokument wymagań PRD (z Zadania 77)",
+    fallbackDesc: "Nie wygenerowałeś własnego dokumentu PRD w Zadaniu 77? Użyj poniższej wzorcowej specyfikacji systemu rezerwacji biurek!",
+    starterCode: `DOKUMENT SPECYFIKACJI WYMAGAŃ PRODUKTOWYCH (PRD v1.0)
+PROJEKT: DeskFlow - System Rezerwacji Biurek Coworkingowych
+
+1. CEL BIZNESOWY:
+Umożliwienie pracownikom hybrydowym szybkiej rezerwacji biurka w biurze na dany dzień, eliminacja podwójnych rezerwacji oraz optymalizacja wykorzystania przestrzeni biurowej.
+
+2. PROFILE UŻYTKOWNIKÓW:
+- Pracownik: chce zarezerwować wolne biurko w wybranej strefie (Cicha praca / Burza mózgów) w mniej niż 30 sekund.
+- Office Manager: chce widzieć aktualne obłożenie biura w czasie rzeczywistym.
+
+3. EKRANY APLIKACJI:
+- Ekran 1: Wybór daty i strefy biura (Strefa Cicha, Strefa Pracy Wspólnej).
+- Ekran 2: Interaktywna mapa 12 biurek (zielone = wolne, czerwone = zajęte, niebieskie = wybrane).
+- Ekran 3: Formularz potwierdzenia (Imię i nazwisko pracownika, adres e-mail, godziny pobytu).
+- Ekran 4: Ekran sukcesu z unikalnym kodem rezerwacji i przyciskiem anulowania.
+
+4. ZASADY BIZNESOWE I OGRANICZENIA:
+- 1 pracownik może zarezerwować maksymalnie 1 biurko na dany dzień.
+- Dane zapisywane w localStorage (brak konieczności zewnętrznego serwera).
+- Pełna responsywność na smartfony i wysoki kontrast WCAG AA.`
   },
   {
     id: 79, day: 27, stage: 5,
@@ -969,6 +1368,156 @@ const TASKS_DATA = [
     prompt: "Wykonaj swój Egzamin Mistrzowski:\n1. Wymyśl aplikację rozwiązującą realny problem w Twojej pracy lub domu.\n2. Napisz do niej specyfikację PRD.\n3. Zbuduj ją za pomocą wybranego narzędzia (v0, Bolt, Lovable, Claude lub Cursor).\n4. Opublikuj ją na Netlify lub GitHub Pages.\n5. Pokaż ją światu i odbierz zasłużone gratulacje!",
     expected: "Oficjalne uzyskanie statusu certyfikowanego, w pełni samodzielnego Vibe Codera nowej ery! 🚀🎓",
     tip: "Nie zatrzymuj się! Świat potrzebuje Twoich pomysłów. Kod jest teraz tylko kwestią właściwie sformułowanej myśli."
+  },
+
+  // =========================================================================
+  // DEDYKOWANE PAKIETY BIZNESOWE (SPECJALIZACJA: PRACA, KARIERA I FIRMA)
+  // Dostępne dla profilu: Dorosły • Biznes, Praca i Automatyzacja
+  // =========================================================================
+
+  // PAKIET 1: VIBE EXCEL & INTELIGENTNE ARKUSZE (Zadania 101-103)
+  {
+    id: 101, day: 35, stage: 7, points: 30,
+    isBusinessAddon: true, addonPack: "excel", addonDay: "Dzień B1",
+    title: "Inteligentne formuły Excel bez bólu głowy (XLOOKUP i czyszczenie danych)",
+    goal: "Generowanie zaawansowanych formuł wyszukiwania i radzenia sobie z brakami danych bez wertowania podręczników.",
+    desc: "W pracy arkusze to podstawa. Zamiast męczyć się z archaicznymi formułami WYSZUKAJ.PIONOWO i irytującymi błędami #N/D, poproś AI o nowoczesną formułę XLOOKUP łączącą dane z dwóch tabel i zastępującą braki domyślnym komunikatem.",
+    prompt: "Działam w programie Excel. W Arkuszu1 w kolumnie A mam 'ID Klienta', a w kolumnie B 'Wartość Zamówienia'. W Arkuszu2 mam 'ID Klienta' (kolumna A) oraz 'Imię i Nazwisko' (kolumna B). Napisz dla mnie nowoczesną formułę XLOOKUP, która w Arkuszu1 w kolumnie C wstawi nazwisko klienta, a jeśli ID nie zostanie znalezione – zamiast błędu #N/D wpisze 'Nowy Klient (Brak w bazie)'. Wyjaśnij w 2 prostych punktach, jak wkleić tę formułę.",
+    expected: "Precyzyjna, gotowa formuła =XLOOKUP(...) z obsługą braków i łopatologiczną instrukcją wdrożenia.",
+    tip: "Zawsze podawaj AI dokładne litery kolumn i nazwy arkuszy – wtedy formuła działa od pierwszego wklejenia.",
+    sampleSolution: "=XLOOKUP(A2; Arkusz2!A:A; Arkusz2!B:B; \"Nowy Klient (Brak w bazie)\"; 0)\n\nInstrukcja wklejenia:\n1. Kliknij komórkę C2 w Arkuszu1 i wklej powyższą formułę w pasek formuły.\n2. Chwyć mały kwadracik w prawym dolnym rogu komórki C2 i przeciągnij go w dół, aby rozszerzyć na pozostałe wiersze.",
+    checkKeywords: ["xlookup", "arkusz2", "nowy klient", "brak", "a2", "formuł"]
+  },
+  {
+    id: 102, day: 36, stage: 7, points: 30,
+    isBusinessAddon: true, addonPack: "excel", addonDay: "Dzień B2",
+    title: "Automatyczny generator podsumowań i tabel przestawnych z surowego raportu",
+    goal: "Błyskawiczne agregowanie setek wierszy sprzedaży do zwięzłego raportu zarządczego.",
+    desc: "Dostałeś z systemu surowy zrzut transakcji i za 15 minut masz spotkanie z dyrektorem. Jak z tego wyczarować czytelne zestawienie marży, regionów i kluczowych wniosków?",
+    prompt: "Wklejam poniżej 5 przykładowych wierszy z mojego firmowego raportu sprzedaży w formacie CSV:\nData;Przedstawiciel;Region;Produkt;Sztuki;Kwota\n2026-03-01;Kowalski;Północ;Licencja Pro;5;25000\n2026-03-02;Nowak;Południe;Konsultacje;2;6000\n2026-03-02;Kowalski;Północ;Wdrożenie;1;15000\n2026-03-03;Wiśniewski;Centrum;Licencja Pro;3;15000\n2026-03-04;Nowak;Południe;Licencja Pro;4;20000\n\nStwórz dla mnie: 1) Gotowe zestawienie sprzedaży według Regionów (suma kwot i udział procentowy), 2) Ranking przedstawicieli handlowych od najlepszego wyniku, 3) Dwa kluczowe wnioski biznesowe w jednym zwięzłym zdaniu dla zarządu.",
+    expected: "Elegancka tabela z podsumowaniem regionów, ranking handlowców oraz syntetyczny wniosek gotowy do prezentacji.",
+    tip: "Zamiast klikać skomplikowane tabele przestawne, wklejasz próbkę danych do AI i w 5 sekund masz wnioski zarządcze.",
+    sampleSolution: "1. Sprzedaż według regionów:\n- Północ: 40 000 zł (49,4%)\n- Południe: 26 000 zł (32,1%)\n- Centrum: 15 000 zł (18,5%)\nRazem: 81 000 zł (100%)\n\n2. Ranking przedstawicieli:\n1. Kowalski: 40 000 zł\n2. Nowak: 26 000 zł\n3. Wiśniewski: 15 000 zł\n\n3. Kluczowy wniosek dla zarządu: Region Północ generuje niemal połowę przychodów firmy, a produkt Licencja Pro odpowiada za 74% całkowitej sprzedaży.",
+    checkKeywords: ["północ", "południe", "centrum", "kowalski", "ranking", "wniosek", "licencja"]
+  },
+  {
+    id: 103, day: 37, stage: 7, points: 35,
+    isBusinessAddon: true, addonPack: "excel", addonDay: "Dzień B3",
+    title: "Scalanie wielu plików Excel w jeden raport (Makro VBA w 1 kliknięcie)",
+    goal: "Automatyzacja powtarzalnej pracy biurowej bez ręcznego otwierania i kopiowania dziesiątek plików.",
+    desc: "Koniec z otwieraniem 15 plików z poszczególnych oddziałów i ręcznym kopiowaniem wierszy. Napiszemy uniwersalne makro VBA, które scala wszystko do jednego arkusza w ułamku sekundy.",
+    prompt: "Napisz dla mnie bezpieczne i proste makro VBA do programu Microsoft Excel. Makro ma: 1) Otworzyć okno wyboru folderu na dysku, 2) Przejrzeć wszystkie pliki .xlsx w tym wybranym folderze, 3) Skopiować wszystkie wiersze z Arkusza1 każdego pliku (pomijając nagłówek w plikach od drugiego wzwyż) i dokleić je jeden pod drugim do aktywnego arkusza, 4) Wyświetlić na koniec komunikat: 'Pomyślnie scalono X plików!'. Dodaj instrukcję dla osoby nietechnicznej, jak wcisnąć Alt+F11 i uruchomić to makro.",
+    expected: "Kompletny, bezpieczny kod makra Sub ScalPlikiExcela() z obsługą błędów i przejrzystą instrukcją krok po kroku.",
+    tip: "Makro VBA rozwiązuje w firmach problem wielogodzinnego, żmudnego kopiowania danych z oddziałów na koniec miesiąca.",
+    sampleSolution: "Sub ScalPlikiExcela()\n    Dim fso As Object, folder As Object, file As Object\n    Dim fd As FileDialog\n    Dim wbTarget As Workbook, wbSource As Workbook\n    Dim wsTarget As Worksheet, wsSource As Worksheet\n    Dim destRow As Long, lastRow As Long, lastCol As Long\n    Dim countFiles As Integer\n\n    Set wbTarget = ActiveWorkbook\n    Set wsTarget = wbTarget.ActiveSheet\n    Set fd = Application.FileDialog(msoFileDialogFolderPicker)\n    fd.Title = \"Wybierz folder z plikami Excel do scalenia\"\n    If fd.Show = -1 Then\n        folderPath = fd.SelectedItems(1) & Application.PathSeparator\n    Else\n        Exit Sub\n    End If\n    MsgBox \"Pomyślnie scalono pliki!\", vbInformation\nEnd Sub",
+    checkKeywords: ["sub", "vba", "folder", "xlsx", "nagłówek", "scal", "alt+f11"]
+  },
+
+  // PAKIET 2: ANALIZA DANYCH I WNIOSKOWANIE Z ANKIET (Zadania 104-106)
+  {
+    id: 104, day: 38, stage: 7, points: 30,
+    isBusinessAddon: true, addonPack: "survey", addonDay: "Dzień B4",
+    title: "Kategoryzacja i analiza sentymentu setek otwartych odpowiedzi z ankiety",
+    goal: "Wyciąganie struktury i emocji z chaotycznych wypowiedzi klientów i pracowników.",
+    desc: "Pytania zamknięte w ankietach (skala 1-5) są proste do zliczenia, ale prawdziwe złoto kryje się w pytaniach otwartych: 'Co możemy poprawić?'. Ręczne czytanie 500 komentarzy zajmuje dni – AI zrobi to w minutę.",
+    prompt: "Wciel się w rolę Senior Analityka Doświadczeń Klienta (CX Researcher). Poniżej znajduje się lista 5 surowych opinii z ankiety satysfakcji użytkowników:\n- 'Aplikacja jest szybka, ale faktury generują się z błędnym NIP-em, co wkurza księgową.'\n- 'Świetny kontakt z infolinią, pani Magda pomogła mi w 3 minuty!'\n- 'Cena wzrosła o 30%, a nowych funkcji jak nie było tak nie ma. Rozważam rezygnację.'\n- 'Interfejs jest przejrzysty, ale brakuje mi eksportu do Excela na telefonie.'\n- 'Dramat. Po ostatniej aktualizacji system wiesza się przy każdym logowaniu z Safari.'\n\nDokonaj profesjonalnej analizy: 1) Przypisz każdą wypowiedź do jednej z kategorii (Błąd techniczny, Obsługa klienta, Polityka cenowa, Funkcjonalność), 2) Określ sentyment (Pozytywny, Neutralny, Negatywny), 3) Wskaż 1 rzecz o najwyższym priorytecie naprawy (tzw. Quick Win) oraz 1 strategiczne ryzyko odejścia klientów (Churn Risk).",
+    expected: "Ustrukturyzowana tabela kategoryzacji sentymentu wraz z diagnozą priorytetu naprawy i ryzyka utraty klientów.",
+    tip: "Nigdy nie podejmuj decyzji produktowych na podstawie pojedynczych głosów – AI pomoże Ci zobaczyć proporcje i kluczowe trendy.",
+    sampleSolution: "1. Kategoryzacja i sentyment:\n- Błędny NIP na fakturze -> Kategoria: Błąd techniczny / Fakturowanie | Sentyment: Negatywny\n- Kontakt z infolinią -> Kategoria: Obsługa klienta | Sentyment: Pozytywny\n- Wzrost ceny o 30% -> Kategoria: Polityka cenowa | Sentyment: Bardzo negatywny\n- Brak eksportu do Excela na telefonie -> Kategoria: Funkcjonalność / Rozwój | Sentyment: Neutralny\n- Zawieszanie na Safari -> Kategoria: Błąd techniczny / Krytyczny | Sentyment: Bardzo negatywny\n\n2. Quick Win (Szybka naprawa): Poprawienie formatowania pola NIP na fakturach – błąd łatwy do usunięcia, a eliminujący frustrację księgowych.\n\n3. Churn Risk (Ryzyko odejścia): Podwyżka o 30% bez widocznej nowej wartości to bezpośredni powód rezygnacji lojalnych klientów.",
+    checkKeywords: ["sentyment", "kategori", "quick win", "churn", "błąd", "cena", "nip"]
+  },
+  {
+    id: 105, day: 39, stage: 7, points: 30,
+    isBusinessAddon: true, addonPack: "survey", addonDay: "Dzień B5",
+    title: "Wskaźniki NPS / CSAT i wykrywanie ukrytych korelacji w badaniach",
+    goal: "Prawidłowe obliczanie standardów rynkowych satysfakcji klienta i szukanie powiązań przyczynowo-skutkowych.",
+    desc: "Wskaźnik NPS (Net Promoter Score) to święty graal każdego zarządu. Jednak samo podanie liczby nie wystarczy – trzeba wykazać, co sprawia, że klienci stają się Promotorami lub Krytykami.",
+    prompt: "Wyjaśnij mi najprościej jak 10-latkowi, czym jest wskaźnik NPS (Net Promoter Score) i jak dzieli się klientów na Promotorów, Neutralnych i Krytyków. Następnie podaj gotową formułę matematyczną i oblicz NPS dla badania, w którym wzięło udział 100 osób: 58 dało oceny 9-10, 24 dało oceny 7-8, a 18 dało oceny 0-6. Na koniec podaj 2 hipotezy biznesowe, które warto sprawdzić w dziale obsługi klienta.",
+    expected: "Klarowne wyjaśnienie NPS, precyzyjne obliczenie (NPS = 40) oraz trafne hipotezy biznesowe.",
+    tip: "NPS powyżej 0 oznacza więcej promotorów niż krytyków, a wynik powyżej 50 to poziom światowej klasy.",
+    sampleSolution: "1. Czym jest NPS: Pytamy ludzi 'Na ile poleciłbyś nas znajomemu od 0 do 10?'.\n- Promotorzy (9-10): Fani, którzy nas kochają.\n- Neutralni (7-8): Zadowoleni, ale pójdą do konkurencji za niższą cenę.\n- Krytycy (0-6): Niezadowoleni, którzy odradzają nas innym.\n\n2. Formuła: NPS = % Promotorów - % Krytyków\nObliczenie:\n- Promotorzy: 58%\n- Krytycy: 18%\n- Wynik: 58 - 18 = +40 punktów NPS (Bardzo dobry wynik rynkowy!).\n\n3. Hipotezy biznesowe do weryfikacji:\n- Hipoteza 1: Osoby dające oceny 0-6 doświadczyły problemów z realizacją zamówienia w pierwszym tygodniu.\n- Hipoteza 2: Promotorzy (oceny 9-10) korzystają regularnie z aplikacji mobilnej zamiast wersji przeglądarkowej.",
+    checkKeywords: ["promotor", "krytyk", "neutraln", "nps", "40", "formuł", "satysfakcj"]
+  },
+  {
+    id: 106, day: 40, stage: 7, points: 35,
+    isBusinessAddon: true, addonPack: "survey", addonDay: "Dzień B6",
+    isCode: true,
+    title: "Pulpit menedżerski (Dashboard) z wykresami Chart.js w 1 pliku HTML",
+    goal: "Wizualizacja wyników badań w nowoczesnym, interaktywnym raporcie gotowym do prezentacji zarządowi.",
+    desc: "Nikt nie lubi nudnych prezentacji PowerPoint z zrzutami ekranu tabel. Zbudujemy interaktywny pulpit zarządczy z kolorowymi wykresami kołowymi i słupkowymi działający w przeglądarce.",
+    prompt: "Stwórz pojedynczy, kompletny plik HTML z nowoczesnym Pulpitem Zarządczym (Executive Dashboard) prezentującym wyniki rocznej ankiety satysfakcji pracowników firmy:\n1. Użyj Tailwind CSS oraz darmowej biblioteki wykresów Chart.js podpiętej przez link CDN.\n2. Na samej górze umieść 3 kafelki KPI: Ogólna satysfakcja (84%), Wskaźnik NPS pracowników (+46) oraz Liczba wypełnionych ankiet (342 osoby).\n3. Poniżej umieść 2 estetyczne wykresy obok siebie: Wykres kołowy (Podział odpowiedzi: Bardzo zadowoleni, Zadowoleni, Wymaga poprawy) oraz Wykres słupkowy (Ocena atmosfery, wynagrodzenia, rozwoju i narzędzi pracy w skali 1-5).\n4. Zadbaj o elegancki, biznesowy ciemnogranatowy styl z białymi i szmaragdowymi akcentami.",
+    expected: "Olśniewający, interaktywny pulpit HTML z animowanymi wykresami Chart.js, na który najechanie myszką pokazuje szczegółowe liczby.",
+    tip: "Interaktywny pulpit w HTML robi 10-krotnie większe wrażenie na przełożonych niż statyczny zrzut ekranu z Excela.",
+    sampleSolution: "<!DOCTYPE html>\n<html lang=\"pl\">\n<head>\n  <meta charset=\"UTF-8\">\n  <title>Executive Survey Dashboard</title>\n  <script src=\"https://cdn.tailwindcss.com\"></script>\n  <script src=\"https://cdn.jsdelivr.net/npm/chart.js\"></script>\n</head>\n<body class=\"bg-slate-950 text-slate-100 p-6 min-h-screen\">\n  <main class=\"max-w-6xl mx-auto space-y-6\">\n    <header class=\"flex items-center justify-between border-b border-slate-800 pb-4\">\n      <h1 class=\"text-2xl font-black text-emerald-400\">📊 Raport Ankiety Satysfakcji Zespołu</h1>\n      <span class=\"text-xs text-slate-400\">Edycja Roczna 2026</span>\n    </header>\n    <div class=\"grid grid-cols-1 md:grid-cols-3 gap-4\">\n      <div class=\"p-5 rounded-2xl bg-slate-900 border border-slate-800 text-center\">\n        <span class=\"text-xs text-slate-400 uppercase font-bold\">Satysfakcja</span>\n        <div class=\"text-3xl font-black text-emerald-400 mt-1\">84%</div>\n      </div>\n      <div class=\"p-5 rounded-2xl bg-slate-900 border border-slate-800 text-center\">\n        <span class=\"text-xs text-slate-400 uppercase font-bold\">Employee NPS</span>\n        <div class=\"text-3xl font-black text-cyan-400 mt-1\">+46</div>\n      </div>\n      <div class=\"p-5 rounded-2xl bg-slate-900 border border-slate-800 text-center\">\n        <span class=\"text-xs text-slate-400 uppercase font-bold\">Frekwencja</span>\n        <div class=\"text-3xl font-black text-amber-400 mt-1\">342 os.</div>\n      </div>\n    </div>\n    <div class=\"grid grid-cols-1 md:grid-cols-2 gap-6\">\n      <div class=\"p-5 rounded-2xl bg-slate-900 border border-slate-800\">\n        <h2 class=\"text-sm font-bold text-slate-200 mb-3\">Struktura Ocen</h2>\n        <canvas id=\"pieChart\"></canvas>\n      </div>\n      <div class=\"p-5 rounded-2xl bg-slate-900 border border-slate-800\">\n        <h2 class=\"text-sm font-bold text-slate-200 mb-3\">Obszary Firmy (1-5)</h2>\n        <canvas id=\"barChart\"></canvas>\n      </div>\n    </div>\n  </main>\n  <script>\n    new Chart(document.getElementById('pieChart'), {\n      type: 'doughnut',\n      data: {\n        labels: ['Bardzo zadowoleni', 'Zadowoleni', 'Wymaga poprawy'],\n        datasets: [{ data: [58, 26, 16], backgroundColor: ['#10b981', '#06b6d4', '#f59e0b'] }]\n      }\n    });\n    new Chart(document.getElementById('barChart'), {\n      type: 'bar',\n      data: {\n        labels: ['Atmosfera', 'Wynagrodzenie', 'Rozwój', 'Narzędzia'],\n        datasets: [{ label: 'Średnia', data: [4.6, 3.8, 4.2, 4.5], backgroundColor: '#10b981' }]\n      },\n      options: { scales: { y: { min: 0, max: 5 } } }\n    });\n  </script>\n</body>\n</html>",
+    checkKeywords: ["chart.js", "tailwindcss", "dashboard", "nps", "satysfakcj", "canvas", "piechart"]
+  },
+
+  // PAKIET 3: PROCEDURY I REGULACJE KORPORACYJNE (Zadania 107-109)
+  {
+    id: 107, day: 41, stage: 7, points: 30,
+    isBusinessAddon: true, addonPack: "governance", addonDay: "Dzień B7",
+    title: "Zamiana chaosu w żelazną procedurę operacyjną (Standard Operating Procedure - SOP)",
+    goal: "Tworzenie kuloodpornych, czytelnych procedur wewnątrzfirmowych na podstawie luźnych notatek.",
+    desc: "Nowy pracownik pyta: 'Jak mam zgłosić delegację i rozliczyć fakturę za hotel?'. Zamiast odpowiadać każdemu po 5 razy, tworzymy z AI procedurę SOP w formacie ISO, którą zrozumie każdy bez cienia wątpliwości.",
+    prompt: "Wciel się w rolę Dyrektora ds. Organizacji i Procesów Biznesowych. Poniżej znajduje się chaotyczna notatka z czatu firmowego:\n'Słuchajcie, jak ktoś jedzie w delegację, to najpierw musi zapytać managera na mailu czy jest budżet. Potem kupuje bilety albo hotel z karty służbowej lub prywatnej, ale musi wziąć fakturę na dane spółki z NIP-em. Po powrocie ma 7 dni na wrzucenie skanów do systemu Enova i zaniesienie oryginałów do p. Basi z księgowości na 2. piętrze. Jak nie przyniesie w terminie, zwrot nie wejdzie w tym miesiącu.'\n\nPrzekształć tę notatkę w profesjonalną, przejrzystą Standardową Procedurę Operacyjną (SOP) o nazwie: 'SOP-FIN-04: Rozliczanie Wyjazdów Służbowych i Delegacji'.\nStruktura dokumentu: 1. Cel i zakres procedury, 2. Odpowiedzialne role (Pracownik, Przełożony, Dział Księgowości), 3. Krok po kroku: Etap Przed Wyjazdem, W trakcie, Po Powrocie, 4. Wyjątki i sytuacje awaryjne (np. zgubiony paragon).",
+    expected: "Profesjonalny, numerowany dokument procedury korporacyjnej o standardzie audytorskim.",
+    tip: "Dobra procedura eliminuje domysły. Jeśli krok nie budzi wątpliwości u nowicjusza w pierwszym tygodniu pracy, SOP jest doskonały.",
+    sampleSolution: "DOKUMENTACJA PROCESOWA: SOP-FIN-04 (Wydanie 1.0)\nTYTUŁ: Rozliczanie Wyjazdów Służbowych i Delegacji Pracowniczych\n\n1. CEL I ZAKRES:\nNiniejsza procedura określa ujednolicony obieg wnioskowania, ponoszenia i rozliczania kosztów delegacji krajowych i zagranicznych wszystkich pracowników spółki.\n\n2. ROLE I ODPOWIEDZIALNOŚĆ:\n- Pracownik: Terminowe zgłoszenie zapotrzebowania oraz dostarczenie kompletnej dokumentacji fiskalnej w ciągu 7 dni kalendarzowych.\n- Bezpośredni Przełożony: Weryfikacja celowości i akceptacja budżetowa wyjazdu drogą elektroniczną.\n- Dział Księgowości: Weryfikacja formalno-rachunkowa dokumentów oraz wypłata rozliczenia w najbliższym cyklu płacowym.\n\n3. PROCEDURA KROK PO KROKU:\n3.1. Przed wyjazdem: Pracownik wysyła e-mail do przełożonego z planowanym terminem, celem i szacunkowym kosztem. Uzyskanie pisemnej zgody jest warunkiem koniecznym.\n3.2. W trakcie podróży: Wszystkie wydatki (transport, nocleg) muszą być udokumentowane fakturą VAT wystawioną na pełne dane spółki (w tym poprawny NIP).\n3.3. Po powrocie: W terminie do 7 dni roboczych pracownik rejestruje skany dokumentów w systemie finansowym oraz przekazuje oryginały do Działu Księgowości.\n\n4. POSTĘPOWANIE W PRZYPADKACH AWARYJNYCH:\nW przypadku zagubienia dokumentu fiskalnego pracownik zobowiązany jest złożyć pisemne oświadczenie o poniesionym wydatku wraz z potwierdzeniem przelewu bankowego.",
+    checkKeywords: ["sop", "procedur", "delegacj", "księgowoś", "faktur", "cel", "nip"]
+  },
+  {
+    id: 108, day: 42, stage: 7, points: 30,
+    isBusinessAddon: true, addonPack: "governance", addonDay: "Dzień B8",
+    title: "Polityka bezpiecznego korzystania z AI w dziale i firmie (BHP Promptingu)",
+    goal: "Opracowanie wewnętrznego regulaminu zapobiegającego wyciekom tajemnic handlowych i danych osobowych do modeli chmurowych.",
+    desc: "Pracownicy już teraz używają narzędzi AI w pracy. Zamiast bezskutecznie zakazywać innowacji, mądra firma tworzy jasną, przyjazną Politykę Bezpiecznego Korzystania z AI.",
+    prompt: "Wciel się w rolę Inspektora Ochrony Danych (RODO/Compliance Officer) oraz Konsultanta ds. Etyki AI.\nPrzygotuj dla średniej wielkości firmy (150 pracowników: marketing, sprzedaż, obsługa, finanse) 1-stronicowy, konkretny regulamin: 'Zasady Odpowiedzialnego Korzystania z Generatywnej Sztucznej Inteligencji w Pracy'.\nRegulamin musi zawierać:\n1. 'Zielone światło' (Przykłady dozwolonych zastosowań: korekta gramatyczna pism, szukanie inspiracji, szablony formuł).\n2. 'Czerwone światło' (Kategoryczny zakaz wklejania: haseł, baz klientów, danych osobowych RODO, raportów finansowych przed publikacją).\n3. 'Złota zasada weryfikacji' (Człowiek w pętli – zasada, że pracownik w 100% odpowiada za treść wysyłaną do klienta).\n4. Krótkie oświadczenie pracownika o zapoznaniu się z zasadami.",
+    expected: "Wyważony, zwięzły, nowoczesny regulamin bezpieczeństwa, który chroni firmę, a jednocześnie wspiera innowacyjność zespołu.",
+    tip: "Polityka AI to jeden z najbardziej poszukiwanych dokumentów w firmach w 2026 roku. Posiadanie takiego szablonu to olbrzymi atut organizacyjny.",
+    sampleSolution: "REGULAMIN BEZPIECZNEGO KORZYSTANIA Z GENERATYWNEJ SZTUCZNEJ INTELIGENCJI (AI)\n\n1. CEL REGULACJI:\nWspieranie innowacyjności i oszczędności czasu pracowników przy jednoczesnym bezwzględnym zabezpieczeniu tajemnicy przedsiębiorstwa i danych osobowych.\n\n2. ZIELONE ŚWIATŁO (Dozwolone bez ograniczeń):\n- Korekta językowa, stylistyczna i tłumaczenia ogólnych tekstów.\n- Wymyślanie pomysłów na kampanie, struktury prezentacji i szablony dokumentów.\n- Pomoc w tworzeniu formuł Excel, makr i kodu HTML/CSS na danych anonimowych.\n\n3. CZERWONE ŚWIATŁO (Kategoryczny zakaz wprowadzania do modeli chmurowych):\n- Dane osobowe pracowników i klientów (PESEL, imiona, telefony, adresy).\n- Dokumenty finansowe firmy przed oficjalną publikacją giełdową/roczną.\n- Kody źródłowe kluczowych systemów wewnętrznych oraz hasła dostępowe i tokeny API.\n\n4. ZASADA 'CZŁOWIEK W PĘTLI' (Human-in-the-Loop):\nAI jest wyłącznie asystentem. Za każdą informację, kalkulację i deklarację prawną wysłaną do klienta pełną i wyłączną odpowiedzialność ponosi podpisujący się pracownik.\n\nOświadczenie pracownika:\n'Zapoznałem/am się z powyższymi Zasadami i zobowiązuję się do ich bezwzględnego przestrzegania.'",
+    checkKeywords: ["regulamin", "bezpieczeństw", "rodo", "zielone", "czerwone", "człowiek w pętli", "ai"]
+  },
+  {
+    id: 109, day: 43, stage: 7, points: 35,
+    isBusinessAddon: true, addonPack: "governance", addonDay: "Dzień B9",
+    title: "Macierz Odpowiedzialności RACI i audyt spójności regulaminu",
+    goal: "Eliminacja konfliktów kompetencyjnych i precyzyjne przypisywanie ról w procesach firmowych.",
+    desc: "Najczęstszy problem w zespole: 'Myślałem, że to ty miałeś to zrobić!'. Model RACI (Responsible, Accountable, Consulted, Informed) to uniwersalny międzynarodowy standard zarządzania odpowiedzialnością w korporacjach.",
+    prompt: "Wciel się w rolę Eksperta ds. Efektywności Organizacyjnej. Mamy w firmie nowy proces: 'Wdrażanie nowego pracownika (Onboarding)'. Role zaangażowane: Nowy Pracownik, Bezpośredni Manager, Dział HR, Dział IT (sprzęt i dostęp), Zarząd.\nZbuduj dla tego procesu kompletną Macierz RACI w czytelnej tabeli dla 5 kluczowych zadań:\n1. Zamówienie i konfiguracja laptopa oraz kont mailowych\n2. Przygotowanie umowy i formalności kadrowych\n3. Wyznaczenie celów na okres próbny (pierwsze 90 dni)\n4. Szkolenie wstępne z BHP i kultury firmy\n5. Końcowa ocena i decyzja o przedłużeniu umowy\n\nDla każdego zadania wskaż dokładnie: kto odpowiada (R - Responsible), kto decyduje głową (A - Accountable, tylko 1 rola!), z kim się konsultuje (C - Consulted) i kogo się tylko informuje (I - Informed). Podaj też 1 najczęstszy błąd w macierzach RACI, którego należy unikać.",
+    expected: "Perfekcyjna tabela macierzy RACI dla onboardingu oraz wyjaśnienie zasady 'tylko jedno A na wiersz'.",
+    tip: "Gdy w procesie więcej niż jedna osoba ma status 'A' (Accountable), w praktyce nikt nie czuje się odpowiedzialny za wynik.",
+    sampleSolution: "MACIERZ RACI: PROCES ONBOARDINGU NOWEGO PRACOWNIKA\n\nLegenda: R (Wykonuje), A (Odpowiada głową - tylko 1 rola!), C (Konsultowany), I (Informowany)\n\n| Zadanie | Nowy Pracownik | Bezpośredni Manager | Dział HR | Dział IT | Zarząd |\n| :--- | :---: | :---: | :---: | :---: | :---: |\n| 1. Sprzęt i konta IT | I | C | C | R / A | I |\n| 2. Umowa i kadry | C | C | R / A | I | I |\n| 3. Cele na okres próbny | C | R / A | C | I | I |\n| 4. Szkolenie wstępne BHP | R | I | A | I | I |\n| 5. Decyzja o przedłużeniu | I | R | C | I | A |\n\nNajczęstszy błąd w macierzach RACI:\nPrzypisanie więcej niż jednej roli 'A' (Accountable) do pojedynczego zadania. Złota zasada zarządzania mówi: 'Gdy dwóch odpowiada, nikt nie odpowiada'. Do każdego zadania musi być przypisana dokładnie jedna osoba decydująca.",
+    checkKeywords: ["raci", "responsible", "accountable", "consulted", "informed", "onboarding", "tabel"]
+  }
+];
+
+// =========================================================================
+// DEFINICJA PAKIETÓW DODATKÓW BIZNESOWYCH DLA INTERFEJSU
+// =========================================================================
+const BUSINESS_ADDON_PACKS = [
+  {
+    id: "excel",
+    title: "Pakiet 1: Vibe Excel & Inteligentne Arkusze",
+    icon: "📊",
+    desc: "Automatyzacja pracy biurowej, zaawansowane formuły XLOOKUP, generowanie tabel przestawnych oraz makra VBA scalające setki plików w 1 kliknięcie.",
+    taskIds: [101, 102, 103],
+    badgeColor: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
+  },
+  {
+    id: "survey",
+    title: "Pakiet 2: Analiza Danych i Wnioskowanie z Ankiet",
+    icon: "📈",
+    desc: "Kategoryzacja sentymentu setek otwartych odpowiedzi, badanie wskaźników NPS / CSAT oraz budowa interaktywnych pulpitów HTML z biblioteką Chart.js.",
+    taskIds: [104, 105, 106],
+    badgeColor: "bg-cyan-500/20 text-cyan-300 border-cyan-500/40"
+  },
+  {
+    id: "governance",
+    title: "Pakiet 3: Regulacje i Procedury Korporacyjne",
+    icon: "📑",
+    desc: "Przekształcanie luźnych notatek w standardy procedur SOP (ISO), polityka bezpiecznego AI (BHP promptingu) oraz macierze odpowiedzialności RACI.",
+    taskIds: [107, 108, 109],
+    badgeColor: "bg-amber-500/20 text-amber-300 border-amber-500/40"
   }
 ];
 

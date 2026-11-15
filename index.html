@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Vibe Coding">
   <meta name="theme-color" content="#0f172a">
-  <title>Akademia Vibe Codingu i Sztuki Promptingu v3.5.0 (Od Zera do Twórcy)</title>
+  <title>Akademia Vibe Codingu i Sztuki Promptingu v3.6.0 (Od Zera do Twórcy)</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -232,7 +232,7 @@
               Vibe Coding Academy
             </span>
             <span class="text-[10px] text-amber-400 font-bold block">
-              Wersja 3.5.0 • Dedykowane Ulepszenia Zadań, Stabilność Fokusu NVDA i WCAG AA
+              Wersja 3.6.0 • Pakiety Ratunkowe Zadań, Dodatki Biznesowe i WCAG AA
             </span>
           </div>
         </a>
@@ -357,6 +357,13 @@
         <button type="button" role="tab" id="tab-btn-all-tasks" onclick="switchSubpage('page-all-tasks')" class="subpage-tab-btn touch-target px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap flex items-center gap-1.5 border border-slate-700 bg-slate-800 text-slate-300">
           <span>7. Katalog (100)</span>
           <span id="tab-icon-all-tasks" role="img" aria-label="(ikona książek)">📚</span>
+        </button>
+
+        <!-- Podstrona: Dodatki Biznesowe (Widoczna dla profilu: Dorosły / Praca i Biznes) -->
+        <button type="button" role="tab" id="tab-btn-addons" onclick="switchSubpage('page-addons')" class="subpage-tab-btn touch-target px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap hidden items-center gap-1.5 border border-amber-500/50 bg-amber-950/30 text-amber-200 hover:bg-amber-900/40 shadow-sm" aria-label="Sekcja dodatków biznesowych (Excel, ankiety, regulacje)">
+          <span>💼 Dodatki Biznesowe</span>
+          <span id="tab-icon-addons" role="img" aria-label="(ikona teczki)">💼</span>
+          <span class="inline-flex items-center px-1.5 py-0.2 rounded-full text-[9px] font-black bg-amber-400 text-slate-950 uppercase ml-0.5">NOWOŚĆ</span>
         </button>
 
         <!-- Podstrona 8: Nagrody i Dyplom -->
@@ -1144,6 +1151,43 @@
     </section>
 
     <!-- ========================================================================= -->
+    <!-- PODSTRONA: PAKIETY DODATKÓW BIZNESOWYCH (DLA PRACY I KARIERY)              -->
+    <!-- ========================================================================= -->
+    <section id="page-addons" class="subpage-view space-y-8 hidden" role="region" aria-labelledby="addons-page-title" hidden>
+      
+      <header class="p-5 sm:p-6 rounded-3xl bg-slate-900 border border-slate-800 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-xs uppercase font-extrabold tracking-wider text-amber-400 block">Specjalizacja Zawodowa</span>
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-500/20 text-amber-300 border border-amber-500/30 uppercase">Profil Praca i Kariera</span>
+          </div>
+          <h1 id="addons-page-title" class="text-xl sm:text-2xl md:text-3xl font-extrabold text-white" tabindex="-1">
+            Pakiety Dodatków Biznesowych: Excel, Ankiety i Regulacje
+          </h1>
+          <p class="text-xs sm:text-sm text-slate-300 mt-1.5 max-w-2xl leading-relaxed">
+            Praktyczne wdrożenia vibe codingu w firmie: automatyzacja arkuszy Excel, analiza sentymentu i wnioskowanie z badań oraz tworzenie profesjonalnych regulacji korporacyjnych (SOP, BHP AI, RACI).
+          </p>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <div class="p-3 rounded-2xl bg-slate-950 border border-slate-800 text-center min-w-[90px]">
+            <span class="text-[10px] uppercase font-bold text-slate-400 block">Zaliczono</span>
+            <span id="addons-completed-badge" class="text-lg font-black text-amber-400">0 / 9</span>
+          </div>
+          <div class="p-3 rounded-2xl bg-slate-950 border border-slate-800 text-center min-w-[100px]">
+            <span class="text-[10px] uppercase font-bold text-slate-400 block">Punkty</span>
+            <span id="addons-points-badge" class="text-lg font-black text-emerald-400">0 / 285 pkt</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- KONTENER DLA STANU BLOKADY LUB ZADAŃ (DYNAMICZNIE RENDEROWANY) -->
+      <div id="addons-content-container" class="space-y-6" aria-live="polite">
+        <!-- Generowane dynamicznie w app.js: renderAddonsPage() -->
+      </div>
+
+    </section>
+
+    <!-- ========================================================================= -->
     <!-- PODSTRONA 8: NAGRODY, ODZNAKI I DYPLOM MISTRZA                            -->
     <!-- ========================================================================= -->
     <section id="page-rewards" class="subpage-view space-y-8 hidden" role="region" aria-labelledby="rewards-page-title" hidden>
@@ -1787,7 +1831,7 @@
       </div>
 
       <div class="w-full flex-grow my-2">
-        <iframe id="sandbox-preview-frame" sandbox="allow-scripts allow-modals allow-forms allow-same-origin" class="w-full h-[65dvh] rounded-2xl bg-white border-2 border-emerald-500/50 shadow-inner" title="Interaktywny podgląd uruchomionego projektu"></iframe>
+        <iframe id="sandbox-preview-frame" sandbox="allow-scripts allow-modals allow-forms" class="w-full h-[65dvh] rounded-2xl bg-white border-2 border-emerald-500/50 shadow-inner" title="Interaktywny podgląd uruchomionego projektu"></iframe>
       </div>
 
       <div class="pt-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
@@ -1804,7 +1848,7 @@
     <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-6">
       <div>
         <p class="font-bold text-slate-300 mb-1">
-          Akademia Vibe Codingu i Sztuki Promptingu • Wersja 3.5.0 • WCAG 2.1 / 2.2 Poziom AA/AAA
+          Akademia Vibe Codingu i Sztuki Promptingu • Wersja 3.6.0 • WCAG 2.1 / 2.2 Poziom AA/AAA
         </p>
         <p>
           Akademia Vibe Codingu i Sztuki Promptingu • Projekt dostępny w chmurze na GitHubie: <a href="https://github.com/strugo10/vibe-coding-kompendium" target="_blank" rel="noopener noreferrer" class="underline text-slate-300 hover:text-white">strugo10/vibe-coding-kompendium</a> oraz online: <a href="https://strugo10.github.io/vibe-coding-kompendium/" target="_blank" rel="noopener noreferrer" class="underline text-teal-400 hover:text-teal-300">Wersja webowa na żywo</a>. Praktyka w pracy i życiu osobistym, dedykowany panel uwag dla twórcy i uniwersalny eksport notatek.

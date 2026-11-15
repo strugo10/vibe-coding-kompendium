@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Zadania Dnia">
   <meta name="theme-color" content="#0f172a">
-  <title>Tryb Skupienia (v3.4.0) — Zadania i Narzędzia Dnia | Vibe Coding Academy</title>
+  <title>Tryb Skupienia (v3.6.0) — Zadania i Narzędzia Dnia | Vibe Coding Academy</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -178,7 +178,7 @@
         <span id="focus-header-points" class="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-amber-500/10 text-amber-300 border border-amber-500/30">
           <span>🏆 Punkty:</span> <strong id="focus-header-points-count">0</strong> / 1975 pkt
         </span>
-        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-300 border border-slate-700">v3.4.0</span>
+        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-300 border border-slate-700">v3.6.0</span>
       </div>
 
       <!-- Przełącznik dni (Poprzedni / Wybór / Następny) -->
@@ -413,7 +413,7 @@
                   <span role="img" aria-label="(ikona zamknięcia)">&times;</span>
                 </button>
               </div>
-              <iframe id="sandbox-preview-frame" sandbox="allow-scripts allow-modals allow-forms allow-same-origin" class="w-full h-80 sm:h-96 rounded-2xl bg-white border-2 border-emerald-500/60 shadow-inner" title="Podgląd uruchomionego kodu strony. Użyj klawisza Tab lub Shift+Tab, aby poruszać się po elementach strony lub przejść do Studia ulepszeń."></iframe>
+              <iframe id="sandbox-preview-frame" sandbox="allow-scripts allow-modals allow-forms" class="w-full h-80 sm:h-96 rounded-2xl bg-white border-2 border-emerald-500/60 shadow-inner" title="Podgląd uruchomionego kodu strony. Użyj klawisza Tab lub Shift+Tab, aby poruszać się po elementach strony lub przejść do Studia ulepszeń."></iframe>
               <div class="flex justify-end mt-2">
                 <button type="button" onclick="focusStudioInDayFocusFromSandbox()" class="touch-target text-xs px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-indigo-950/70 border border-slate-700 hover:border-indigo-500/50 text-indigo-300 font-bold transition flex items-center gap-1.5 shadow">
                   <span>Przejdź do Studia Ulepszeń promptu</span>
@@ -1362,6 +1362,44 @@
             </div>
           </div>
 
+          ${task.starterCode ? `
+          <!-- PAKIET RATUNKOWY (KOD BAZOWY) -->
+          <div class="my-5 p-4 sm:p-5 rounded-2xl border-2 border-emerald-500/50 bg-emerald-950/25 shadow-lg">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2.5">
+              <div class="flex items-center gap-2.5">
+                <span role="img" aria-label="(ikona pakietu ratunkowego)" class="text-2xl">🧰</span>
+                <div>
+                  <h3 class="text-xs sm:text-sm uppercase tracking-wider font-extrabold text-emerald-300">
+                    ${task.fallbackTitle || 'Pakiet ratunkowy: Kod bazowy do tego zadania'}
+                  </h3>
+                  <span class="text-[11px] text-emerald-400/90 font-medium block">
+                    Zapasowy punkt startowy dla osób zaczynających od tego dnia lub bez wczorajszego pliku
+                  </span>
+                </div>
+              </div>
+              <div class="flex flex-wrap items-center gap-2">
+                <button type="button" class="touch-target text-xs px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black transition flex items-center justify-center gap-1.5 shadow cursor-pointer" onclick="copyStarterCodeById(${task.id})" id="copy-starter-btn-${task.id}">
+                  <span>Kopiuj kod bazowy</span>
+                  <span role="img" aria-label="(ikona schowka)">📋</span>
+                </button>
+                <button type="button" class="touch-target text-xs px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black transition flex items-center justify-center gap-1.5 shadow cursor-pointer" onclick="copyCombinedCodeAndPrompt(${task.id})" id="copy-combined-btn-${task.id}" title="Kopiuje kod bazowy wraz z promptem zadania w jednym bloku">
+                  <span>🚀 Kopiuj kod + prompt</span>
+                </button>
+                <button type="button" class="touch-target text-xs px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center justify-center gap-1 cursor-pointer" onclick="toggleStarterCode(${task.id})" id="toggle-starter-btn-${task.id}" aria-expanded="false" aria-controls="starter-code-box-${task.id}">
+                  <span id="starter-code-toggle-text-${task.id}">Pokaż kod</span>
+                  <span role="img" aria-label="(ikona oka)">👁️</span>
+                </button>
+              </div>
+            </div>
+            <p class="text-xs text-slate-300 mb-2 leading-relaxed">
+              ${task.fallbackDesc || 'Nie masz gotowego pliku z poprzednich zadań? Skopiuj ten kod, wklej do edytora lub czatu z AI, a potem wyślij prompt z zadania!'}
+            </p>
+            <div id="starter-code-box-${task.id}" class="hidden mt-3 pt-3 border-t border-emerald-500/20">
+              <pre class="font-mono text-xs text-emerald-100 bg-slate-950 p-3.5 rounded-xl border border-emerald-500/30 whitespace-pre-wrap select-all max-h-64 overflow-y-auto leading-relaxed">${escapeHtml(task.starterCode)}</pre>
+            </div>
+          </div>
+          ` : ''}
+
           <div class="mb-5">
             <div class="flex flex-col sm:flex-row sm:flex-wrap sm:items-center justify-between gap-2.5 mb-2.5">
               <h3 id="prompt-heading-${task.id}" class="text-xs sm:text-sm font-extrabold text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
@@ -1369,6 +1407,11 @@
                 <span role="img" aria-label="(ikona schowka)">📋</span>
               </h3>
               <div class="grid grid-cols-2 sm:flex items-center gap-2">
+                ${task.starterCode ? `
+                <button type="button" class="touch-target text-xs px-3 py-2 sm:py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black transition flex items-center justify-center gap-1.5 shadow cursor-pointer" onclick="copyCombinedCodeAndPrompt(${task.id})" id="copy-combined-prompt-btn-${task.id}" title="Kopiuje kod bazowy wraz z promptem zadania">
+                  <span>🚀 Kod + Prompt</span>
+                </button>
+                ` : ''}
                 <button type="button" class="touch-target text-xs px-3.5 py-2 sm:py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold transition flex items-center justify-center gap-1.5 shadow" onclick="copyPromptText(${task.id})" id="copy-btn-${task.id}">
                   <span>Kopiuj Prompt<span class="sr-only"> zadania ${task.id}</span></span>
                   <span role="img" aria-label="(ikona schowka)">📋</span>
@@ -1788,6 +1831,83 @@
     function copyAndOpenGemini(taskId) {
       copyPromptText(taskId);
       window.open('https://gemini.google.com', '_blank');
+    }
+
+    function copyStarterCodeById(taskId) {
+      const task = TASKS_DATA.find(t => t.id === taskId);
+      if (!task || !task.starterCode) return;
+      const onSuccess = () => {
+        const btn = document.getElementById(`copy-starter-btn-${taskId}`);
+        if (btn) {
+          btn.innerHTML = '<span>✓ Skopiowano kod!</span>';
+          btn.classList.add('bg-emerald-600', 'text-white');
+          setTimeout(() => {
+            btn.innerHTML = '<span>Kopiuj kod bazowy</span> <span role="img" aria-label="(ikona schowka)">📋</span>';
+            btn.classList.remove('bg-emerald-600', 'text-white');
+          }, 2000);
+        }
+        playTone(660, 'sine', 0.1, 0.08);
+        showToast(`Skopiowano kod bazowy zadania ${taskId}!`);
+        announceSR(`Kod bazowy zadania ${taskId} został skopiowany.`);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(task.starterCode).then(onSuccess).catch(() => fallbackCopy(task.starterCode, onSuccess));
+      } else {
+        fallbackCopy(task.starterCode, onSuccess);
+      }
+    }
+
+    function copyCombinedCodeAndPrompt(taskId) {
+      const task = TASKS_DATA.find(t => t.id === taskId);
+      if (!task || !task.starterCode) return;
+      const combined = `Oto mój działający kod bazowy pliku:\n\`\`\`html\n${task.starterCode}\n\`\`\`\n\nMoje polecenie (wykonaj modyfikację powyższego kodu):\n${task.prompt}`;
+      const onSuccess = () => {
+        const btn1 = document.getElementById(`copy-combined-btn-${taskId}`);
+        const btn2 = document.getElementById(`copy-combined-prompt-btn-${taskId}`);
+        [btn1, btn2].forEach(b => {
+          if (b) {
+            b.innerHTML = '<span>✓ Skopiowano kod + prompt!</span>';
+            b.classList.add('bg-emerald-600', 'text-white');
+          }
+        });
+        setTimeout(() => {
+          if (btn1) {
+            btn1.innerHTML = '<span>🚀 Kopiuj kod + prompt</span>';
+            btn1.classList.remove('bg-emerald-600', 'text-white');
+          }
+          if (btn2) {
+            btn2.innerHTML = '<span>🚀 Kod + Prompt</span>';
+            btn2.classList.remove('bg-emerald-600', 'text-white');
+          }
+        }, 2500);
+        playTone(750, 'sine', 0.15, 0.1);
+        showToast(`Skopiowano kod i prompt zadania ${taskId}!`);
+        announceSR(`Połączony kod i prompt zadania ${taskId} został skopiowany.`);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(combined).then(onSuccess).catch(() => fallbackCopy(combined, onSuccess));
+      } else {
+        fallbackCopy(combined, onSuccess);
+      }
+    }
+
+    function toggleStarterCode(taskId) {
+      const box = document.getElementById(`starter-code-box-${taskId}`);
+      const btn = document.getElementById(`toggle-starter-btn-${taskId}`);
+      const textEl = document.getElementById(`starter-code-toggle-text-${taskId}`);
+      if (!box) return;
+      const isHidden = box.classList.contains('hidden');
+      if (isHidden) {
+        box.classList.remove('hidden');
+        if (textEl) textEl.textContent = 'Ukryj kod';
+        if (btn) btn.setAttribute('aria-expanded', 'true');
+        announceSR(`Rozwinięto kod bazowy zadania ${taskId}.`);
+      } else {
+        box.classList.add('hidden');
+        if (textEl) textEl.textContent = 'Pokaż kod';
+        if (btn) btn.setAttribute('aria-expanded', 'false');
+        announceSR(`Zwinięto kod bazowy zadania ${taskId}.`);
+      }
     }
 
     function toggleTaskStatus(taskId) {

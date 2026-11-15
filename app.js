@@ -94,7 +94,7 @@ function setTaskStatus(taskId, status) {
 }
 
 function calculateScore() {
-  const totalTasks = (typeof TASKS_DATA !== 'undefined' && Array.isArray(TASKS_DATA)) ? TASKS_DATA.length : 100;
+  const isBusinessLearner = (STATE.userProfile && STATE.userProfile.ageGroup === 'adult' && STATE.userProfile.interest === 'business');
   let totalPossiblePoints = 0;
   let earnedPoints = 0;
   let passedCount = 0;
@@ -104,6 +104,10 @@ function calculateScore() {
 
   if (typeof TASKS_DATA !== 'undefined' && Array.isArray(TASKS_DATA)) {
     TASKS_DATA.forEach(t => {
+      // Zadania dodatkowe biznesowe są opcjonalne i nie obciążają uczniów innych profili
+      if (t.isBusinessAddon && !isBusinessLearner) {
+        return;
+      }
       const pts = getTaskPoints(t);
       totalPossiblePoints += pts;
       const st = getTaskStatus(t.id);
@@ -764,6 +768,7 @@ function isSubpageLocked(pageId) {
       return !STATE.onboardingSteps.safety;
     case 'page-daily-tasks':
     case 'page-all-tasks':
+    case 'page-addons':
     case 'page-rewards':
       return !STATE.courseUnlocked;
     case 'page-feedback':
@@ -782,8 +787,21 @@ function updateSubpageNavUI() {
     { id: 'page-tools', btnId: 'tab-btn-tools', iconId: 'tab-icon-tools' },
     { id: 'page-daily-tasks', btnId: 'tab-btn-daily-tasks', iconId: 'tab-icon-daily-tasks' },
     { id: 'page-all-tasks', btnId: 'tab-btn-all-tasks', iconId: 'tab-icon-all-tasks' },
+    { id: 'page-addons', btnId: 'tab-btn-addons', iconId: 'tab-icon-addons' },
     { id: 'page-rewards', btnId: 'tab-btn-rewards', iconId: 'tab-icon-rewards' }
   ];
+
+  const addonsBtn = document.getElementById('tab-btn-addons');
+  if (addonsBtn) {
+    const isBusiness = (STATE.userProfile && STATE.userProfile.ageGroup === 'adult' && STATE.userProfile.interest === 'business');
+    if (isBusiness) {
+      addonsBtn.classList.remove('hidden');
+      addonsBtn.style.display = 'inline-flex';
+    } else {
+      addonsBtn.classList.add('hidden');
+      addonsBtn.style.display = 'none';
+    }
+  }
 
   tabs.forEach(tab => {
     const btn = document.getElementById(tab.btnId);
@@ -874,6 +892,12 @@ function updateSubpageNavUI() {
     allIcon.setAttribute('aria-label', STATE.courseUnlocked ? '(ikona książek)' : '(katalog zablokowany)');
   }
 
+  const addonsIcon = document.getElementById('tab-icon-addons');
+  if (addonsIcon) {
+    addonsIcon.textContent = STATE.courseUnlocked ? '💼' : '🔒';
+    addonsIcon.setAttribute('aria-label', STATE.courseUnlocked ? '(ikona teczki)' : '(dodatki zablokowane)');
+  }
+
   const rewIcon = document.getElementById('tab-icon-rewards');
   if (rewIcon) {
     rewIcon.textContent = STATE.courseUnlocked ? '🏆' : '🔒';
@@ -927,6 +951,8 @@ function switchSubpage(pageId, announceText) {
   } else if (pageId === 'page-all-tasks') {
     STATE.viewMode = 'all';
     renderTasks();
+  } else if (pageId === 'page-addons') {
+    renderAddonsPage();
   } else if (pageId === 'page-rewards') {
     updateBadgesUI();
     updateRewardsUI();
@@ -1128,9 +1154,9 @@ function submitSubpageDiagnosticTest() {
     recommendedTask = 22;
   } else {
     trackTitle = "Poziom: Zaawansowany Architekt (Ścieżka C)";
-    trackDesc = "Wyśmienite przygotowanie! Myślisz analitycznie, doskonale rozumiesz diagnostykę błędów w konsoli F12 oraz specyfikację struktur danych. Algorytm proponuje, że możesz zacząć od Dnia 15 (Zadanie 43: Zarządzanie stanem aplikacji i bazy danych).";
+    trackDesc = "Wyśmienite przygotowanie! Myślisz analitycznie, doskonale rozumiesz diagnostykę błędów w konsoli F12 oraz specyfikację struktur danych. Algorytm proponuje, że możesz zacząć od Dnia 15 (Zadanie 42: Płótno malarskie i interaktywne aplikacje Canvas).";
     recommendedDay = 15;
-    recommendedTask = 43;
+    recommendedTask = 42;
   }
 
   // Domyślnie ustawiamy Dzień 1 (od początku), chyba że użytkownik wcześniej dokonał wyboru
@@ -1473,6 +1499,18 @@ function updateProfileUI() {
   if (diagBadge) {
     diagBadge.textContent = `Dopasowano do profilu: ${interestLabel}`;
   }
+
+  const addonsBtn = document.getElementById('tab-btn-addons');
+  if (addonsBtn) {
+    const isBusiness = (p.ageGroup === 'adult' && p.interest === 'business');
+    if (isBusiness) {
+      addonsBtn.classList.remove('hidden');
+      addonsBtn.style.display = 'inline-flex';
+    } else {
+      addonsBtn.classList.add('hidden');
+      addonsBtn.style.display = 'none';
+    }
+  }
 }
 
 // =========================================================================
@@ -1596,9 +1634,9 @@ function submitDiagnosticTest() {
     recommendedStartTask = 22;
   } else {
     trackTitle = "Poziom: Zaawansowany Architekt (Ścieżka C)";
-    trackDesc = "Rewelacyjny wynik! Doskonale rozumiesz diagnostykę konsoli F12, architekturę danych i specyfikację. Możesz przejść prosto do Dnia 15 (Zadanie 43: Stan aplikacji i bazy danych).";
+    trackDesc = "Rewelacyjny wynik! Doskonale rozumiesz diagnostykę konsoli F12, architekturę danych i specyfikację. Możesz przejść prosto do Dnia 15 (Zadanie 42: Płótno malarskie i interaktywne aplikacje Canvas).";
     recommendedDay = 15;
-    recommendedStartTask = 43;
+    recommendedStartTask = 42;
   }
 
   STATE.testResult = { score: totalScore, title: trackTitle, day: recommendedDay };
@@ -2043,14 +2081,50 @@ function updateDiplomaCleansingUI() {
   document.body.classList.toggle('diploma-locked', !isMaster);
 }
 
+function getBusinessAddonsDiplomaBadge(style) {
+  const addonIds = [101, 102, 103, 104, 105, 106, 107, 108, 109];
+  const passedAddons = addonIds.filter(id => STATE.completedTasks && STATE.completedTasks.has(id));
+  if (passedAddons.length === 0) return '';
+
+  const isDark = (style === 'teen' || style === 'creative');
+  const bgClass = isDark ? 'bg-amber-950/70 border-amber-400/50 text-amber-200' : 'bg-amber-100/90 border-amber-600/50 text-amber-950';
+
+  const mod1Done = [101, 102, 103].every(id => STATE.completedTasks && STATE.completedTasks.has(id));
+  const mod2Done = [104, 105, 106].every(id => STATE.completedTasks && STATE.completedTasks.has(id));
+  const mod3Done = [107, 108, 109].every(id => STATE.completedTasks && STATE.completedTasks.has(id));
+
+  return `
+    <div class="mt-4 p-3 sm:p-4 rounded-2xl border ${bgClass} text-left shadow-sm">
+      <div class="flex flex-wrap items-center justify-between gap-1 mb-1.5">
+        <span class="text-[11px] sm:text-xs font-black uppercase tracking-wider flex items-center gap-1.5">
+          <span>💼 AKREDYTACJA BIZNESOWA:</span>
+          <span class="text-[11px] font-bold">Zaliczono ${passedAddons.length} / 9 wdrożeń</span>
+        </span>
+        ${passedAddons.length === 9 ? '<span class="text-[9px] sm:text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-500 text-slate-950 uppercase">★ EKSPERT BIZNESU AI</span>' : ''}
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-1.5 text-[10px] sm:text-[11px]">
+        <span class="${mod1Done ? 'font-bold text-emerald-400' : 'opacity-75'}">
+          ${mod1Done ? '✓' : '•'} Moduł 1: Vibe Excel & Makra
+        </span>
+        <span class="${mod2Done ? 'font-bold text-emerald-400' : 'opacity-75'}">
+          ${mod2Done ? '✓' : '•'} Moduł 2: Analiza Ankiet & Dashboard
+        </span>
+        <span class="${mod3Done ? 'font-bold text-emerald-400' : 'opacity-75'}">
+          ${mod3Done ? '✓' : '•'} Moduł 3: Procedury SOP & Regulacje AI
+        </span>
+      </div>
+    </div>
+  `;
+}
+
 function renderDiplomaCanvas() {
   const canvas = document.getElementById('diploma-canvas');
   if (!canvas) return;
 
   const style = getEffectiveDiplomaStyle();
   const gender = STATE.userProfile.gender;
-  const name = STATE.learnerName || 'Adept Vibe Codingu';
-  const certId = STATE.certId;
+  const name = escapeHtmlText(STATE.learnerName || 'Adept Vibe Codingu');
+  const certId = escapeHtmlText(STATE.certId || 'CERT-VIBE-2026-X89K2');
   const issueDate = new Date().toLocaleDateString('pl-PL');
   const completedCount = STATE.completedTasks.size;
   const scoreData = calculateScore();
@@ -2157,6 +2231,7 @@ function renderDiplomaCanvas() {
               <span>${scoreData.grade.stars}</span>
             </span>
           </div>
+          ${getBusinessAddonsDiplomaBadge(style)}
         </div>
 
         <div class="mt-6 sm:mt-8 pt-5 border-t border-cyan-800/60 flex flex-wrap items-center justify-between text-xs text-cyan-300 gap-4 relative z-10">
@@ -2230,6 +2305,7 @@ function renderDiplomaCanvas() {
               <span>${scoreData.grade.stars}</span>
             </span>
           </div>
+          ${getBusinessAddonsDiplomaBadge(style)}
         </div>
 
         <div class="mt-6 sm:mt-8 pt-5 border-t border-amber-600/40 flex flex-wrap items-center justify-between text-xs text-amber-900 gap-4 relative z-10">
@@ -2303,6 +2379,7 @@ function renderDiplomaCanvas() {
               <span>${scoreData.grade.stars}</span>
             </span>
           </div>
+          ${getBusinessAddonsDiplomaBadge(style)}
         </div>
 
         <div class="mt-6 sm:mt-8 pt-5 border-t border-purple-800/60 flex flex-wrap items-center justify-between text-xs text-fuchsia-300 gap-4 relative z-10">
@@ -2376,6 +2453,7 @@ function renderDiplomaCanvas() {
             <span>${scoreData.grade.stars}</span>
           </span>
         </div>
+        ${getBusinessAddonsDiplomaBadge(style)}
       </div>
 
       <div class="mt-6 sm:mt-8 pt-5 border-t border-slate-300 flex flex-wrap items-center justify-between text-xs text-slate-600 gap-4 relative z-10">
@@ -2812,7 +2890,7 @@ function renderDailyToolsHtml(day) {
                   <span role="img" aria-label="(ikona zamknięcia)">&times;</span>
                 </button>
               </div>
-              <iframe id="main-sandbox-frame" sandbox="allow-scripts allow-modals allow-forms allow-same-origin" class="w-full h-80 sm:h-96 rounded-2xl bg-white border-2 border-emerald-500/60 shadow-lg" title="Podgląd uruchomionego kodu strony. Użyj klawisza Tab lub Shift+Tab, aby poruszać się po elementach strony lub przejść do Studia ulepszeń."></iframe>
+              <iframe id="main-sandbox-frame" sandbox="allow-scripts allow-modals allow-forms" class="w-full h-80 sm:h-96 rounded-2xl bg-white border-2 border-emerald-500/60 shadow-lg" title="Podgląd uruchomionego kodu strony. Użyj klawisza Tab lub Shift+Tab, aby poruszać się po elementach strony lub przejść do Studia ulepszeń."></iframe>
               <div class="flex justify-end mt-2">
                 <button type="button" onclick="focusMainStudioFromSandbox()" class="touch-target text-xs px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-indigo-950/70 border border-slate-700 hover:border-indigo-500/50 text-indigo-300 font-bold transition flex items-center gap-1.5 shadow">
                   <span>Przejdź do Studia Ulepszeń promptu</span>
@@ -3613,14 +3691,14 @@ function renderTaskCard(task) {
     <article class="task-card p-5 sm:p-6 md:p-8 rounded-3xl border transition-all duration-200 mb-6 relative ${cardClasses}" id="task-card-${task.id}" aria-labelledby="task-title-${task.id}">
       <div class="flex flex-wrap items-center justify-between gap-2 mb-3 sm:mb-4">
         <div class="flex flex-wrap items-center gap-2">
-          <span class="inline-flex items-center px-3 py-1 rounded-full text-[11px] sm:text-xs font-black uppercase tracking-wider bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-            Dzień ${task.day} • Zadanie ${task.id} z 100
+          <span class="inline-flex items-center px-3 py-1 rounded-full text-[11px] sm:text-xs font-black uppercase tracking-wider ${task.isBusinessAddon ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' : 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'}">
+            ${task.isBusinessAddon ? `💼 Dodatek Biznesowy • ${task.addonDay || 'Moduł'}` : `Dzień ${task.day} • Zadanie ${task.id} z 100`}
           </span>
           <span class="inline-flex items-center px-3 py-1 rounded-full text-[11px] sm:text-xs font-black uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/30">
             ⭐ Wartość: ${pts} pkt
           </span>
           <span class="text-xs text-slate-400 font-medium hidden sm:inline">
-            ${stageObj.name}
+            ${task.isBusinessAddon ? 'Specjalizacja: Praca i Kariera' : stageObj.name}
           </span>
           <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold ${isCode ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' : 'bg-sky-500/20 text-sky-300 border border-sky-500/30'}">
             <span>${isCode ? 'Aplikacja / Kod HTML' : 'Rozmowa z AI / Prompting'}</span>
@@ -3647,6 +3725,44 @@ function renderTaskCard(task) {
         <p class="leading-relaxed">${task.desc}</p>
       </div>
 
+      ${task.starterCode ? `
+      <!-- PAKIET RATUNKOWY (KOD BAZOWY) -->
+      <div class="my-4 p-4 sm:p-5 rounded-2xl border-2 border-emerald-500/50 bg-emerald-950/25 shadow-lg">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2.5">
+          <div class="flex items-center gap-2.5">
+            <span role="img" aria-label="(ikona pakietu ratunkowego)" class="text-2xl">🧰</span>
+            <div>
+              <h3 class="text-xs sm:text-sm uppercase tracking-wider font-extrabold text-emerald-300">
+                ${task.fallbackTitle || 'Pakiet ratunkowy: Kod bazowy do tego zadania'}
+              </h3>
+              <span class="text-[11px] text-emerald-400/90 font-medium block">
+                Zapasowy punkt startowy dla osób zaczynających od tego dnia lub bez wczorajszego pliku
+              </span>
+            </div>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <button type="button" class="touch-target text-xs px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black transition flex items-center justify-center gap-1.5 shadow cursor-pointer" onclick="copyStarterCodeById(${task.id})" id="copy-starter-btn-${task.id}">
+              <span>Kopiuj kod bazowy</span>
+              <span role="img" aria-label="(ikona schowka)">📋</span>
+            </button>
+            <button type="button" class="touch-target text-xs px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black transition flex items-center justify-center gap-1.5 shadow cursor-pointer" onclick="copyCombinedCodeAndPrompt(${task.id})" id="copy-combined-btn-${task.id}" title="Kopiuje kod bazowy wraz z promptem zadania w jednym bloku">
+              <span>🚀 Kopiuj kod + prompt</span>
+            </button>
+            <button type="button" class="touch-target text-xs px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center justify-center gap-1 cursor-pointer" onclick="toggleStarterCode(${task.id})" id="toggle-starter-btn-${task.id}" aria-expanded="false" aria-controls="starter-code-box-${task.id}">
+              <span id="starter-code-toggle-text-${task.id}">Pokaż kod</span>
+              <span role="img" aria-label="(ikona oka)">👁️</span>
+            </button>
+          </div>
+        </div>
+        <p class="text-xs text-slate-300 mb-2 leading-relaxed">
+          ${task.fallbackDesc || 'Nie masz gotowego pliku z poprzednich zadań? Skopiuj ten kod, wklej do edytora lub czatu z AI, a potem wyślij prompt z zadania!'}
+        </p>
+        <div id="starter-code-box-${task.id}" class="hidden mt-3 pt-3 border-t border-emerald-500/20">
+          <pre class="font-mono text-xs text-emerald-100 bg-slate-950 p-3.5 rounded-xl border border-emerald-500/30 whitespace-pre-wrap select-all max-h-64 overflow-y-auto leading-relaxed">${escapeHtmlText(task.starterCode)}</pre>
+        </div>
+      </div>
+      ` : ''}
+
       <!-- PODSEKCJA 2 (H3): PROMPT DO WKLEJENIA -->
       <div class="my-4 p-3.5 sm:p-4 rounded-2xl border border-slate-700 bg-slate-950/80 shadow-inner">
         <div class="flex flex-col sm:flex-row sm:flex-wrap sm:items-center justify-between gap-2.5 mb-3">
@@ -3655,6 +3771,11 @@ function renderTaskCard(task) {
             <span role="img" aria-label="(ikona dymku rozmowy)">💬</span>
           </h3>
           <div class="grid grid-cols-2 sm:flex items-center gap-2">
+            ${task.starterCode ? `
+            <button type="button" class="touch-target text-xs px-3 py-2 sm:py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black transition flex items-center justify-center gap-1.5 shadow cursor-pointer" onclick="copyCombinedCodeAndPrompt(${task.id})" id="copy-combined-prompt-btn-${task.id}" title="Kopiuje kod bazowy wraz z promptem zadania">
+              <span>🚀 Kod + Prompt</span>
+            </button>
+            ` : ''}
             <button type="button" class="touch-target text-xs px-3 py-2 sm:py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold transition flex items-center justify-center gap-1.5 shadow" onclick="copyPromptById(${task.id})" id="copy-btn-${task.id}">
               <span>Kopiuj Prompt<span class="sr-only"> zadania ${task.id}</span></span>
               <span role="img" aria-label="(ikona schowka)">📋</span>
@@ -4325,6 +4446,209 @@ function fallbackCopyText(text, callback) {
   } catch (e) {
     alert("Zaznacz tekst ręcznie i skopiuj go do schowka.");
   }
+}
+
+function copyStarterCodeById(taskId) {
+  const task = TASKS_DATA.find(t => t.id === taskId);
+  if (!task || !task.starterCode) return;
+  const onCopied = () => {
+    playClickSound();
+    const btn = document.getElementById(`copy-starter-btn-${taskId}`);
+    if (btn) {
+      btn.innerHTML = '<span>✓ Skopiowano kod!</span>';
+      btn.classList.add('bg-emerald-600', 'text-white');
+      setTimeout(() => {
+        btn.innerHTML = '<span>Kopiuj kod bazowy</span> <span role="img" aria-label="(ikona schowka)">📋</span>';
+        btn.classList.remove('bg-emerald-600', 'text-white');
+      }, 2000);
+    }
+    announceSR(`Skopiowano kod bazowy zadania ${taskId} do schowka.`);
+  };
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(task.starterCode).then(onCopied).catch(() => fallbackCopyText(task.starterCode, onCopied));
+  } else {
+    fallbackCopyText(task.starterCode, onCopied);
+  }
+}
+
+function copyCombinedCodeAndPrompt(taskId) {
+  const task = TASKS_DATA.find(t => t.id === taskId);
+  if (!task || !task.starterCode) return;
+  const combined = `Oto mój działający kod bazowy pliku:\n\`\`\`html\n${task.starterCode}\n\`\`\`\n\nMoje polecenie (wykonaj modyfikację powyższego kodu):\n${task.prompt}`;
+  const onCopied = () => {
+    playSuccessChime();
+    const btn1 = document.getElementById(`copy-combined-btn-${taskId}`);
+    const btn2 = document.getElementById(`copy-combined-prompt-btn-${taskId}`);
+    [btn1, btn2].forEach(b => {
+      if (b) {
+        b.innerHTML = '<span>✓ Skopiowano kod + prompt!</span>';
+        b.classList.add('bg-emerald-600', 'text-white');
+      }
+    });
+    setTimeout(() => {
+      if (btn1) {
+        btn1.innerHTML = '<span>🚀 Kopiuj kod + prompt</span>';
+        btn1.classList.remove('bg-emerald-600', 'text-white');
+      }
+      if (btn2) {
+        btn2.innerHTML = '<span>🚀 Kod + Prompt</span>';
+        btn2.classList.remove('bg-emerald-600', 'text-white');
+      }
+    }, 2500);
+    announceSR(`Skopiowano połączony kod bazowy i prompt zadania ${taskId} do schowka.`);
+  };
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(combined).then(onCopied).catch(() => fallbackCopyText(combined, onCopied));
+  } else {
+    fallbackCopyText(combined, onCopied);
+  }
+}
+
+function toggleStarterCode(taskId) {
+  const box = document.getElementById(`starter-code-box-${taskId}`);
+  const btn = document.getElementById(`toggle-starter-btn-${taskId}`);
+  const textEl = document.getElementById(`starter-code-toggle-text-${taskId}`);
+  if (!box) return;
+  const isHidden = box.classList.contains('hidden');
+  if (isHidden) {
+    box.classList.remove('hidden');
+    if (textEl) textEl.textContent = 'Ukryj kod';
+    if (btn) btn.setAttribute('aria-expanded', 'true');
+    announceSR(`Rozwinięto kod bazowy zadania ${taskId}.`);
+  } else {
+    box.classList.add('hidden');
+    if (textEl) textEl.textContent = 'Pokaż kod';
+    if (btn) btn.setAttribute('aria-expanded', 'false');
+    announceSR(`Zwinięto kod bazowy zadania ${taskId}.`);
+  }
+}
+
+function renderAddonsPage() {
+  const container = document.getElementById('addons-content-container');
+  if (!container) return;
+
+  const isBusinessLearner = (STATE.userProfile && STATE.userProfile.ageGroup === 'adult' && STATE.userProfile.interest === 'business');
+  
+  if (!isBusinessLearner) {
+    container.innerHTML = `
+      <div class="p-6 sm:p-8 rounded-3xl bg-slate-900 border-2 border-amber-500/40 text-center max-w-2xl mx-auto shadow-2xl">
+        <span class="text-4xl block mb-3" role="img" aria-label="(ikona teczki)">💼</span>
+        <h2 class="text-xl sm:text-2xl font-black text-white mb-2">Specjalizacja Biznesowa i Praca</h2>
+        <p class="text-xs sm:text-sm text-slate-300 mb-6 leading-relaxed">
+          Moduł ten zawiera specjalistyczne wdrożenia dla pracy w firmie i biurze (automatyzacja Excela, analiza ankiet i procedury SOP).
+          Sekcja ta jest aktywna dla profilu: <strong>Dorosły • Biznes, Praca i Automatyzacja</strong>.
+        </p>
+        <button type="button" onclick="switchSubpage('page-profile')" class="touch-target px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs sm:text-sm transition shadow-lg inline-flex items-center gap-2">
+          <span>Przejdź do Kroku 2: Wybór Profilu i aktywuj profil Biznes</span>
+          <span role="img" aria-label="(strzałka w prawo)">&rarr;</span>
+        </button>
+      </div>
+    `;
+    return;
+  }
+
+  const basicTaskIds = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
+  const completedBasicCount = basicTaskIds.filter(id => STATE.completedTasks && STATE.completedTasks.has(id)).length;
+  const isQualified = (completedBasicCount >= 15 || (STATE.testResult && STATE.testResult.score >= 9) || (STATE.startingChoice && STATE.startingChoice >= 8));
+
+  const addonIds = [101, 102, 103, 104, 105, 106, 107, 108, 109];
+  const completedAddonCount = addonIds.filter(id => STATE.completedTasks && STATE.completedTasks.has(id)).length;
+  let earnedAddonPts = 0;
+  addonIds.forEach(id => {
+    if (STATE.completedTasks && STATE.completedTasks.has(id)) {
+      const t = TASKS_DATA.find(x => x.id === id);
+      if (t) earnedAddonPts += getTaskPoints(t);
+    }
+  });
+
+  const badgeComp = document.getElementById('addons-completed-badge');
+  if (badgeComp) badgeComp.textContent = `${completedAddonCount} / 9`;
+  const badgePts = document.getElementById('addons-points-badge');
+  if (badgePts) badgePts.textContent = `${earnedAddonPts} / 285 pkt`;
+
+  if (!isQualified) {
+    const pct = Math.round((completedBasicCount / 15) * 100);
+    container.innerHTML = `
+      <div class="p-6 sm:p-8 rounded-3xl bg-slate-900 border-2 border-indigo-500/50 max-w-2xl mx-auto shadow-2xl text-center">
+        <div class="w-16 h-16 rounded-full bg-indigo-950 border-2 border-indigo-400 flex items-center justify-center text-2xl mx-auto mb-4">
+          <span role="img" aria-label="(kłódka)">🔒</span>
+        </div>
+        <h2 class="text-xl sm:text-2xl font-black text-white mb-2">Pakiety Biznesowe są obecnie Zablokowane</h2>
+        <p class="text-xs sm:text-sm text-slate-300 mb-6 leading-relaxed">
+          Aby bezpiecznie i bez frustracji tworzyć zaawansowane makra Excela, analizować surowe ankiety i pisać regulaminy korporacyjne, musisz najpierw opanować fundamenty inżynierii promptu.
+          Ukończ pierwsze 15 podstawowych zadań kursu (<strong>Etap 1: Fundamenty i dekompozycja</strong>).
+        </p>
+        <div class="mb-6 p-4 rounded-2xl bg-slate-950 border border-slate-800 text-left">
+          <div class="flex items-center justify-between text-xs font-bold text-slate-300 mb-2">
+            <span>Twój postęp w Etapie 1:</span>
+            <span class="text-indigo-400">${completedBasicCount} z 15 zadań (${pct}%)</span>
+          </div>
+          <div class="w-full bg-slate-800 rounded-full h-3 overflow-hidden">
+            <div class="bg-gradient-to-r from-indigo-500 to-emerald-400 h-3 rounded-full transition-all duration-500" style="width: ${pct}%"></div>
+          </div>
+        </div>
+        <button type="button" onclick="switchSubpage('page-daily-tasks')" class="touch-target px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs sm:text-sm transition shadow-lg inline-flex items-center gap-2">
+          <span>Przejdź do Zadań Dnia (Etap 1)</span>
+          <span role="img" aria-label="(ikona celu)">🎯</span>
+        </button>
+      </div>
+    `;
+    return;
+  }
+
+  const packs = (typeof BUSINESS_ADDON_PACKS !== 'undefined') ? BUSINESS_ADDON_PACKS : [];
+  let html = `
+    <div class="p-4 sm:p-5 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 mb-6 flex flex-col sm:flex-row items-center justify-between gap-3 shadow">
+      <div class="flex items-center gap-3">
+        <span class="text-3xl" role="img" aria-label="(gwiazda)">⭐</span>
+        <div class="text-xs text-emerald-200">
+          <strong class="text-emerald-300 text-sm block mb-0.5">Moduł Specjalizacji Biznesowej jest w pełni Odblokowany!</strong>
+          Opanowałeś fundamenty Vibe Codingu. Wszystkie 3 pakiety są gotowe do wdrożenia. Każde zaliczone zadanie zasila Twój wynik (+30–35 pkt) i odblokowuje specjalną akredytację na oficjalnym dyplomie!
+        </div>
+      </div>
+      <div class="shrink-0 text-xs font-bold text-emerald-400 bg-emerald-900/60 px-3 py-1.5 rounded-xl border border-emerald-500/30">
+        Status: 9 Wdrożeń Aktywnych
+      </div>
+    </div>
+  `;
+
+  packs.forEach((pack, packIdx) => {
+    const packTasks = pack.taskIds.map(id => TASKS_DATA.find(t => t.id === id)).filter(Boolean);
+    const packPassedCount = packTasks.filter(t => STATE.completedTasks && STATE.completedTasks.has(t.id)).length;
+    const isPackComplete = (packPassedCount === packTasks.length);
+
+    html += `
+      <section class="p-6 sm:p-8 rounded-3xl bg-slate-900 border ${isPackComplete ? 'border-emerald-500/60 bg-emerald-950/15' : 'border-slate-800'} shadow-xl space-y-6 mb-8">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+          <div class="flex items-center gap-3">
+            <span class="text-3xl p-2.5 rounded-2xl bg-slate-950 border border-slate-800" role="img" aria-label="${pack.title}">${pack.icon}</span>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-[11px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full ${pack.badgeColor}">
+                  Moduł ${packIdx + 1} z 3
+                </span>
+                ${isPackComplete ? '<span class="text-[11px] font-black px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">✓ UKOŃCZONY</span>' : ''}
+              </div>
+              <h2 class="text-lg sm:text-xl font-black text-white mt-1">${pack.title}</h2>
+              <p class="text-xs text-slate-300 mt-0.5 max-w-2xl">${pack.desc}</p>
+            </div>
+          </div>
+          <div class="text-right shrink-0">
+            <span class="text-xs font-bold text-slate-400 block">Postęp modułu:</span>
+            <span class="text-sm font-black ${isPackComplete ? 'text-emerald-400' : 'text-amber-300'}">${packPassedCount} / ${packTasks.length} zadań</span>
+          </div>
+        </div>
+
+        <div class="space-y-6">
+          ${packTasks.map(task => renderTaskCard(task)).join('')}
+        </div>
+      </section>
+    `;
+  });
+
+  container.innerHTML = html;
 }
 
 // Aktualizacja paska postępu
@@ -5393,7 +5717,7 @@ function downloadAuthorFeedbackMarkdown() {
   }
 
   let md = `# Uwagi i Sugestie dla Twórcy Kompendium Vibe Codingu\n`;
-  md += `*Wygenerowano: ${new Date().toLocaleString('pl-PL')} • Akademia Vibe Codingu v3.4.0*\n`;
+  md += `*Wygenerowano: ${new Date().toLocaleString('pl-PL')} • Akademia Vibe Codingu v3.6.0*\n`;
   md += `*Kursant / Użytkownik: ${STATE.learnerName || 'Adept'}*\n`;
   md += `*Łączna liczba zgłoszonych uwag: ${feedbacks.length}*\n\n`;
   md += `Prześlij ten plik do autora kompendium jako załącznik e-mail lub skopiuj jego treść do wiadomości.\n\n`;
@@ -5434,7 +5758,7 @@ function downloadAuthorFeedbackHtml() {
 
   let bodyContent = `
     <header class="doc-header">
-      <div class="badge">Akademia Vibe Codingu v3.4.0 • Raport Uwag i Sugestii</div>
+      <div class="badge">Akademia Vibe Codingu v3.6.0 • Raport Uwag i Sugestii</div>
       <h1>Uwagi i Sugestie dla Twórcy Kompendium</h1>
       <div class="meta">
         <p><strong>Użytkownik / Kursant:</strong> ${escapeHtmlText(STATE.learnerName || 'Adept')}</p>
