@@ -8,13 +8,19 @@
   <meta name="apple-mobile-web-app-title" content="Vibe Coding">
   <meta name="theme-color" content="#0f172a">
   <meta name="color-scheme" content="dark light">
-  <title>Akademia Vibe Codingu i Sztuki Promptingu v3.7.0 (Od Zera do Twórcy)</title>
+  <title>Akademia Vibe Codingu i Sztuki Promptingu v3.8.0 (Od Zera do Twórcy)</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   
   <!-- Canvas Confetti CDN -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+  <!-- QRCode.js dla błyskawicznego transferu na smartfon -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+
+  <!-- Google Identity Services dla autoryzacji z prywatnym Dyskiem Google kursanta -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 
   <!-- Favicon -->
   <link rel="icon" href="https://fav.farm/⚡" />
@@ -416,7 +422,7 @@
               Vibe Coding Academy
             </span>
             <span class="text-[10px] text-amber-400 font-bold block">
-              Wersja 3.7.0 • Pełna obsługa Inwersji Kolorów iPhone, Pakiety Zadań i WCAG AA/AAA
+              Wersja 3.8.0 • Synchronizacja Urządzeń (Własny Dysk Google, Kod QR, Plik) i WCAG AA/AAA
             </span>
           </div>
         </a>
@@ -430,6 +436,12 @@
 
       <!-- Szybkie przełączniki ułatwień dostępu (Notatki, Instrukcja, Słowniczek, Dźwięk, Kontrast, Inwersja iPhone, Czcionka, Motyw) -->
       <div class="flex items-center gap-1.5 sm:gap-2">
+
+        <!-- Przycisk Synchronizacji i Przenoszenia na Telefon (Własny Dysk Google / Kod QR / Plik) -->
+        <button type="button" onclick="openSyncModal()" class="touch-target px-2.5 py-1.5 rounded-lg border border-emerald-500/60 bg-emerald-950/70 hover:bg-emerald-900 text-emerald-200 text-xs font-bold transition flex items-center gap-1.5 shadow" aria-haspopup="dialog" id="btn-header-sync" title="Przenieś kurs na smartfon lub zsynchronizuj z własnym Dyskiem Google (Alt+G)">
+          <span role="img" aria-label="(ikona telefonu i chmury)">📲</span>
+          <span class="hidden sm:inline">Telefon i Dysk Google</span>
+        </button>
 
         <!-- Przycisk Przeglądania Notatek (Dostępny w każdym momencie kursu) -->
         <button type="button" onclick="openNotesManagerModal()" class="touch-target px-2.5 py-1.5 rounded-lg border border-purple-500/60 bg-purple-950/70 hover:bg-purple-900 text-purple-200 text-xs font-bold transition flex items-center gap-1.5 shadow" aria-haspopup="dialog" id="btn-header-notes" title="Przeglądaj zrobione notatki (Alt+N)">
@@ -2048,12 +2060,276 @@
     </div>
   </div>
 
+  <!-- ========================================================================= -->
+  <!-- MODAL 5: SYNCHRONIZACJA URZĄDZEŃ I PRYWATNY DYSK GOOGLE                   -->
+  <!-- ========================================================================= -->
+  <div id="modal-sync-manager" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto hidden" role="dialog" aria-modal="true" aria-labelledby="sync-modal-title" aria-hidden="true">
+    <div class="modal-content bg-slate-900 border border-emerald-500/50 rounded-3xl max-w-4xl w-full p-5 sm:p-6 md:p-8 shadow-2xl relative max-h-[92dvh] overflow-y-auto focus:outline-none" tabindex="-1">
+      
+      <button type="button" onclick="closeSyncModal()" class="touch-target absolute top-3 right-3 sm:top-5 sm:right-5 text-slate-400 hover:text-white text-2xl font-bold p-2 focus:ring-2 focus:ring-emerald-400 rounded-lg flex items-center justify-center min-w-[44px]">
+        <span class="sr-only">Zamknij okno synchronizacji (Escape) </span>
+        <span role="img" aria-label="(ikona zamknięcia)">&times;</span>
+      </button>
+
+      <div class="flex items-center gap-3 mb-4 pr-10">
+        <span class="text-3xl shrink-0" role="img" aria-label="(ikona synchronizacji)">📲</span>
+        <div>
+          <span class="text-xs uppercase font-extrabold tracking-wider text-emerald-400 block">Wielourządzeniowość i Kopia Bezpieczeństwa</span>
+          <h2 id="sync-modal-title" class="text-lg sm:text-2xl font-black text-white focus:outline-none" tabindex="-1">
+            Ucz się na Komputerze i Smartfonie (Synchronizacja)
+          </h2>
+        </div>
+      </div>
+
+      <p class="text-xs sm:text-sm text-slate-300 leading-relaxed mb-6">
+        Wybierz najwygodniejszy dla siebie sposób na przenoszenie postępów, punktów i notatek między komputerem a telefonem.
+      </p>
+
+      <!-- ZAKŁADKI NAWIGACYJNE METOD SYNCHRONIZACJI -->
+      <div class="flex flex-wrap border-b border-slate-700/80 mb-6 gap-2" role="tablist" aria-label="Wybierz metodę synchronizacji">
+        <button type="button" role="tab" id="sync-tab-btn-gdrive" aria-selected="true" aria-controls="sync-panel-gdrive" onclick="switchSyncTab('gdrive')" class="sync-tab-btn touch-target px-4 py-2.5 rounded-t-xl text-xs sm:text-sm font-bold border-b-2 border-emerald-500 bg-slate-800 text-white flex items-center gap-2">
+          <span role="img" aria-label="(chmura)">☁️</span>
+          <span>1. Własny Dysk Google</span>
+        </button>
+        <button type="button" role="tab" id="sync-tab-btn-qr" aria-selected="false" aria-controls="sync-panel-qr" onclick="switchSyncTab('qr')" class="sync-tab-btn touch-target px-4 py-2.5 rounded-t-xl text-xs sm:text-sm font-bold border-b-2 border-transparent bg-slate-900 text-slate-400 hover:text-slate-200 flex items-center gap-2">
+          <span role="img" aria-label="(smartfon)">📲</span>
+          <span>2. Kod QR i Magiczny Link</span>
+        </button>
+        <button type="button" role="tab" id="sync-tab-btn-file" aria-selected="false" aria-controls="sync-panel-file" onclick="switchSyncTab('file')" class="sync-tab-btn touch-target px-4 py-2.5 rounded-t-xl text-xs sm:text-sm font-bold border-b-2 border-transparent bg-slate-900 text-slate-400 hover:text-slate-200 flex items-center gap-2">
+          <span role="img" aria-label="(dyskietka)">💾</span>
+          <span>3. Kopia w Pliku (.json)</span>
+        </button>
+      </div>
+
+      <!-- PANEL 1: WŁASNY DYSK GOOGLE -->
+      <div id="sync-panel-gdrive" role="tabpanel" aria-labelledby="sync-tab-btn-gdrive" class="space-y-4">
+        <!-- Baner Gwarancji Prywatności -->
+        <div class="p-4 rounded-2xl bg-indigo-950/60 border border-indigo-500/40 flex items-start gap-3">
+          <span class="text-2xl shrink-0" role="img" aria-label="(tarcza)">🛡️</span>
+          <div class="text-xs text-indigo-100 leading-relaxed">
+            <strong class="text-white block mb-1">Gwarancja 100% prywatności Twojego Dysku Google:</strong>
+            Twoje postępy zapisują się <strong>wyłącznie na Twoim własnym, prywatnym koncie Google</strong> w pliku <code class="bg-indigo-900/80 px-1 py-0.5 rounded text-amber-300 font-mono">Akademia_Vibe_Codingu_Postepy.json</code>.
+            Autor kursu ani nikt inny nie ma wglądu w Twoje dane, a na Twój dysk nie trafią żadne cudze pliki.
+          </div>
+        </div>
+
+        <!-- Karta statusu połączenia z Google -->
+        <div class="p-5 rounded-2xl bg-slate-950 border border-slate-800">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+            <div>
+              <span class="text-[11px] uppercase font-bold text-slate-400 block">Stan połączenia:</span>
+              <div id="gdrive-status-badge" class="flex items-center gap-2 mt-0.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-slate-500 inline-block" id="gdrive-status-dot"></span>
+                <span id="gdrive-status-text" class="text-sm font-bold text-slate-300">Nie połączono jeszcze z Twoim kontem Google</span>
+              </div>
+            </div>
+            <div id="gdrive-last-sync-badge" class="text-xs text-slate-400">
+              Ostatnia synchronizacja: <span id="gdrive-last-sync-time" class="text-slate-300 font-semibold">brak</span>
+            </div>
+          </div>
+
+          <!-- Przyciski akcji Google Drive -->
+          <div class="flex flex-wrap items-center gap-3">
+            <button type="button" onclick="connectGoogleDrive()" id="btn-gdrive-connect" class="touch-target px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition flex items-center gap-2 shadow">
+              <span role="img" aria-label="(logo Google)">🌐</span>
+              <span id="btn-gdrive-connect-label">Zaloguj się kontem Google</span>
+            </button>
+            <button type="button" onclick="saveToGoogleDrive()" id="btn-gdrive-save" class="touch-target px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition flex items-center gap-2 shadow">
+              <span role="img" aria-label="(zapisz)">☁️</span>
+              <span>Zapisz teraz na moim Dysku Google</span>
+            </button>
+            <button type="button" onclick="loadFromGoogleDrive()" id="btn-gdrive-load" class="touch-target px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition flex items-center gap-2 shadow">
+              <span role="img" aria-label="(pobierz)">📥</span>
+              <span>Wczytaj z mojego Dysku Google</span>
+            </button>
+            <button type="button" onclick="disconnectGoogleDrive()" id="btn-gdrive-disconnect" class="touch-target px-3 py-2 rounded-xl bg-slate-800 hover:bg-rose-900/40 text-slate-300 hover:text-rose-200 border border-slate-700 font-bold text-xs transition hidden">
+              <span>Wyloguj Google</span>
+            </button>
+          </div>
+
+          <!-- Automatyczny zapis po każdym zadaniu -->
+          <div class="mt-4 pt-4 border-t border-slate-800 flex items-center gap-2.5">
+            <input type="checkbox" id="chk-gdrive-autosync" onchange="toggleGdriveAutoSync(this.checked)" class="w-4 h-4 rounded text-emerald-500 focus:ring-emerald-400 bg-slate-900 border-slate-700 cursor-pointer">
+            <label for="chk-gdrive-autosync" class="text-xs text-slate-300 cursor-pointer select-none">
+              Automatycznie wysyłaj stan na mój Dysk Google po zaliczeniu każdego zadania
+            </label>
+          </div>
+        </div>
+
+        <!-- Prosty alternatywny wariant lokalnego folderu Google Drive -->
+        <div class="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 text-xs text-slate-400 space-y-1.5">
+          <strong class="text-slate-200 block">💡 Masz aplikację Dysk Google na komputerze lub smartfonie?</strong>
+          <p>
+            Możesz też w dowolnym momencie przejść do <strong>Zakładki 3 (Plik .json)</strong> i kliknąć <em>„Pobierz plik moich postępów”</em>, wskazując jako miejsce zapisu Twój lokalny folder Dysku Google na komputerze lub w aplikacji <em>Pliki</em> na telefonie. To działa w 100% offline i bez żadnego logowania!
+          </p>
+        </div>
+      </div>
+
+      <!-- PANEL 2: KOD QR I MAGICZNY LINK -->
+      <div id="sync-panel-qr" role="tabpanel" aria-labelledby="sync-tab-btn-qr" class="hidden space-y-5">
+        <p class="text-xs sm:text-sm text-slate-300">
+          Najszybszy sposób na natychmiastowe przejście z komputera na smartfon: skieruj aparat iPhone'a / Androida na kod QR lub prześlij sobie wygenerowany Magiczny Link.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 items-center">
+          <!-- Kolumna Kodu QR -->
+          <div class="p-5 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col items-center text-center">
+            <span class="text-xs uppercase font-extrabold text-amber-400 mb-3 tracking-wider">Aparat w telefonie</span>
+            
+            <div id="sync-qr-code-display" class="p-3 bg-white rounded-2xl shadow-lg border-4 border-emerald-500/40 flex items-center justify-center min-w-[210px] min-h-[210px]">
+              <!-- Tutaj renderuje się kod QR -->
+              <span class="text-xs text-slate-600">Generowanie kodu QR...</span>
+            </div>
+
+            <p class="text-xs text-slate-400 mt-3 max-w-xs leading-relaxed">
+              Stuknij powiadomienie, które pojawi się w aparacie telefonu. Kurs otworzy się z Twoimi postępami!
+            </p>
+          </div>
+
+          <!-- Kolumna Magicznego Linku i Ręcznego Kodu -->
+          <div class="space-y-4">
+            <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
+              <label for="sync-transfer-link-input" class="text-xs font-bold text-white block">
+                Magiczny Link do otwarcia na drugim urządzeniu:
+              </label>
+              <div class="flex items-center gap-2">
+                <input type="text" id="sync-transfer-link-input" readonly class="w-full px-3 py-2 text-xs rounded-xl bg-slate-900 border border-slate-700 text-slate-300 focus:outline-none select-all" aria-label="Magiczny link transferowy">
+                <button type="button" onclick="copyTransferLink()" id="btn-copy-transfer-link" class="touch-target shrink-0 px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition flex items-center gap-1.5 shadow">
+                  <span role="img" aria-label="(kopiuj)">📋</span>
+                  <span>Kopiuj link</span>
+                </button>
+              </div>
+              <p class="text-[11px] text-slate-400 leading-relaxed">
+                Wyślij ten link do siebie (np. mailem, w wiadomości lub otwórz w Safari).
+              </p>
+            </div>
+
+            <!-- Ręczne wklejenie kodu z innego urządzenia -->
+            <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
+              <label for="sync-manual-code-input" class="text-xs font-bold text-white block">
+                Otrzymałeś kod lub link z drugiego urządzenia? Wklej go tutaj:
+              </label>
+              <textarea id="sync-manual-code-input" rows="2" placeholder="Wklej tutaj otrzymany kod transferu lub link..." class="w-full px-3 py-2 text-xs rounded-xl bg-slate-900 border border-slate-700 text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 resize-none"></textarea>
+              <div class="flex justify-end">
+                <button type="button" onclick="applyManualTransferCode()" class="touch-target px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition flex items-center gap-1.5 shadow">
+                  <span role="img" aria-label="(wczytaj)">📥</span>
+                  <span>Wczytaj postępy z tego kodu</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANEL 3: PLIK POSTĘPÓW (.JSON) -->
+      <div id="sync-panel-file" role="tabpanel" aria-labelledby="sync-tab-btn-file" class="hidden space-y-4">
+        <p class="text-xs sm:text-sm text-slate-300">
+          Tradycyjna, w 100% niezawodna kopia zapasowa. Pobierz plik ze swoimi zadaniami, punktami i notatkami, aby zachować go na dysku lub przesłać na telefon.
+        </p>
+
+        <!-- Karta podsumowania bieżącego stanu -->
+        <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+          <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+            <span class="text-[10px] uppercase font-bold text-slate-400 block">Zadania</span>
+            <span id="sync-file-tasks-count" class="text-base sm:text-lg font-black text-emerald-400">0 / 100</span>
+          </div>
+          <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+            <span class="text-[10px] uppercase font-bold text-slate-400 block">Punkty</span>
+            <span id="sync-file-points-count" class="text-base sm:text-lg font-black text-amber-400">0 pkt</span>
+          </div>
+          <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+            <span class="text-[10px] uppercase font-bold text-slate-400 block">Notatki</span>
+            <span id="sync-file-notes-count" class="text-base sm:text-lg font-black text-purple-300">0</span>
+          </div>
+          <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+            <span class="text-[10px] uppercase font-bold text-slate-400 block">Dzień nauki</span>
+            <span id="sync-file-day-count" class="text-base sm:text-lg font-black text-white">Dzień 1</span>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3 pt-2">
+          <button type="button" onclick="downloadProgressBackupFile()" id="btn-download-progress-file" class="touch-target px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition flex items-center gap-2 shadow">
+            <span role="img" aria-label="(pobierz plik)">📥</span>
+            <span>Pobierz plik moich postępów (.json)</span>
+          </button>
+          
+          <button type="button" onclick="document.getElementById('import-progress-file-input').click()" id="btn-upload-progress-file" class="touch-target px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition flex items-center gap-2 shadow">
+            <span role="img" aria-label="(wgraj plik)">📂</span>
+            <span>Wczytaj postępy z pliku</span>
+          </button>
+
+          <!-- Ukryte pole wyboru pliku -->
+          <input type="file" id="import-progress-file-input" accept=".json" onchange="handleImportFileSelect(event)" class="sr-only">
+        </div>
+      </div>
+
+      <!-- Stopka modala -->
+      <div class="mt-6 pt-4 border-t border-slate-800 flex justify-end">
+        <button type="button" onclick="closeSyncModal()" class="touch-target px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs transition">
+          Zamknij okno
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL 6: POTWIERDZENIE WCZYTANIA POSTĘPÓW (TRANSFER / IMPORT)             -->
+  <!-- ========================================================================= -->
+  <div id="modal-transfer-confirm" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto hidden" role="dialog" aria-modal="true" aria-labelledby="confirm-transfer-title" aria-hidden="true">
+    <div class="modal-content bg-slate-900 border-2 border-amber-500 rounded-3xl max-w-lg w-full p-5 sm:p-7 shadow-2xl relative focus:outline-none" tabindex="-1">
+      
+      <div class="flex items-center gap-3 mb-4">
+        <span class="text-3xl shrink-0" role="img" aria-label="(świętowanie)">🎉</span>
+        <div>
+          <span class="text-xs uppercase font-extrabold tracking-wider text-amber-400 block">Wykryto Twoje Postępy</span>
+          <h2 id="confirm-transfer-title" class="text-lg sm:text-xl font-black text-white focus:outline-none" tabindex="-1">
+            Wczytać dane z drugiego urządzenia?
+          </h2>
+        </div>
+      </div>
+
+      <!-- Karta podsumowania wykrytych danych -->
+      <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2 mb-4 text-xs text-slate-300">
+        <div class="flex justify-between border-b border-slate-800/80 pb-1.5">
+          <span class="text-slate-400">Uczeń:</span>
+          <strong id="confirm-import-name" class="text-white">Kursant Vibe Codingu</strong>
+        </div>
+        <div class="flex justify-between border-b border-slate-800/80 pb-1.5">
+          <span class="text-slate-400">Zaliczone zadania:</span>
+          <strong id="confirm-import-tasks" class="text-emerald-400 font-black">0 / 100</strong>
+        </div>
+        <div class="flex justify-between border-b border-slate-800/80 pb-1.5">
+          <span class="text-slate-400">Zdobyte punkty:</span>
+          <strong id="confirm-import-points" class="text-amber-400 font-black">0 pkt</strong>
+        </div>
+        <div class="flex justify-between pt-0.5">
+          <span class="text-slate-400">Pochodzenie danych:</span>
+          <span id="confirm-import-source" class="text-slate-300 italic">Kod QR / Magiczny Link</span>
+        </div>
+      </div>
+
+      <p class="text-xs text-slate-300 leading-relaxed mb-6">
+        Kliknięcie <strong>„Tak, wczytaj moje postępy”</strong> zaktualizuje zadania, punkty i notatki w tej przeglądarce, abyś mógł bez przeszkód kontynuować naukę.
+      </p>
+
+      <div class="flex flex-wrap items-center justify-end gap-3">
+        <button type="button" onclick="cancelImportConfirmation()" class="touch-target px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition">
+          Anuluj
+        </button>
+        <button type="button" onclick="executeApplyImportedState()" id="btn-confirm-import-accept" class="touch-target px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs transition flex items-center gap-2 shadow-lg cursor-pointer">
+          <span role="img" aria-label="(sukces)">✓</span>
+          <span>Tak, wczytaj moje postępy</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Stopka Zgodności WCAG i Wersji -->
   <footer class="border-t border-slate-800 bg-slate-950 py-6 sm:py-8 px-4 text-xs text-slate-400 mt-10">
     <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-6">
       <div>
         <p class="font-bold text-slate-300 mb-1">
-          Akademia Vibe Codingu i Sztuki Promptingu • Wersja 3.7.0 • WCAG 2.1 / 2.2 Poziom AA/AAA (Obsługa Inwersji iOS)
+          Akademia Vibe Codingu i Sztuki Promptingu • Wersja 3.8.0 • WCAG 2.1 / 2.2 Poziom AA/AAA (Wielourządzeniowość i Własny Dysk Google)
         </p>
         <p>
           Akademia Vibe Codingu i Sztuki Promptingu • Projekt dostępny w chmurze na GitHubie: <a href="https://github.com/strugo10/vibe-coding-kompendium" target="_blank" rel="noopener noreferrer" class="underline text-slate-300 hover:text-white">strugo10/vibe-coding-kompendium</a> oraz online: <a href="https://strugo10.github.io/vibe-coding-kompendium/" target="_blank" rel="noopener noreferrer" class="underline text-teal-400 hover:text-teal-300">Wersja webowa na żywo</a>. Praktyka w pracy i życiu osobistym, dedykowany panel uwag dla twórcy i uniwersalny eksport notatek.
@@ -9989,7 +10265,7 @@ function downloadAuthorFeedbackMarkdown() {
   }
 
   let md = `# Uwagi i Sugestie dla Twórcy Kompendium Vibe Codingu\n`;
-  md += `*Wygenerowano: ${new Date().toLocaleString('pl-PL')} • Akademia Vibe Codingu v3.7.0*\n`;
+  md += `*Wygenerowano: ${new Date().toLocaleString('pl-PL')} • Akademia Vibe Codingu v3.8.0*\n`;
   md += `*Kursant / Użytkownik: ${STATE.learnerName || 'Adept'}*\n`;
   md += `*Łączna liczba zgłoszonych uwag: ${feedbacks.length}*\n\n`;
   md += `Prześlij ten plik do autora kompendium jako załącznik e-mail lub skopiuj jego treść do wiadomości.\n\n`;
@@ -10030,7 +10306,7 @@ function downloadAuthorFeedbackHtml() {
 
   let bodyContent = `
     <header class="doc-header">
-      <div class="badge">Akademia Vibe Codingu v3.7.0 • Raport Uwag i Sugestii</div>
+      <div class="badge">Akademia Vibe Codingu v3.8.0 • Raport Uwag i Sugestii</div>
       <h1>Uwagi i Sugestie dla Twórcy Kompendium</h1>
       <div class="meta">
         <p><strong>Użytkownik / Kursant:</strong> ${escapeHtmlText(STATE.learnerName || 'Adept')}</p>
@@ -11315,9 +11591,733 @@ function saveState() {
     };
     localStorage.setItem('vibe_coding_state_v2', JSON.stringify(payload));
     localStorage.setItem('vibe_coding_author_feedback', JSON.stringify(STATE.authorFeedbacks || []));
+    if (typeof scheduleGdriveDebouncedSync === 'function') {
+      scheduleGdriveDebouncedSync();
+    }
   } catch (e) {
     console.warn("Błąd zapisu localStorage:", e);
   }
+}
+
+// =========================================================================
+// SYNCHRONIZACJA URZĄDZEŃ, WŁASNY DYSK GOOGLE, KOD QR I KOPIA ZAPASOWA (v3.8.0)
+// =========================================================================
+
+let gdriveTokenClient = null;
+let gdriveAccessToken = localStorage.getItem('vibe_coding_gdrive_token') || null;
+let gdriveUserEmail = localStorage.getItem('vibe_coding_gdrive_email') || '';
+let gdriveFileId = localStorage.getItem('vibe_coding_gdrive_file_id') || null;
+let gdriveLastSync = localStorage.getItem('vibe_coding_gdrive_last_sync') || '';
+let isGdriveAutoSyncEnabled = localStorage.getItem('vibe_coding_gdrive_autosync') === 'true';
+let gdriveDebounceTimer = null;
+let pendingImportData = null;
+let currentQrCodeInstance = null;
+
+// Otwieranie i zamykanie okna synchronizacji
+function openSyncModal(initialTab = 'gdrive') {
+  playClickSound();
+  const modal = document.getElementById('modal-sync-manager');
+  if (!modal) return;
+
+  currentOpenModal = modal;
+  modal.classList.remove('hidden');
+  modal.removeAttribute('aria-hidden');
+
+  switchSyncTab(initialTab);
+  updateSyncFileStats();
+  initGoogleDriveSyncStatus();
+
+  const title = document.getElementById('sync-modal-title');
+  if (title) setTimeout(() => title.focus(), 60);
+
+  announceSR("Otwarto okno synchronizacji urządzeń i kopii bezpieczeństwa.");
+}
+
+function closeSyncModal() {
+  const modal = document.getElementById('modal-sync-manager');
+  if (!modal) return;
+  modal.classList.add('hidden');
+  modal.setAttribute('aria-hidden', 'true');
+  currentOpenModal = null;
+  playClickSound();
+}
+
+// Przełączanie zakładek w modalu synchronizacji
+function switchSyncTab(tabId) {
+  playClickSound();
+  const tabs = ['gdrive', 'qr', 'file'];
+  tabs.forEach(t => {
+    const btn = document.getElementById(`sync-tab-btn-${t}`);
+    const panel = document.getElementById(`sync-panel-${t}`);
+    if (btn && panel) {
+      if (t === tabId) {
+        btn.setAttribute('aria-selected', 'true');
+        btn.classList.add('border-emerald-500', 'bg-slate-800', 'text-white');
+        btn.classList.remove('border-transparent', 'bg-slate-900', 'text-slate-400');
+        panel.classList.remove('hidden');
+      } else {
+        btn.setAttribute('aria-selected', 'false');
+        btn.classList.remove('border-emerald-500', 'bg-slate-800', 'text-white');
+        btn.classList.add('border-transparent', 'bg-slate-900', 'text-slate-400');
+        panel.classList.add('hidden');
+      }
+    }
+  });
+
+  if (tabId === 'qr') {
+    renderTransferQrCode();
+  } else if (tabId === 'file') {
+    updateSyncFileStats();
+  } else if (tabId === 'gdrive') {
+    initGoogleDriveSyncStatus();
+  }
+}
+
+// Aktualizacja licznika w panelu pliku
+function updateSyncFileStats() {
+  const tasksCount = STATE.completedTasks ? STATE.completedTasks.size : 0;
+  const totalScore = calculateTotalScore();
+  const notesCount = STATE.taskNotes ? Object.keys(STATE.taskNotes).filter(k => (STATE.taskNotes[k] || '').trim()).length : 0;
+
+  const tEl = document.getElementById('sync-file-tasks-count');
+  const pEl = document.getElementById('sync-file-points-count');
+  const nEl = document.getElementById('sync-file-notes-count');
+  const dEl = document.getElementById('sync-file-day-count');
+
+  if (tEl) tEl.textContent = `${tasksCount} / 100`;
+  if (pEl) pEl.textContent = `${totalScore} pkt`;
+  if (nEl) nEl.textContent = `${notesCount}`;
+  if (dEl) dEl.textContent = `Dzień ${STATE.currentDay || 1}`;
+}
+
+// =========================================================================
+// POBIERANIE I WCZYTYWANIE PLIKU .JSON (OPCJA 1 / 3)
+// =========================================================================
+
+function downloadProgressBackupFile() {
+  playClickSound();
+  saveState();
+
+  const backup = {
+    version: '3.8.0',
+    appName: 'Akademia Vibe Codingu i Sztuki Promptingu',
+    exportDate: new Date().toISOString(),
+    completedTasks: Array.from(STATE.completedTasks),
+    taskStatuses: STATE.taskStatuses || {},
+    currentDay: STATE.currentDay || 1,
+    learnerName: STATE.learnerName || '',
+    userProfile: STATE.userProfile || {},
+    taskNotes: STATE.taskNotes || {},
+    sandboxCreations: STATE.sandboxCreations || [],
+    authorFeedbacks: STATE.authorFeedbacks || [],
+    diplomaGradeApproved: Boolean(STATE.diplomaGradeApproved),
+    selectedDiplomaStyle: STATE.selectedDiplomaStyle || 'cyberpunk',
+    certId: STATE.certId || '',
+    streakDays: STATE.streakDays || 1,
+    lastActiveDate: STATE.lastActiveDate || '',
+    points: calculateTotalScore()
+  };
+
+  const jsonStr = JSON.stringify(backup, null, 2);
+  const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const dateStr = new Date().toISOString().split('T')[0];
+  a.href = url;
+  a.download = `Vibe_Coding_Postepy_${dateStr}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  announceSR('Pobrano plik z Twoimi postępami. Możesz zapisać go na Dysku Google lub przenieść na drugie urządzenie.');
+  playSuccessChime();
+}
+
+function handleImportFileSelect(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data || (!data.completedTasks && !data.taskStatuses && !data.t)) {
+        alert('Wybrany plik nie zawiera poprawnych danych postępów Akademii Vibe Codingu.');
+        return;
+      }
+      promptImportConfirmation(data, 'z pliku: ' + file.name);
+    } catch(err) {
+      alert('Nie udało się odczytać pliku JSON: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+// =========================================================================
+// KOD QR I MAGICZNY LINK (TRANSFER NA SMARTFON)
+// =========================================================================
+
+function generateCompactTransferString(includeNotes = false) {
+  saveState();
+  const payload = {
+    v: '3.8.0',
+    ts: Date.now(),
+    t: Array.from(STATE.completedTasks),
+    s: STATE.taskStatuses || {},
+    d: STATE.currentDay || 1,
+    n: STATE.learnerName || '',
+    pts: calculateTotalScore()
+  };
+  if (includeNotes && STATE.taskNotes && Object.keys(STATE.taskNotes).length > 0) {
+    payload.nt = STATE.taskNotes;
+  }
+  const json = JSON.stringify(payload);
+  return btoa(unescape(encodeURIComponent(json)))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
+}
+
+function parseTransferString(str) {
+  try {
+    let b64 = str.replace(/-/g, '+').replace(/_/g, '/');
+    while (b64.length % 4) b64 += '=';
+    const json = decodeURIComponent(escape(atob(b64)));
+    const parsed = JSON.parse(json);
+    return {
+      completedTasks: parsed.completedTasks || parsed.t || [],
+      taskStatuses: parsed.taskStatuses || parsed.s || {},
+      currentDay: parsed.currentDay || parsed.d || 1,
+      learnerName: parsed.learnerName || parsed.n || '',
+      taskNotes: parsed.taskNotes || parsed.nt || {},
+      points: parsed.points || parsed.pts || 0,
+      exportDate: parsed.ts ? new Date(parsed.ts).toLocaleString('pl-PL') : 'Ostatnia sesja'
+    };
+  } catch(e) {
+    console.warn('Błąd dekodowania transfer string:', e);
+    return null;
+  }
+}
+
+function renderTransferQrCode() {
+  const container = document.getElementById('sync-qr-code-display');
+  if (!container) return;
+
+  container.innerHTML = '';
+  const transferCode = generateCompactTransferString(false);
+  const baseUrl = window.location.origin + window.location.pathname;
+  const fullUrl = `${baseUrl}#transfer=${transferCode}`;
+
+  const linkInput = document.getElementById('sync-transfer-link-input');
+  if (linkInput) linkInput.value = fullUrl;
+
+  if (typeof QRCode !== 'undefined') {
+    try {
+      currentQrCodeInstance = new QRCode(container, {
+        text: fullUrl,
+        width: 190,
+        height: 190,
+        colorDark: '#0b0f19',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.M
+      });
+    } catch(err) {
+      console.warn('Błąd generowania QRCode:', err);
+      container.innerHTML = '<span class="text-xs text-slate-700 font-bold p-2">Użyj poniższego Magicznego Linku lub Kodu</span>';
+    }
+  } else {
+    container.innerHTML = '<span class="text-xs text-slate-700 font-bold p-2">Magiczny Link wygenerowany poniżej</span>';
+  }
+}
+
+function copyTransferLink() {
+  playClickSound();
+  const input = document.getElementById('sync-transfer-link-input');
+  if (!input || !input.value) return;
+
+  navigator.clipboard.writeText(input.value).then(() => {
+    const btn = document.getElementById('btn-copy-transfer-link');
+    if (btn) {
+      const orig = btn.innerHTML;
+      btn.innerHTML = '<span>Skopiowano!</span> <span role="img" aria-label="(sukces)">✓</span>';
+      setTimeout(() => { btn.innerHTML = orig; }, 2500);
+    }
+    announceSR('Skopiowano Magiczny Link do schowka. Możesz go wysłać sobie mailem lub otworzyć w przeglądarce Safari na smartfonie.');
+  }).catch(() => {
+    input.select();
+    document.execCommand('copy');
+    alert('Skopiowano link do schowka!');
+  });
+}
+
+function applyManualTransferCode() {
+  playClickSound();
+  const textarea = document.getElementById('sync-manual-code-input');
+  if (!textarea || !textarea.value.trim()) {
+    alert('Wklej najpierw otrzymany kod transferu lub link z drugiego urządzenia.');
+    return;
+  }
+  let raw = textarea.value.trim();
+  if (raw.includes('#transfer=')) {
+    raw = raw.split('#transfer=')[1];
+  } else if (raw.includes('transfer=')) {
+    const m = raw.match(/transfer=([^&]+)/);
+    if (m) raw = m[1];
+  }
+  const parsed = parseTransferString(raw);
+  if (!parsed || (!parsed.completedTasks && !parsed.taskStatuses)) {
+    alert('Wklejony kod transferu jest niepoprawny lub uszkodzony.');
+    return;
+  }
+  promptImportConfirmation(parsed, 'z wklejonego kodu transferu');
+}
+
+// =========================================================================
+// POTWIERDZENIE I APLIKOWANIE ZAIMPORTOWANEGO STANU
+// =========================================================================
+
+function promptImportConfirmation(data, sourceDesc = '') {
+  pendingImportData = data;
+  const modal = document.getElementById('modal-transfer-confirm');
+  if (!modal) {
+    if (confirm(`Wykryto Twoje postępy (${sourceDesc}):\nUkończone zadania: ${(data.completedTasks || []).length}/100\nPunkty: ${data.points || 0}\n\nCzy chcesz wczytać te postępy na to urządzenie?`)) {
+      executeApplyImportedState();
+    }
+    return;
+  }
+
+  const tasksCountEl = document.getElementById('confirm-import-tasks');
+  const pointsCountEl = document.getElementById('confirm-import-points');
+  const nameEl = document.getElementById('confirm-import-name');
+  const sourceEl = document.getElementById('confirm-import-source');
+
+  const count = Array.isArray(data.completedTasks) ? data.completedTasks.length : (data.completedTasks instanceof Set ? data.completedTasks.size : 0);
+  if (tasksCountEl) tasksCountEl.textContent = `${count} / 100`;
+  if (pointsCountEl) pointsCountEl.textContent = `${data.points || calculateTotalScoreFromData(data)} pkt`;
+  if (nameEl) nameEl.textContent = data.learnerName ? `Uczeń: ${data.learnerName}` : (STATE.learnerName ? `Uczeń: ${STATE.learnerName}` : 'Kursant Vibe Codingu');
+  if (sourceEl) sourceEl.textContent = `Źródło: ${sourceDesc}`;
+
+  modal.classList.remove('hidden');
+  modal.removeAttribute('aria-hidden');
+  currentOpenModal = modal;
+  playClickSound();
+
+  const confirmBtn = document.getElementById('btn-confirm-import-accept');
+  if (confirmBtn) setTimeout(() => confirmBtn.focus(), 80);
+
+  announceSR(`Wykryto postępy ${sourceDesc}. Ukończono ${count} zadań.`);
+}
+
+function cancelImportConfirmation() {
+  pendingImportData = null;
+  const modal = document.getElementById('modal-transfer-confirm');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.setAttribute('aria-hidden', 'true');
+  }
+  currentOpenModal = null;
+  playClickSound();
+}
+
+function executeApplyImportedState() {
+  if (!pendingImportData) return;
+  const data = pendingImportData;
+  pendingImportData = null;
+
+  if (Array.isArray(data.completedTasks)) {
+    STATE.completedTasks = new Set(data.completedTasks);
+  }
+  if (data.taskStatuses && typeof data.taskStatuses === 'object') {
+    STATE.taskStatuses = Object.assign({}, data.taskStatuses);
+  } else if (data.completedTasks) {
+    STATE.taskStatuses = {};
+    data.completedTasks.forEach(id => {
+      STATE.taskStatuses[id] = 'passed';
+    });
+  }
+
+  if (data.currentDay) STATE.currentDay = data.currentDay;
+  if (data.learnerName) STATE.learnerName = data.learnerName;
+  if (data.userProfile) STATE.userProfile = Object.assign(STATE.userProfile || {}, data.userProfile);
+
+  if (data.taskNotes) {
+    if (!STATE.taskNotes) STATE.taskNotes = {};
+    Object.assign(STATE.taskNotes, data.taskNotes);
+    Object.keys(data.taskNotes).forEach(k => {
+      if (data.taskNotes[k]) {
+        try { localStorage.setItem(`vibe_coding_task_notes_${k}`, data.taskNotes[k]); } catch(e){}
+      }
+    });
+  }
+  if (Array.isArray(data.sandboxCreations)) {
+    STATE.sandboxCreations = data.sandboxCreations;
+    try { localStorage.setItem('vibe_coding_sandbox_creations', JSON.stringify(STATE.sandboxCreations)); } catch(e){}
+  }
+  if (Array.isArray(data.authorFeedbacks)) {
+    STATE.authorFeedbacks = data.authorFeedbacks;
+  }
+  if (data.selectedDiplomaStyle) STATE.selectedDiplomaStyle = data.selectedDiplomaStyle;
+  if (data.diplomaGradeApproved !== undefined) STATE.diplomaGradeApproved = data.diplomaGradeApproved;
+
+  if (STATE.completedTasks.size > 0) {
+    STATE.courseUnlocked = true;
+    STATE.onboardingSteps.welcome = true;
+    STATE.onboardingSteps.profile = true;
+    STATE.onboardingSteps.diagnostic = true;
+    STATE.onboardingSteps.safety = true;
+    STATE.onboardingSteps.tools = true;
+  }
+
+  saveState();
+  updateProfileUI();
+  updateProgressUI();
+  updateBadgesUI();
+  updateRewardsUI();
+  updateSubpageNavUI();
+  renderTasks();
+  updateGlobalNotesCounter();
+  updateAuthorFeedbackCounter();
+
+  cancelImportConfirmation();
+  closeSyncModal();
+
+  playVictoryFanfare();
+  celebrateWithConfetti();
+  announceSR('Wspaniale! Twoje postępy zostały pomyślnie wczytane na to urządzenie. Możesz kontynuować kurs!');
+  alert('Wspaniale! Twoje postępy zostały pomyślnie wczytane na to urządzenie.');
+}
+
+function calculateTotalScoreFromData(data) {
+  let score = 0;
+  if (data.completedTasks) {
+    const arr = Array.isArray(data.completedTasks) ? data.completedTasks : Object.keys(data.completedTasks);
+    arr.forEach(id => {
+      const tid = parseInt(id, 10);
+      score += getTaskScoreValue(tid);
+    });
+  }
+  return score;
+}
+
+function checkForTransferPayloadInUrl() {
+  try {
+    let hash = window.location.hash || '';
+    let search = window.location.search || '';
+    let transferCode = null;
+
+    if (hash.startsWith('#transfer=')) {
+      transferCode = hash.substring(10);
+    } else if (search.includes('transfer=')) {
+      const m = search.match(/transfer=([^&]+)/);
+      if (m) transferCode = m[1];
+    }
+
+    if (transferCode) {
+      const parsed = parseTransferString(decodeURIComponent(transferCode));
+      if (parsed && (parsed.completedTasks || parsed.taskStatuses)) {
+        setTimeout(() => {
+          promptImportConfirmation(parsed, 'z zeskanowanego kodu QR / linku');
+        }, 500);
+      }
+      if (window.history && window.history.replaceState) {
+        const cleanUrl = window.location.origin + window.location.pathname;
+        window.history.replaceState(null, document.title, cleanUrl);
+      }
+    }
+  } catch(e) {
+    console.warn('Błąd sprawdzania transferu w URL:', e);
+  }
+}
+
+// =========================================================================
+// SYNCHRONIZACJA Z PRYWATNYM DYSKIEM GOOGLE (GOOGLE DRIVE API)
+// =========================================================================
+
+function initGoogleDriveSyncStatus() {
+  const dot = document.getElementById('gdrive-status-dot');
+  const text = document.getElementById('gdrive-status-text');
+  const lastSync = document.getElementById('gdrive-last-sync-time');
+  const connectLabel = document.getElementById('btn-gdrive-connect-label');
+  const btnDisconnect = document.getElementById('btn-gdrive-disconnect');
+  const chkAuto = document.getElementById('chk-gdrive-autosync');
+
+  if (chkAuto) chkAuto.checked = isGdriveAutoSyncEnabled;
+
+  if (gdriveAccessToken) {
+    if (dot) {
+      dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block animate-pulse';
+    }
+    if (text) {
+      text.textContent = gdriveUserEmail ? `Połączono jako: ${gdriveUserEmail}` : 'Połączono z Twoim prywatnym kontem Google';
+      text.className = 'text-sm font-bold text-emerald-300';
+    }
+    if (connectLabel) connectLabel.textContent = 'Połącz ponownie';
+    if (btnDisconnect) btnDisconnect.classList.remove('hidden');
+  } else {
+    if (dot) {
+      dot.className = 'w-2.5 h-2.5 rounded-full bg-slate-500 inline-block';
+    }
+    if (text) {
+      text.textContent = 'Nie połączono jeszcze z Twoim kontem Google';
+      text.className = 'text-sm font-bold text-slate-300';
+    }
+    if (connectLabel) connectLabel.textContent = 'Zaloguj się kontem Google';
+    if (btnDisconnect) btnDisconnect.classList.add('hidden');
+  }
+
+  if (lastSync) {
+    lastSync.textContent = gdriveLastSync || 'brak';
+  }
+}
+
+function connectGoogleDrive() {
+  playClickSound();
+
+  if (typeof google === 'undefined' || !google.accounts || !google.accounts.oauth2) {
+    alert('Biblioteka logowania Google nie została jeszcze załadowana lub brak połączenia z siecią. Spróbuj za chwilę lub skorzystaj z Zakładki 2 (Kod QR) lub Zakładki 3 (Plik .json).');
+    return;
+  }
+
+  // Identyfikator klienta OAuth (konfigurowalny lub standardowy dla aplikacji)
+  const defaultClientId = '1035987114885-vibe-coding-placeholder.apps.googleusercontent.com';
+  const customClientId = localStorage.getItem('vibe_coding_gdrive_custom_client_id') || defaultClientId;
+
+  try {
+    gdriveTokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: customClientId,
+      scope: 'https://www.googleapis.com/auth/drive.file',
+      callback: (tokenResponse) => {
+        if (tokenResponse && tokenResponse.access_token) {
+          gdriveAccessToken = tokenResponse.access_token;
+          localStorage.setItem('vibe_coding_gdrive_token', gdriveAccessToken);
+
+          // Spróbuj pobrać adres e-mail użytkownika
+          fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+            headers: { 'Authorization': `Bearer ${gdriveAccessToken}` }
+          })
+          .then(res => res.json())
+          .then(info => {
+            if (info && info.email) {
+              gdriveUserEmail = info.email;
+              localStorage.setItem('vibe_coding_gdrive_email', gdriveUserEmail);
+            }
+            initGoogleDriveSyncStatus();
+            playSuccessChime();
+            announceSR('Pomyślnie połączono z Twoim prywatnym Dyskiem Google.');
+            saveToGoogleDrive();
+          })
+          .catch(() => {
+            initGoogleDriveSyncStatus();
+            saveToGoogleDrive();
+          });
+        }
+      }
+    });
+
+    gdriveTokenClient.requestAccessToken({ prompt: 'consent' });
+  } catch(err) {
+    console.warn('Google Drive OAuth error:', err);
+    const useAlt = confirm('Logowanie bezpośrednie przez Google wymaga zarejestrowanego identyfikatora OAuth w chmurze.\n\nCzy chcesz zamiast tego pobrać plik postępów do folderu Google Drive na swoim komputerze lub telefonie (100% offline i bez żadnej rejestracji)?');
+    if (useAlt) {
+      downloadProgressBackupFile();
+    }
+  }
+}
+
+function saveToGoogleDrive(isSilent = false) {
+  if (!isSilent) playClickSound();
+
+  if (!gdriveAccessToken) {
+    if (!isSilent) {
+      alert('Aby zapisać postępy na Dysku Google, najpierw kliknij "Zaloguj się kontem Google".');
+    }
+    return;
+  }
+
+  saveState();
+  const backup = {
+    version: '3.8.0',
+    appName: 'Akademia Vibe Codingu',
+    exportDate: new Date().toISOString(),
+    completedTasks: Array.from(STATE.completedTasks),
+    taskStatuses: STATE.taskStatuses || {},
+    currentDay: STATE.currentDay || 1,
+    learnerName: STATE.learnerName || '',
+    userProfile: STATE.userProfile || {},
+    taskNotes: STATE.taskNotes || {},
+    sandboxCreations: STATE.sandboxCreations || [],
+    authorFeedbacks: STATE.authorFeedbacks || [],
+    diplomaGradeApproved: Boolean(STATE.diplomaGradeApproved),
+    selectedDiplomaStyle: STATE.selectedDiplomaStyle || 'cyberpunk',
+    points: calculateTotalScore()
+  };
+
+  const fileName = 'Akademia_Vibe_Codingu_Postepy.json';
+  const fileContent = JSON.stringify(backup, null, 2);
+
+  const performUpload = (fileId) => {
+    let url, method;
+    if (fileId) {
+      url = `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`;
+      method = 'PATCH';
+    } else {
+      url = 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart';
+      method = 'POST';
+    }
+
+    let requestBody;
+    let headers = {
+      'Authorization': `Bearer ${gdriveAccessToken}`
+    };
+
+    if (fileId) {
+      headers['Content-Type'] = 'application/json; charset=UTF-8';
+      requestBody = fileContent;
+    } else {
+      const boundary = '-------314159265358979323846';
+      headers['Content-Type'] = `multipart/related; boundary="${boundary}"`;
+      const metadata = {
+        name: fileName,
+        mimeType: 'application/json'
+      };
+      requestBody = 
+        `--${boundary}\r\n` +
+        `Content-Type: application/json; charset=UTF-8\r\n\r\n` +
+        `${JSON.stringify(metadata)}\r\n` +
+        `--${boundary}\r\n` +
+        `Content-Type: application/json; charset=UTF-8\r\n\r\n` +
+        `${fileContent}\r\n` +
+        `--${boundary}--`;
+    }
+
+    fetch(url, { method: method, headers: headers, body: requestBody })
+      .then(res => {
+        if (res.status === 401) {
+          gdriveAccessToken = null;
+          localStorage.removeItem('vibe_coding_gdrive_token');
+          initGoogleDriveSyncStatus();
+          if (!isSilent) alert('Sesja połączenia z Google wygasła. Kliknij "Zaloguj się kontem Google", aby połączyć ponownie.');
+          throw new Error('Token expired');
+        }
+        return res.json();
+      })
+      .then(data => {
+        if (data && data.id) {
+          gdriveFileId = data.id;
+          localStorage.setItem('vibe_coding_gdrive_file_id', gdriveFileId);
+        }
+        gdriveLastSync = new Date().toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
+        localStorage.setItem('vibe_coding_gdrive_last_sync', gdriveLastSync);
+        initGoogleDriveSyncStatus();
+
+        if (!isSilent) {
+          playSuccessChime();
+          announceSR('Zapisano postępy na Twoim Dysku Google.');
+          alert(`Pomyślnie zapisano Twoje postępy na Twoim Dysku Google!\nPlik: ${fileName}`);
+        }
+      })
+      .catch(err => {
+        console.warn('Błąd zapisu na Google Drive:', err);
+      });
+  };
+
+  if (gdriveFileId) {
+    performUpload(gdriveFileId);
+  } else {
+    fetch(`https://www.googleapis.com/drive/v3/files?q=name='${fileName}'+and+trashed=false&fields=files(id,name)`, {
+      headers: { 'Authorization': `Bearer ${gdriveAccessToken}` }
+    })
+    .then(res => res.json())
+    .then(data => {
+      const existing = data && data.files && data.files[0];
+      if (existing && existing.id) {
+        gdriveFileId = existing.id;
+        localStorage.setItem('vibe_coding_gdrive_file_id', gdriveFileId);
+        performUpload(gdriveFileId);
+      } else {
+        performUpload(null);
+      }
+    })
+    .catch(() => performUpload(null));
+  }
+}
+
+function loadFromGoogleDrive() {
+  playClickSound();
+
+  if (!gdriveAccessToken) {
+    alert('Aby wczytać postępy z Dysku Google, najpierw kliknij "Zaloguj się kontem Google".');
+    return;
+  }
+
+  const fileName = 'Akademia_Vibe_Codingu_Postepy.json';
+  fetch(`https://www.googleapis.com/drive/v3/files?q=name='${fileName}'+and+trashed=false&fields=files(id,name)`, {
+    headers: { 'Authorization': `Bearer ${gdriveAccessToken}` }
+  })
+  .then(res => res.json())
+  .then(data => {
+    const file = data && data.files && data.files[0];
+    if (!file || !file.id) {
+      alert(`Na Twoim Dysku Google nie znaleziono jeszcze pliku '${fileName}'.\nNajpierw zapisz postępy na komputerze!`);
+      return;
+    }
+    return fetch(`https://www.googleapis.com/drive/v3/files/${file.id}?alt=media`, {
+      headers: { 'Authorization': `Bearer ${gdriveAccessToken}` }
+    });
+  })
+  .then(res => {
+    if (!res) return;
+    return res.json();
+  })
+  .then(data => {
+    if (data) {
+      promptImportConfirmation(data, 'z Twojego prywatnego Dysku Google');
+    }
+  })
+  .catch(err => {
+    console.warn('Błąd wczytywania z Google Drive:', err);
+    alert('Wystąpił błąd podczas wczytywania pliku z Dysku Google: ' + err.message);
+  });
+}
+
+function disconnectGoogleDrive() {
+  playClickSound();
+  if (confirm('Czy na pewno chcesz odłączyć połączenie z Dyskiem Google? Twoje zapisane pliki na dysku nie zostaną usunięte.')) {
+    gdriveAccessToken = null;
+    gdriveUserEmail = '';
+    gdriveFileId = null;
+    gdriveLastSync = '';
+    localStorage.removeItem('vibe_coding_gdrive_token');
+    localStorage.removeItem('vibe_coding_gdrive_email');
+    localStorage.removeItem('vibe_coding_gdrive_file_id');
+    localStorage.removeItem('vibe_coding_gdrive_last_sync');
+    initGoogleDriveSyncStatus();
+    announceSR('Odłączono konto Google.');
+  }
+}
+
+function toggleGdriveAutoSync(enabled) {
+  isGdriveAutoSyncEnabled = Boolean(enabled);
+  localStorage.setItem('vibe_coding_gdrive_autosync', isGdriveAutoSyncEnabled ? 'true' : 'false');
+  playClickSound();
+  if (isGdriveAutoSyncEnabled) {
+    announceSR('Włączono automatyczną synchronizację z Dyskiem Google.');
+    if (gdriveAccessToken) {
+      saveToGoogleDrive(true);
+    }
+  } else {
+    announceSR('Wyłączono automatyczną synchronizację z Dyskiem Google.');
+  }
+}
+
+function scheduleGdriveDebouncedSync() {
+  if (!isGdriveAutoSyncEnabled || !gdriveAccessToken) return;
+  if (gdriveDebounceTimer) clearTimeout(gdriveDebounceTimer);
+  gdriveDebounceTimer = setTimeout(() => {
+    saveToGoogleDrive(true);
+  }, 4000);
 }
 
 // Powiadomienia Web Notifications API
@@ -11393,12 +12393,26 @@ function initializeAcademyApp() {
   updateAuthorFeedbackCounter();
   renderMotivationalQuoteUI();
   renderSandboxArchiveGrid();
+  initGoogleDriveSyncStatus();
+  checkForTransferPayloadInUrl();
 
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       if (STATE.activeSubpage === 'page-feedback') {
         e.preventDefault();
         closeAuthorFeedbackPage();
+        return;
+      }
+      const sm = document.getElementById('modal-sync-manager');
+      if (sm && !sm.classList.contains('hidden')) {
+        e.preventDefault();
+        closeSyncModal();
+        return;
+      }
+      const tc = document.getElementById('modal-transfer-confirm');
+      if (tc && !tc.classList.contains('hidden')) {
+        e.preventDefault();
+        cancelImportConfirmation();
         return;
       }
       const nm = document.getElementById('modal-notes-manager');
@@ -11492,6 +12506,9 @@ function initializeAcademyApp() {
       } else if (e.key === 'u' || e.key === 'U') {
         e.preventDefault();
         openAuthorFeedbackPage();
+      } else if (e.key === 'g' || e.key === 'G') {
+        e.preventDefault();
+        openSyncModal();
       } else if (e.key === 'ArrowRight' || e.key === 'j' || e.key === 'J') {
         e.preventDefault();
         nextDayAndScrollTop();

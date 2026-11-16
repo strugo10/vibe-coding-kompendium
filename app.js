@@ -5783,7 +5783,7 @@ function downloadAuthorFeedbackMarkdown() {
   }
 
   let md = `# Uwagi i Sugestie dla Twórcy Kompendium Vibe Codingu\n`;
-  md += `*Wygenerowano: ${new Date().toLocaleString('pl-PL')} • Akademia Vibe Codingu v3.7.0*\n`;
+  md += `*Wygenerowano: ${new Date().toLocaleString('pl-PL')} • Akademia Vibe Codingu v3.8.0*\n`;
   md += `*Kursant / Użytkownik: ${STATE.learnerName || 'Adept'}*\n`;
   md += `*Łączna liczba zgłoszonych uwag: ${feedbacks.length}*\n\n`;
   md += `Prześlij ten plik do autora kompendium jako załącznik e-mail lub skopiuj jego treść do wiadomości.\n\n`;
@@ -5824,7 +5824,7 @@ function downloadAuthorFeedbackHtml() {
 
   let bodyContent = `
     <header class="doc-header">
-      <div class="badge">Akademia Vibe Codingu v3.7.0 • Raport Uwag i Sugestii</div>
+      <div class="badge">Akademia Vibe Codingu v3.8.0 • Raport Uwag i Sugestii</div>
       <h1>Uwagi i Sugestie dla Twórcy Kompendium</h1>
       <div class="meta">
         <p><strong>Użytkownik / Kursant:</strong> ${escapeHtmlText(STATE.learnerName || 'Adept')}</p>
@@ -7109,9 +7109,733 @@ function saveState() {
     };
     localStorage.setItem('vibe_coding_state_v2', JSON.stringify(payload));
     localStorage.setItem('vibe_coding_author_feedback', JSON.stringify(STATE.authorFeedbacks || []));
+    if (typeof scheduleGdriveDebouncedSync === 'function') {
+      scheduleGdriveDebouncedSync();
+    }
   } catch (e) {
     console.warn("Błąd zapisu localStorage:", e);
   }
+}
+
+// =========================================================================
+// SYNCHRONIZACJA URZĄDZEŃ, WŁASNY DYSK GOOGLE, KOD QR I KOPIA ZAPASOWA (v3.8.0)
+// =========================================================================
+
+let gdriveTokenClient = null;
+let gdriveAccessToken = localStorage.getItem('vibe_coding_gdrive_token') || null;
+let gdriveUserEmail = localStorage.getItem('vibe_coding_gdrive_email') || '';
+let gdriveFileId = localStorage.getItem('vibe_coding_gdrive_file_id') || null;
+let gdriveLastSync = localStorage.getItem('vibe_coding_gdrive_last_sync') || '';
+let isGdriveAutoSyncEnabled = localStorage.getItem('vibe_coding_gdrive_autosync') === 'true';
+let gdriveDebounceTimer = null;
+let pendingImportData = null;
+let currentQrCodeInstance = null;
+
+// Otwieranie i zamykanie okna synchronizacji
+function openSyncModal(initialTab = 'gdrive') {
+  playClickSound();
+  const modal = document.getElementById('modal-sync-manager');
+  if (!modal) return;
+
+  currentOpenModal = modal;
+  modal.classList.remove('hidden');
+  modal.removeAttribute('aria-hidden');
+
+  switchSyncTab(initialTab);
+  updateSyncFileStats();
+  initGoogleDriveSyncStatus();
+
+  const title = document.getElementById('sync-modal-title');
+  if (title) setTimeout(() => title.focus(), 60);
+
+  announceSR("Otwarto okno synchronizacji urządzeń i kopii bezpieczeństwa.");
+}
+
+function closeSyncModal() {
+  const modal = document.getElementById('modal-sync-manager');
+  if (!modal) return;
+  modal.classList.add('hidden');
+  modal.setAttribute('aria-hidden', 'true');
+  currentOpenModal = null;
+  playClickSound();
+}
+
+// Przełączanie zakładek w modalu synchronizacji
+function switchSyncTab(tabId) {
+  playClickSound();
+  const tabs = ['gdrive', 'qr', 'file'];
+  tabs.forEach(t => {
+    const btn = document.getElementById(`sync-tab-btn-${t}`);
+    const panel = document.getElementById(`sync-panel-${t}`);
+    if (btn && panel) {
+      if (t === tabId) {
+        btn.setAttribute('aria-selected', 'true');
+        btn.classList.add('border-emerald-500', 'bg-slate-800', 'text-white');
+        btn.classList.remove('border-transparent', 'bg-slate-900', 'text-slate-400');
+        panel.classList.remove('hidden');
+      } else {
+        btn.setAttribute('aria-selected', 'false');
+        btn.classList.remove('border-emerald-500', 'bg-slate-800', 'text-white');
+        btn.classList.add('border-transparent', 'bg-slate-900', 'text-slate-400');
+        panel.classList.add('hidden');
+      }
+    }
+  });
+
+  if (tabId === 'qr') {
+    renderTransferQrCode();
+  } else if (tabId === 'file') {
+    updateSyncFileStats();
+  } else if (tabId === 'gdrive') {
+    initGoogleDriveSyncStatus();
+  }
+}
+
+// Aktualizacja licznika w panelu pliku
+function updateSyncFileStats() {
+  const tasksCount = STATE.completedTasks ? STATE.completedTasks.size : 0;
+  const totalScore = calculateTotalScore();
+  const notesCount = STATE.taskNotes ? Object.keys(STATE.taskNotes).filter(k => (STATE.taskNotes[k] || '').trim()).length : 0;
+
+  const tEl = document.getElementById('sync-file-tasks-count');
+  const pEl = document.getElementById('sync-file-points-count');
+  const nEl = document.getElementById('sync-file-notes-count');
+  const dEl = document.getElementById('sync-file-day-count');
+
+  if (tEl) tEl.textContent = `${tasksCount} / 100`;
+  if (pEl) pEl.textContent = `${totalScore} pkt`;
+  if (nEl) nEl.textContent = `${notesCount}`;
+  if (dEl) dEl.textContent = `Dzień ${STATE.currentDay || 1}`;
+}
+
+// =========================================================================
+// POBIERANIE I WCZYTYWANIE PLIKU .JSON (OPCJA 1 / 3)
+// =========================================================================
+
+function downloadProgressBackupFile() {
+  playClickSound();
+  saveState();
+
+  const backup = {
+    version: '3.8.0',
+    appName: 'Akademia Vibe Codingu i Sztuki Promptingu',
+    exportDate: new Date().toISOString(),
+    completedTasks: Array.from(STATE.completedTasks),
+    taskStatuses: STATE.taskStatuses || {},
+    currentDay: STATE.currentDay || 1,
+    learnerName: STATE.learnerName || '',
+    userProfile: STATE.userProfile || {},
+    taskNotes: STATE.taskNotes || {},
+    sandboxCreations: STATE.sandboxCreations || [],
+    authorFeedbacks: STATE.authorFeedbacks || [],
+    diplomaGradeApproved: Boolean(STATE.diplomaGradeApproved),
+    selectedDiplomaStyle: STATE.selectedDiplomaStyle || 'cyberpunk',
+    certId: STATE.certId || '',
+    streakDays: STATE.streakDays || 1,
+    lastActiveDate: STATE.lastActiveDate || '',
+    points: calculateTotalScore()
+  };
+
+  const jsonStr = JSON.stringify(backup, null, 2);
+  const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const dateStr = new Date().toISOString().split('T')[0];
+  a.href = url;
+  a.download = `Vibe_Coding_Postepy_${dateStr}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  announceSR('Pobrano plik z Twoimi postępami. Możesz zapisać go na Dysku Google lub przenieść na drugie urządzenie.');
+  playSuccessChime();
+}
+
+function handleImportFileSelect(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data || (!data.completedTasks && !data.taskStatuses && !data.t)) {
+        alert('Wybrany plik nie zawiera poprawnych danych postępów Akademii Vibe Codingu.');
+        return;
+      }
+      promptImportConfirmation(data, 'z pliku: ' + file.name);
+    } catch(err) {
+      alert('Nie udało się odczytać pliku JSON: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+// =========================================================================
+// KOD QR I MAGICZNY LINK (TRANSFER NA SMARTFON)
+// =========================================================================
+
+function generateCompactTransferString(includeNotes = false) {
+  saveState();
+  const payload = {
+    v: '3.8.0',
+    ts: Date.now(),
+    t: Array.from(STATE.completedTasks),
+    s: STATE.taskStatuses || {},
+    d: STATE.currentDay || 1,
+    n: STATE.learnerName || '',
+    pts: calculateTotalScore()
+  };
+  if (includeNotes && STATE.taskNotes && Object.keys(STATE.taskNotes).length > 0) {
+    payload.nt = STATE.taskNotes;
+  }
+  const json = JSON.stringify(payload);
+  return btoa(unescape(encodeURIComponent(json)))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
+}
+
+function parseTransferString(str) {
+  try {
+    let b64 = str.replace(/-/g, '+').replace(/_/g, '/');
+    while (b64.length % 4) b64 += '=';
+    const json = decodeURIComponent(escape(atob(b64)));
+    const parsed = JSON.parse(json);
+    return {
+      completedTasks: parsed.completedTasks || parsed.t || [],
+      taskStatuses: parsed.taskStatuses || parsed.s || {},
+      currentDay: parsed.currentDay || parsed.d || 1,
+      learnerName: parsed.learnerName || parsed.n || '',
+      taskNotes: parsed.taskNotes || parsed.nt || {},
+      points: parsed.points || parsed.pts || 0,
+      exportDate: parsed.ts ? new Date(parsed.ts).toLocaleString('pl-PL') : 'Ostatnia sesja'
+    };
+  } catch(e) {
+    console.warn('Błąd dekodowania transfer string:', e);
+    return null;
+  }
+}
+
+function renderTransferQrCode() {
+  const container = document.getElementById('sync-qr-code-display');
+  if (!container) return;
+
+  container.innerHTML = '';
+  const transferCode = generateCompactTransferString(false);
+  const baseUrl = window.location.origin + window.location.pathname;
+  const fullUrl = `${baseUrl}#transfer=${transferCode}`;
+
+  const linkInput = document.getElementById('sync-transfer-link-input');
+  if (linkInput) linkInput.value = fullUrl;
+
+  if (typeof QRCode !== 'undefined') {
+    try {
+      currentQrCodeInstance = new QRCode(container, {
+        text: fullUrl,
+        width: 190,
+        height: 190,
+        colorDark: '#0b0f19',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.M
+      });
+    } catch(err) {
+      console.warn('Błąd generowania QRCode:', err);
+      container.innerHTML = '<span class="text-xs text-slate-700 font-bold p-2">Użyj poniższego Magicznego Linku lub Kodu</span>';
+    }
+  } else {
+    container.innerHTML = '<span class="text-xs text-slate-700 font-bold p-2">Magiczny Link wygenerowany poniżej</span>';
+  }
+}
+
+function copyTransferLink() {
+  playClickSound();
+  const input = document.getElementById('sync-transfer-link-input');
+  if (!input || !input.value) return;
+
+  navigator.clipboard.writeText(input.value).then(() => {
+    const btn = document.getElementById('btn-copy-transfer-link');
+    if (btn) {
+      const orig = btn.innerHTML;
+      btn.innerHTML = '<span>Skopiowano!</span> <span role="img" aria-label="(sukces)">✓</span>';
+      setTimeout(() => { btn.innerHTML = orig; }, 2500);
+    }
+    announceSR('Skopiowano Magiczny Link do schowka. Możesz go wysłać sobie mailem lub otworzyć w przeglądarce Safari na smartfonie.');
+  }).catch(() => {
+    input.select();
+    document.execCommand('copy');
+    alert('Skopiowano link do schowka!');
+  });
+}
+
+function applyManualTransferCode() {
+  playClickSound();
+  const textarea = document.getElementById('sync-manual-code-input');
+  if (!textarea || !textarea.value.trim()) {
+    alert('Wklej najpierw otrzymany kod transferu lub link z drugiego urządzenia.');
+    return;
+  }
+  let raw = textarea.value.trim();
+  if (raw.includes('#transfer=')) {
+    raw = raw.split('#transfer=')[1];
+  } else if (raw.includes('transfer=')) {
+    const m = raw.match(/transfer=([^&]+)/);
+    if (m) raw = m[1];
+  }
+  const parsed = parseTransferString(raw);
+  if (!parsed || (!parsed.completedTasks && !parsed.taskStatuses)) {
+    alert('Wklejony kod transferu jest niepoprawny lub uszkodzony.');
+    return;
+  }
+  promptImportConfirmation(parsed, 'z wklejonego kodu transferu');
+}
+
+// =========================================================================
+// POTWIERDZENIE I APLIKOWANIE ZAIMPORTOWANEGO STANU
+// =========================================================================
+
+function promptImportConfirmation(data, sourceDesc = '') {
+  pendingImportData = data;
+  const modal = document.getElementById('modal-transfer-confirm');
+  if (!modal) {
+    if (confirm(`Wykryto Twoje postępy (${sourceDesc}):\nUkończone zadania: ${(data.completedTasks || []).length}/100\nPunkty: ${data.points || 0}\n\nCzy chcesz wczytać te postępy na to urządzenie?`)) {
+      executeApplyImportedState();
+    }
+    return;
+  }
+
+  const tasksCountEl = document.getElementById('confirm-import-tasks');
+  const pointsCountEl = document.getElementById('confirm-import-points');
+  const nameEl = document.getElementById('confirm-import-name');
+  const sourceEl = document.getElementById('confirm-import-source');
+
+  const count = Array.isArray(data.completedTasks) ? data.completedTasks.length : (data.completedTasks instanceof Set ? data.completedTasks.size : 0);
+  if (tasksCountEl) tasksCountEl.textContent = `${count} / 100`;
+  if (pointsCountEl) pointsCountEl.textContent = `${data.points || calculateTotalScoreFromData(data)} pkt`;
+  if (nameEl) nameEl.textContent = data.learnerName ? `Uczeń: ${data.learnerName}` : (STATE.learnerName ? `Uczeń: ${STATE.learnerName}` : 'Kursant Vibe Codingu');
+  if (sourceEl) sourceEl.textContent = `Źródło: ${sourceDesc}`;
+
+  modal.classList.remove('hidden');
+  modal.removeAttribute('aria-hidden');
+  currentOpenModal = modal;
+  playClickSound();
+
+  const confirmBtn = document.getElementById('btn-confirm-import-accept');
+  if (confirmBtn) setTimeout(() => confirmBtn.focus(), 80);
+
+  announceSR(`Wykryto postępy ${sourceDesc}. Ukończono ${count} zadań.`);
+}
+
+function cancelImportConfirmation() {
+  pendingImportData = null;
+  const modal = document.getElementById('modal-transfer-confirm');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.setAttribute('aria-hidden', 'true');
+  }
+  currentOpenModal = null;
+  playClickSound();
+}
+
+function executeApplyImportedState() {
+  if (!pendingImportData) return;
+  const data = pendingImportData;
+  pendingImportData = null;
+
+  if (Array.isArray(data.completedTasks)) {
+    STATE.completedTasks = new Set(data.completedTasks);
+  }
+  if (data.taskStatuses && typeof data.taskStatuses === 'object') {
+    STATE.taskStatuses = Object.assign({}, data.taskStatuses);
+  } else if (data.completedTasks) {
+    STATE.taskStatuses = {};
+    data.completedTasks.forEach(id => {
+      STATE.taskStatuses[id] = 'passed';
+    });
+  }
+
+  if (data.currentDay) STATE.currentDay = data.currentDay;
+  if (data.learnerName) STATE.learnerName = data.learnerName;
+  if (data.userProfile) STATE.userProfile = Object.assign(STATE.userProfile || {}, data.userProfile);
+
+  if (data.taskNotes) {
+    if (!STATE.taskNotes) STATE.taskNotes = {};
+    Object.assign(STATE.taskNotes, data.taskNotes);
+    Object.keys(data.taskNotes).forEach(k => {
+      if (data.taskNotes[k]) {
+        try { localStorage.setItem(`vibe_coding_task_notes_${k}`, data.taskNotes[k]); } catch(e){}
+      }
+    });
+  }
+  if (Array.isArray(data.sandboxCreations)) {
+    STATE.sandboxCreations = data.sandboxCreations;
+    try { localStorage.setItem('vibe_coding_sandbox_creations', JSON.stringify(STATE.sandboxCreations)); } catch(e){}
+  }
+  if (Array.isArray(data.authorFeedbacks)) {
+    STATE.authorFeedbacks = data.authorFeedbacks;
+  }
+  if (data.selectedDiplomaStyle) STATE.selectedDiplomaStyle = data.selectedDiplomaStyle;
+  if (data.diplomaGradeApproved !== undefined) STATE.diplomaGradeApproved = data.diplomaGradeApproved;
+
+  if (STATE.completedTasks.size > 0) {
+    STATE.courseUnlocked = true;
+    STATE.onboardingSteps.welcome = true;
+    STATE.onboardingSteps.profile = true;
+    STATE.onboardingSteps.diagnostic = true;
+    STATE.onboardingSteps.safety = true;
+    STATE.onboardingSteps.tools = true;
+  }
+
+  saveState();
+  updateProfileUI();
+  updateProgressUI();
+  updateBadgesUI();
+  updateRewardsUI();
+  updateSubpageNavUI();
+  renderTasks();
+  updateGlobalNotesCounter();
+  updateAuthorFeedbackCounter();
+
+  cancelImportConfirmation();
+  closeSyncModal();
+
+  playVictoryFanfare();
+  celebrateWithConfetti();
+  announceSR('Wspaniale! Twoje postępy zostały pomyślnie wczytane na to urządzenie. Możesz kontynuować kurs!');
+  alert('Wspaniale! Twoje postępy zostały pomyślnie wczytane na to urządzenie.');
+}
+
+function calculateTotalScoreFromData(data) {
+  let score = 0;
+  if (data.completedTasks) {
+    const arr = Array.isArray(data.completedTasks) ? data.completedTasks : Object.keys(data.completedTasks);
+    arr.forEach(id => {
+      const tid = parseInt(id, 10);
+      score += getTaskScoreValue(tid);
+    });
+  }
+  return score;
+}
+
+function checkForTransferPayloadInUrl() {
+  try {
+    let hash = window.location.hash || '';
+    let search = window.location.search || '';
+    let transferCode = null;
+
+    if (hash.startsWith('#transfer=')) {
+      transferCode = hash.substring(10);
+    } else if (search.includes('transfer=')) {
+      const m = search.match(/transfer=([^&]+)/);
+      if (m) transferCode = m[1];
+    }
+
+    if (transferCode) {
+      const parsed = parseTransferString(decodeURIComponent(transferCode));
+      if (parsed && (parsed.completedTasks || parsed.taskStatuses)) {
+        setTimeout(() => {
+          promptImportConfirmation(parsed, 'z zeskanowanego kodu QR / linku');
+        }, 500);
+      }
+      if (window.history && window.history.replaceState) {
+        const cleanUrl = window.location.origin + window.location.pathname;
+        window.history.replaceState(null, document.title, cleanUrl);
+      }
+    }
+  } catch(e) {
+    console.warn('Błąd sprawdzania transferu w URL:', e);
+  }
+}
+
+// =========================================================================
+// SYNCHRONIZACJA Z PRYWATNYM DYSKIEM GOOGLE (GOOGLE DRIVE API)
+// =========================================================================
+
+function initGoogleDriveSyncStatus() {
+  const dot = document.getElementById('gdrive-status-dot');
+  const text = document.getElementById('gdrive-status-text');
+  const lastSync = document.getElementById('gdrive-last-sync-time');
+  const connectLabel = document.getElementById('btn-gdrive-connect-label');
+  const btnDisconnect = document.getElementById('btn-gdrive-disconnect');
+  const chkAuto = document.getElementById('chk-gdrive-autosync');
+
+  if (chkAuto) chkAuto.checked = isGdriveAutoSyncEnabled;
+
+  if (gdriveAccessToken) {
+    if (dot) {
+      dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block animate-pulse';
+    }
+    if (text) {
+      text.textContent = gdriveUserEmail ? `Połączono jako: ${gdriveUserEmail}` : 'Połączono z Twoim prywatnym kontem Google';
+      text.className = 'text-sm font-bold text-emerald-300';
+    }
+    if (connectLabel) connectLabel.textContent = 'Połącz ponownie';
+    if (btnDisconnect) btnDisconnect.classList.remove('hidden');
+  } else {
+    if (dot) {
+      dot.className = 'w-2.5 h-2.5 rounded-full bg-slate-500 inline-block';
+    }
+    if (text) {
+      text.textContent = 'Nie połączono jeszcze z Twoim kontem Google';
+      text.className = 'text-sm font-bold text-slate-300';
+    }
+    if (connectLabel) connectLabel.textContent = 'Zaloguj się kontem Google';
+    if (btnDisconnect) btnDisconnect.classList.add('hidden');
+  }
+
+  if (lastSync) {
+    lastSync.textContent = gdriveLastSync || 'brak';
+  }
+}
+
+function connectGoogleDrive() {
+  playClickSound();
+
+  if (typeof google === 'undefined' || !google.accounts || !google.accounts.oauth2) {
+    alert('Biblioteka logowania Google nie została jeszcze załadowana lub brak połączenia z siecią. Spróbuj za chwilę lub skorzystaj z Zakładki 2 (Kod QR) lub Zakładki 3 (Plik .json).');
+    return;
+  }
+
+  // Identyfikator klienta OAuth (konfigurowalny lub standardowy dla aplikacji)
+  const defaultClientId = '1035987114885-vibe-coding-placeholder.apps.googleusercontent.com';
+  const customClientId = localStorage.getItem('vibe_coding_gdrive_custom_client_id') || defaultClientId;
+
+  try {
+    gdriveTokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: customClientId,
+      scope: 'https://www.googleapis.com/auth/drive.file',
+      callback: (tokenResponse) => {
+        if (tokenResponse && tokenResponse.access_token) {
+          gdriveAccessToken = tokenResponse.access_token;
+          localStorage.setItem('vibe_coding_gdrive_token', gdriveAccessToken);
+
+          // Spróbuj pobrać adres e-mail użytkownika
+          fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+            headers: { 'Authorization': `Bearer ${gdriveAccessToken}` }
+          })
+          .then(res => res.json())
+          .then(info => {
+            if (info && info.email) {
+              gdriveUserEmail = info.email;
+              localStorage.setItem('vibe_coding_gdrive_email', gdriveUserEmail);
+            }
+            initGoogleDriveSyncStatus();
+            playSuccessChime();
+            announceSR('Pomyślnie połączono z Twoim prywatnym Dyskiem Google.');
+            saveToGoogleDrive();
+          })
+          .catch(() => {
+            initGoogleDriveSyncStatus();
+            saveToGoogleDrive();
+          });
+        }
+      }
+    });
+
+    gdriveTokenClient.requestAccessToken({ prompt: 'consent' });
+  } catch(err) {
+    console.warn('Google Drive OAuth error:', err);
+    const useAlt = confirm('Logowanie bezpośrednie przez Google wymaga zarejestrowanego identyfikatora OAuth w chmurze.\n\nCzy chcesz zamiast tego pobrać plik postępów do folderu Google Drive na swoim komputerze lub telefonie (100% offline i bez żadnej rejestracji)?');
+    if (useAlt) {
+      downloadProgressBackupFile();
+    }
+  }
+}
+
+function saveToGoogleDrive(isSilent = false) {
+  if (!isSilent) playClickSound();
+
+  if (!gdriveAccessToken) {
+    if (!isSilent) {
+      alert('Aby zapisać postępy na Dysku Google, najpierw kliknij "Zaloguj się kontem Google".');
+    }
+    return;
+  }
+
+  saveState();
+  const backup = {
+    version: '3.8.0',
+    appName: 'Akademia Vibe Codingu',
+    exportDate: new Date().toISOString(),
+    completedTasks: Array.from(STATE.completedTasks),
+    taskStatuses: STATE.taskStatuses || {},
+    currentDay: STATE.currentDay || 1,
+    learnerName: STATE.learnerName || '',
+    userProfile: STATE.userProfile || {},
+    taskNotes: STATE.taskNotes || {},
+    sandboxCreations: STATE.sandboxCreations || [],
+    authorFeedbacks: STATE.authorFeedbacks || [],
+    diplomaGradeApproved: Boolean(STATE.diplomaGradeApproved),
+    selectedDiplomaStyle: STATE.selectedDiplomaStyle || 'cyberpunk',
+    points: calculateTotalScore()
+  };
+
+  const fileName = 'Akademia_Vibe_Codingu_Postepy.json';
+  const fileContent = JSON.stringify(backup, null, 2);
+
+  const performUpload = (fileId) => {
+    let url, method;
+    if (fileId) {
+      url = `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`;
+      method = 'PATCH';
+    } else {
+      url = 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart';
+      method = 'POST';
+    }
+
+    let requestBody;
+    let headers = {
+      'Authorization': `Bearer ${gdriveAccessToken}`
+    };
+
+    if (fileId) {
+      headers['Content-Type'] = 'application/json; charset=UTF-8';
+      requestBody = fileContent;
+    } else {
+      const boundary = '-------314159265358979323846';
+      headers['Content-Type'] = `multipart/related; boundary="${boundary}"`;
+      const metadata = {
+        name: fileName,
+        mimeType: 'application/json'
+      };
+      requestBody = 
+        `--${boundary}\r\n` +
+        `Content-Type: application/json; charset=UTF-8\r\n\r\n` +
+        `${JSON.stringify(metadata)}\r\n` +
+        `--${boundary}\r\n` +
+        `Content-Type: application/json; charset=UTF-8\r\n\r\n` +
+        `${fileContent}\r\n` +
+        `--${boundary}--`;
+    }
+
+    fetch(url, { method: method, headers: headers, body: requestBody })
+      .then(res => {
+        if (res.status === 401) {
+          gdriveAccessToken = null;
+          localStorage.removeItem('vibe_coding_gdrive_token');
+          initGoogleDriveSyncStatus();
+          if (!isSilent) alert('Sesja połączenia z Google wygasła. Kliknij "Zaloguj się kontem Google", aby połączyć ponownie.');
+          throw new Error('Token expired');
+        }
+        return res.json();
+      })
+      .then(data => {
+        if (data && data.id) {
+          gdriveFileId = data.id;
+          localStorage.setItem('vibe_coding_gdrive_file_id', gdriveFileId);
+        }
+        gdriveLastSync = new Date().toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
+        localStorage.setItem('vibe_coding_gdrive_last_sync', gdriveLastSync);
+        initGoogleDriveSyncStatus();
+
+        if (!isSilent) {
+          playSuccessChime();
+          announceSR('Zapisano postępy na Twoim Dysku Google.');
+          alert(`Pomyślnie zapisano Twoje postępy na Twoim Dysku Google!\nPlik: ${fileName}`);
+        }
+      })
+      .catch(err => {
+        console.warn('Błąd zapisu na Google Drive:', err);
+      });
+  };
+
+  if (gdriveFileId) {
+    performUpload(gdriveFileId);
+  } else {
+    fetch(`https://www.googleapis.com/drive/v3/files?q=name='${fileName}'+and+trashed=false&fields=files(id,name)`, {
+      headers: { 'Authorization': `Bearer ${gdriveAccessToken}` }
+    })
+    .then(res => res.json())
+    .then(data => {
+      const existing = data && data.files && data.files[0];
+      if (existing && existing.id) {
+        gdriveFileId = existing.id;
+        localStorage.setItem('vibe_coding_gdrive_file_id', gdriveFileId);
+        performUpload(gdriveFileId);
+      } else {
+        performUpload(null);
+      }
+    })
+    .catch(() => performUpload(null));
+  }
+}
+
+function loadFromGoogleDrive() {
+  playClickSound();
+
+  if (!gdriveAccessToken) {
+    alert('Aby wczytać postępy z Dysku Google, najpierw kliknij "Zaloguj się kontem Google".');
+    return;
+  }
+
+  const fileName = 'Akademia_Vibe_Codingu_Postepy.json';
+  fetch(`https://www.googleapis.com/drive/v3/files?q=name='${fileName}'+and+trashed=false&fields=files(id,name)`, {
+    headers: { 'Authorization': `Bearer ${gdriveAccessToken}` }
+  })
+  .then(res => res.json())
+  .then(data => {
+    const file = data && data.files && data.files[0];
+    if (!file || !file.id) {
+      alert(`Na Twoim Dysku Google nie znaleziono jeszcze pliku '${fileName}'.\nNajpierw zapisz postępy na komputerze!`);
+      return;
+    }
+    return fetch(`https://www.googleapis.com/drive/v3/files/${file.id}?alt=media`, {
+      headers: { 'Authorization': `Bearer ${gdriveAccessToken}` }
+    });
+  })
+  .then(res => {
+    if (!res) return;
+    return res.json();
+  })
+  .then(data => {
+    if (data) {
+      promptImportConfirmation(data, 'z Twojego prywatnego Dysku Google');
+    }
+  })
+  .catch(err => {
+    console.warn('Błąd wczytywania z Google Drive:', err);
+    alert('Wystąpił błąd podczas wczytywania pliku z Dysku Google: ' + err.message);
+  });
+}
+
+function disconnectGoogleDrive() {
+  playClickSound();
+  if (confirm('Czy na pewno chcesz odłączyć połączenie z Dyskiem Google? Twoje zapisane pliki na dysku nie zostaną usunięte.')) {
+    gdriveAccessToken = null;
+    gdriveUserEmail = '';
+    gdriveFileId = null;
+    gdriveLastSync = '';
+    localStorage.removeItem('vibe_coding_gdrive_token');
+    localStorage.removeItem('vibe_coding_gdrive_email');
+    localStorage.removeItem('vibe_coding_gdrive_file_id');
+    localStorage.removeItem('vibe_coding_gdrive_last_sync');
+    initGoogleDriveSyncStatus();
+    announceSR('Odłączono konto Google.');
+  }
+}
+
+function toggleGdriveAutoSync(enabled) {
+  isGdriveAutoSyncEnabled = Boolean(enabled);
+  localStorage.setItem('vibe_coding_gdrive_autosync', isGdriveAutoSyncEnabled ? 'true' : 'false');
+  playClickSound();
+  if (isGdriveAutoSyncEnabled) {
+    announceSR('Włączono automatyczną synchronizację z Dyskiem Google.');
+    if (gdriveAccessToken) {
+      saveToGoogleDrive(true);
+    }
+  } else {
+    announceSR('Wyłączono automatyczną synchronizację z Dyskiem Google.');
+  }
+}
+
+function scheduleGdriveDebouncedSync() {
+  if (!isGdriveAutoSyncEnabled || !gdriveAccessToken) return;
+  if (gdriveDebounceTimer) clearTimeout(gdriveDebounceTimer);
+  gdriveDebounceTimer = setTimeout(() => {
+    saveToGoogleDrive(true);
+  }, 4000);
 }
 
 // Powiadomienia Web Notifications API
@@ -7187,12 +7911,26 @@ function initializeAcademyApp() {
   updateAuthorFeedbackCounter();
   renderMotivationalQuoteUI();
   renderSandboxArchiveGrid();
+  initGoogleDriveSyncStatus();
+  checkForTransferPayloadInUrl();
 
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       if (STATE.activeSubpage === 'page-feedback') {
         e.preventDefault();
         closeAuthorFeedbackPage();
+        return;
+      }
+      const sm = document.getElementById('modal-sync-manager');
+      if (sm && !sm.classList.contains('hidden')) {
+        e.preventDefault();
+        closeSyncModal();
+        return;
+      }
+      const tc = document.getElementById('modal-transfer-confirm');
+      if (tc && !tc.classList.contains('hidden')) {
+        e.preventDefault();
+        cancelImportConfirmation();
         return;
       }
       const nm = document.getElementById('modal-notes-manager');
@@ -7286,6 +8024,9 @@ function initializeAcademyApp() {
       } else if (e.key === 'u' || e.key === 'U') {
         e.preventDefault();
         openAuthorFeedbackPage();
+      } else if (e.key === 'g' || e.key === 'G') {
+        e.preventDefault();
+        openSyncModal();
       } else if (e.key === 'ArrowRight' || e.key === 'j' || e.key === 'J') {
         e.preventDefault();
         nextDayAndScrollTop();

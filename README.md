@@ -1,4 +1,4 @@
-# Akademia Vibe Codingu i Sztuki Promptingu (Od Zera do Twórcy) — Wersja 3.7.0
+# Akademia Vibe Codingu i Sztuki Promptingu (Od Zera do Twórcy) — Wersja 3.8.0
 
 > 🚀 **Uruchom Akademię online (działa od razu w przeglądarce):**  
 > 👉 **[https://strugo10.github.io/vibe-coding-kompendium/](https://strugo10.github.io/vibe-coding-kompendium/)**
@@ -6,7 +6,25 @@
 > 📦 **Repozytorium kodu na GitHubie:**  
 > 👉 **[https://github.com/strugo10/vibe-coding-kompendium](https://github.com/strugo10/vibe-coding-kompendium)**
 
-Kompletne, interaktywne kompendium obejmujące **100 praktycznych zadań** podzielonych na **34 dni nauki** (po 3 zadania dziennie), w pełni dostosowane do standardów dostępności cyfrowej **WCAG 2.1 / 2.2 AA/AAA** (czytniki ekranu **NVDA** na Windows oraz **VoiceOver** na iPhone/iOS). Wszystkie postępy kursanta, punkty, notatki i dyplom zapisują się w 100% lokalnie i bezpiecznie w pamięci przeglądarki (`localStorage`) bez konieczności instalowania czegokolwiek.
+Kompletne, interaktywne kompendium obejmujące **100 praktycznych zadań** podzielonych na **34 dni nauki** (po 3 zadania dziennie), w pełni dostosowane do standardów dostępności cyfrowej **WCAG 2.1 / 2.2 AA/AAA** (czytniki ekranu **NVDA** na Windows oraz **VoiceOver** na iPhone/iOS). Wszystkie postępy kursanta, punkty, notatki i dyplom zapisują się w 100% lokalnie i bezpiecznie w pamięci przeglądarki (`localStorage`), z możliwością natychmiastowej synchronizacji na smartfon (Kod QR, Magiczny Link) oraz z prywatnym Dyskiem Google kursanta.
+
+## Co nowego w Wersji 3.8.0 (Wielourządzeniowość: Prywatny Dysk Google Kursanta, Kod QR, Magiczny Link i Kopia Zapasowa)?
+- **100% Prywatna Synchronizacja z Własnym Dyskiem Google Kursanta:**
+  - Rozwiązano problem kontynuowania nauki na różnych urządzeniach (np. laptop w pracy/domu i smartfon w drodze).
+  - **Żelazna zasada prywatności:** Postępy kursanta zapisują się **wyłącznie na jego własnym, prywatnym koncie Google** w pliku `Akademia_Vibe_Codingu_Postepy.json`.
+  - Twórca kursu ani nikt inny nie ma dostępu do cudzych postępów, a na dysk twórcy nie trafiają żadne obce pliki ani dane.
+  - Opcja automatycznego zapisywania stanu w chmurze Google po zaliczeniu każdego zadania.
+- **Błyskawiczny Transfer przez Kod QR i Magiczny Link (Komputer 🔁 Smartfon):**
+  - Wystarczy skierować aparat iPhone'a / telefonu z Androidem na wygenerowany kod QR w nagłówku strony (`📲 Telefon i Dysk Google` / skrót `Alt+G`).
+  - Strona na telefonie natychmiast wykrywa postępy, wyświetla czytelne podsumowanie i jednym stuknięciem wczytuje zaliczone zadania, punkty i notatki.
+  - Dla osób preferujących linki tekstowe: możliwość skopiowania Magicznego Linku lub samego kodu transferu i wysłania go sobie mailem / SMS-em.
+- **Trwała Kopia Zapasowa Postępów (Eksport i Import pliku .json):**
+  - Kursant może w każdej chwili pobrać plik `.json` ze wszystkimi swoimi zadaniami, punktami, notatkami i wygenerowanymi projektami.
+  - Wgranie pliku na dowolnym innym urządzeniu przywraca cały kurs w 1 sekundę.
+- **Dostępność WCAG 2.1/2.2 AA/AAA:**
+  - Pełna obsługa czytników ekranu (NVDA, VoiceOver) z głosowymi anonsami (`announceSR`) o powodzeniu zapisu i wczytania.
+  - Klawiaturowy skrót globalny `Alt+G` do błyskawicznego otwierania okna synchronizacji.
+  - Alternatywa tekstowa dla kodu QR (przycisk kopiowania linku i pole wklejania kodu).
 
 ## Co nowego w Wersji 3.7.0 (Dostępność WCAG: Pełna Obsługa Odwrócenia Kolorów i Smart Invert na iPhone)?
 - **Rozwiązanie problemu jasnego tła przy inwersji kolorów na iPhone (Safari / iOS):**

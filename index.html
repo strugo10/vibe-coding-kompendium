@@ -8,13 +8,19 @@
   <meta name="apple-mobile-web-app-title" content="Vibe Coding">
   <meta name="theme-color" content="#0f172a">
   <meta name="color-scheme" content="dark light">
-  <title>Akademia Vibe Codingu i Sztuki Promptingu v3.7.0 (Od Zera do Twórcy)</title>
+  <title>Akademia Vibe Codingu i Sztuki Promptingu v3.8.0 (Od Zera do Twórcy)</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   
   <!-- Canvas Confetti CDN -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+  <!-- QRCode.js dla błyskawicznego transferu na smartfon -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+
+  <!-- Google Identity Services dla autoryzacji z prywatnym Dyskiem Google kursanta -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 
   <!-- Favicon -->
   <link rel="icon" href="https://fav.farm/⚡" />
@@ -416,7 +422,7 @@
               Vibe Coding Academy
             </span>
             <span class="text-[10px] text-amber-400 font-bold block">
-              Wersja 3.7.0 • Pełna obsługa Inwersji Kolorów iPhone, Pakiety Zadań i WCAG AA/AAA
+              Wersja 3.8.0 • Synchronizacja Urządzeń (Własny Dysk Google, Kod QR, Plik) i WCAG AA/AAA
             </span>
           </div>
         </a>
@@ -430,6 +436,12 @@
 
       <!-- Szybkie przełączniki ułatwień dostępu (Notatki, Instrukcja, Słowniczek, Dźwięk, Kontrast, Inwersja iPhone, Czcionka, Motyw) -->
       <div class="flex items-center gap-1.5 sm:gap-2">
+
+        <!-- Przycisk Synchronizacji i Przenoszenia na Telefon (Własny Dysk Google / Kod QR / Plik) -->
+        <button type="button" onclick="openSyncModal()" class="touch-target px-2.5 py-1.5 rounded-lg border border-emerald-500/60 bg-emerald-950/70 hover:bg-emerald-900 text-emerald-200 text-xs font-bold transition flex items-center gap-1.5 shadow" aria-haspopup="dialog" id="btn-header-sync" title="Przenieś kurs na smartfon lub zsynchronizuj z własnym Dyskiem Google (Alt+G)">
+          <span role="img" aria-label="(ikona telefonu i chmury)">📲</span>
+          <span class="hidden sm:inline">Telefon i Dysk Google</span>
+        </button>
 
         <!-- Przycisk Przeglądania Notatek (Dostępny w każdym momencie kursu) -->
         <button type="button" onclick="openNotesManagerModal()" class="touch-target px-2.5 py-1.5 rounded-lg border border-purple-500/60 bg-purple-950/70 hover:bg-purple-900 text-purple-200 text-xs font-bold transition flex items-center gap-1.5 shadow" aria-haspopup="dialog" id="btn-header-notes" title="Przeglądaj zrobione notatki (Alt+N)">
@@ -2048,12 +2060,276 @@
     </div>
   </div>
 
+  <!-- ========================================================================= -->
+  <!-- MODAL 5: SYNCHRONIZACJA URZĄDZEŃ I PRYWATNY DYSK GOOGLE                   -->
+  <!-- ========================================================================= -->
+  <div id="modal-sync-manager" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto hidden" role="dialog" aria-modal="true" aria-labelledby="sync-modal-title" aria-hidden="true">
+    <div class="modal-content bg-slate-900 border border-emerald-500/50 rounded-3xl max-w-4xl w-full p-5 sm:p-6 md:p-8 shadow-2xl relative max-h-[92dvh] overflow-y-auto focus:outline-none" tabindex="-1">
+      
+      <button type="button" onclick="closeSyncModal()" class="touch-target absolute top-3 right-3 sm:top-5 sm:right-5 text-slate-400 hover:text-white text-2xl font-bold p-2 focus:ring-2 focus:ring-emerald-400 rounded-lg flex items-center justify-center min-w-[44px]">
+        <span class="sr-only">Zamknij okno synchronizacji (Escape) </span>
+        <span role="img" aria-label="(ikona zamknięcia)">&times;</span>
+      </button>
+
+      <div class="flex items-center gap-3 mb-4 pr-10">
+        <span class="text-3xl shrink-0" role="img" aria-label="(ikona synchronizacji)">📲</span>
+        <div>
+          <span class="text-xs uppercase font-extrabold tracking-wider text-emerald-400 block">Wielourządzeniowość i Kopia Bezpieczeństwa</span>
+          <h2 id="sync-modal-title" class="text-lg sm:text-2xl font-black text-white focus:outline-none" tabindex="-1">
+            Ucz się na Komputerze i Smartfonie (Synchronizacja)
+          </h2>
+        </div>
+      </div>
+
+      <p class="text-xs sm:text-sm text-slate-300 leading-relaxed mb-6">
+        Wybierz najwygodniejszy dla siebie sposób na przenoszenie postępów, punktów i notatek między komputerem a telefonem.
+      </p>
+
+      <!-- ZAKŁADKI NAWIGACYJNE METOD SYNCHRONIZACJI -->
+      <div class="flex flex-wrap border-b border-slate-700/80 mb-6 gap-2" role="tablist" aria-label="Wybierz metodę synchronizacji">
+        <button type="button" role="tab" id="sync-tab-btn-gdrive" aria-selected="true" aria-controls="sync-panel-gdrive" onclick="switchSyncTab('gdrive')" class="sync-tab-btn touch-target px-4 py-2.5 rounded-t-xl text-xs sm:text-sm font-bold border-b-2 border-emerald-500 bg-slate-800 text-white flex items-center gap-2">
+          <span role="img" aria-label="(chmura)">☁️</span>
+          <span>1. Własny Dysk Google</span>
+        </button>
+        <button type="button" role="tab" id="sync-tab-btn-qr" aria-selected="false" aria-controls="sync-panel-qr" onclick="switchSyncTab('qr')" class="sync-tab-btn touch-target px-4 py-2.5 rounded-t-xl text-xs sm:text-sm font-bold border-b-2 border-transparent bg-slate-900 text-slate-400 hover:text-slate-200 flex items-center gap-2">
+          <span role="img" aria-label="(smartfon)">📲</span>
+          <span>2. Kod QR i Magiczny Link</span>
+        </button>
+        <button type="button" role="tab" id="sync-tab-btn-file" aria-selected="false" aria-controls="sync-panel-file" onclick="switchSyncTab('file')" class="sync-tab-btn touch-target px-4 py-2.5 rounded-t-xl text-xs sm:text-sm font-bold border-b-2 border-transparent bg-slate-900 text-slate-400 hover:text-slate-200 flex items-center gap-2">
+          <span role="img" aria-label="(dyskietka)">💾</span>
+          <span>3. Kopia w Pliku (.json)</span>
+        </button>
+      </div>
+
+      <!-- PANEL 1: WŁASNY DYSK GOOGLE -->
+      <div id="sync-panel-gdrive" role="tabpanel" aria-labelledby="sync-tab-btn-gdrive" class="space-y-4">
+        <!-- Baner Gwarancji Prywatności -->
+        <div class="p-4 rounded-2xl bg-indigo-950/60 border border-indigo-500/40 flex items-start gap-3">
+          <span class="text-2xl shrink-0" role="img" aria-label="(tarcza)">🛡️</span>
+          <div class="text-xs text-indigo-100 leading-relaxed">
+            <strong class="text-white block mb-1">Gwarancja 100% prywatności Twojego Dysku Google:</strong>
+            Twoje postępy zapisują się <strong>wyłącznie na Twoim własnym, prywatnym koncie Google</strong> w pliku <code class="bg-indigo-900/80 px-1 py-0.5 rounded text-amber-300 font-mono">Akademia_Vibe_Codingu_Postepy.json</code>.
+            Autor kursu ani nikt inny nie ma wglądu w Twoje dane, a na Twój dysk nie trafią żadne cudze pliki.
+          </div>
+        </div>
+
+        <!-- Karta statusu połączenia z Google -->
+        <div class="p-5 rounded-2xl bg-slate-950 border border-slate-800">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+            <div>
+              <span class="text-[11px] uppercase font-bold text-slate-400 block">Stan połączenia:</span>
+              <div id="gdrive-status-badge" class="flex items-center gap-2 mt-0.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-slate-500 inline-block" id="gdrive-status-dot"></span>
+                <span id="gdrive-status-text" class="text-sm font-bold text-slate-300">Nie połączono jeszcze z Twoim kontem Google</span>
+              </div>
+            </div>
+            <div id="gdrive-last-sync-badge" class="text-xs text-slate-400">
+              Ostatnia synchronizacja: <span id="gdrive-last-sync-time" class="text-slate-300 font-semibold">brak</span>
+            </div>
+          </div>
+
+          <!-- Przyciski akcji Google Drive -->
+          <div class="flex flex-wrap items-center gap-3">
+            <button type="button" onclick="connectGoogleDrive()" id="btn-gdrive-connect" class="touch-target px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition flex items-center gap-2 shadow">
+              <span role="img" aria-label="(logo Google)">🌐</span>
+              <span id="btn-gdrive-connect-label">Zaloguj się kontem Google</span>
+            </button>
+            <button type="button" onclick="saveToGoogleDrive()" id="btn-gdrive-save" class="touch-target px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition flex items-center gap-2 shadow">
+              <span role="img" aria-label="(zapisz)">☁️</span>
+              <span>Zapisz teraz na moim Dysku Google</span>
+            </button>
+            <button type="button" onclick="loadFromGoogleDrive()" id="btn-gdrive-load" class="touch-target px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition flex items-center gap-2 shadow">
+              <span role="img" aria-label="(pobierz)">📥</span>
+              <span>Wczytaj z mojego Dysku Google</span>
+            </button>
+            <button type="button" onclick="disconnectGoogleDrive()" id="btn-gdrive-disconnect" class="touch-target px-3 py-2 rounded-xl bg-slate-800 hover:bg-rose-900/40 text-slate-300 hover:text-rose-200 border border-slate-700 font-bold text-xs transition hidden">
+              <span>Wyloguj Google</span>
+            </button>
+          </div>
+
+          <!-- Automatyczny zapis po każdym zadaniu -->
+          <div class="mt-4 pt-4 border-t border-slate-800 flex items-center gap-2.5">
+            <input type="checkbox" id="chk-gdrive-autosync" onchange="toggleGdriveAutoSync(this.checked)" class="w-4 h-4 rounded text-emerald-500 focus:ring-emerald-400 bg-slate-900 border-slate-700 cursor-pointer">
+            <label for="chk-gdrive-autosync" class="text-xs text-slate-300 cursor-pointer select-none">
+              Automatycznie wysyłaj stan na mój Dysk Google po zaliczeniu każdego zadania
+            </label>
+          </div>
+        </div>
+
+        <!-- Prosty alternatywny wariant lokalnego folderu Google Drive -->
+        <div class="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 text-xs text-slate-400 space-y-1.5">
+          <strong class="text-slate-200 block">💡 Masz aplikację Dysk Google na komputerze lub smartfonie?</strong>
+          <p>
+            Możesz też w dowolnym momencie przejść do <strong>Zakładki 3 (Plik .json)</strong> i kliknąć <em>„Pobierz plik moich postępów”</em>, wskazując jako miejsce zapisu Twój lokalny folder Dysku Google na komputerze lub w aplikacji <em>Pliki</em> na telefonie. To działa w 100% offline i bez żadnego logowania!
+          </p>
+        </div>
+      </div>
+
+      <!-- PANEL 2: KOD QR I MAGICZNY LINK -->
+      <div id="sync-panel-qr" role="tabpanel" aria-labelledby="sync-tab-btn-qr" class="hidden space-y-5">
+        <p class="text-xs sm:text-sm text-slate-300">
+          Najszybszy sposób na natychmiastowe przejście z komputera na smartfon: skieruj aparat iPhone'a / Androida na kod QR lub prześlij sobie wygenerowany Magiczny Link.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 items-center">
+          <!-- Kolumna Kodu QR -->
+          <div class="p-5 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col items-center text-center">
+            <span class="text-xs uppercase font-extrabold text-amber-400 mb-3 tracking-wider">Aparat w telefonie</span>
+            
+            <div id="sync-qr-code-display" class="p-3 bg-white rounded-2xl shadow-lg border-4 border-emerald-500/40 flex items-center justify-center min-w-[210px] min-h-[210px]">
+              <!-- Tutaj renderuje się kod QR -->
+              <span class="text-xs text-slate-600">Generowanie kodu QR...</span>
+            </div>
+
+            <p class="text-xs text-slate-400 mt-3 max-w-xs leading-relaxed">
+              Stuknij powiadomienie, które pojawi się w aparacie telefonu. Kurs otworzy się z Twoimi postępami!
+            </p>
+          </div>
+
+          <!-- Kolumna Magicznego Linku i Ręcznego Kodu -->
+          <div class="space-y-4">
+            <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
+              <label for="sync-transfer-link-input" class="text-xs font-bold text-white block">
+                Magiczny Link do otwarcia na drugim urządzeniu:
+              </label>
+              <div class="flex items-center gap-2">
+                <input type="text" id="sync-transfer-link-input" readonly class="w-full px-3 py-2 text-xs rounded-xl bg-slate-900 border border-slate-700 text-slate-300 focus:outline-none select-all" aria-label="Magiczny link transferowy">
+                <button type="button" onclick="copyTransferLink()" id="btn-copy-transfer-link" class="touch-target shrink-0 px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition flex items-center gap-1.5 shadow">
+                  <span role="img" aria-label="(kopiuj)">📋</span>
+                  <span>Kopiuj link</span>
+                </button>
+              </div>
+              <p class="text-[11px] text-slate-400 leading-relaxed">
+                Wyślij ten link do siebie (np. mailem, w wiadomości lub otwórz w Safari).
+              </p>
+            </div>
+
+            <!-- Ręczne wklejenie kodu z innego urządzenia -->
+            <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
+              <label for="sync-manual-code-input" class="text-xs font-bold text-white block">
+                Otrzymałeś kod lub link z drugiego urządzenia? Wklej go tutaj:
+              </label>
+              <textarea id="sync-manual-code-input" rows="2" placeholder="Wklej tutaj otrzymany kod transferu lub link..." class="w-full px-3 py-2 text-xs rounded-xl bg-slate-900 border border-slate-700 text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 resize-none"></textarea>
+              <div class="flex justify-end">
+                <button type="button" onclick="applyManualTransferCode()" class="touch-target px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition flex items-center gap-1.5 shadow">
+                  <span role="img" aria-label="(wczytaj)">📥</span>
+                  <span>Wczytaj postępy z tego kodu</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANEL 3: PLIK POSTĘPÓW (.JSON) -->
+      <div id="sync-panel-file" role="tabpanel" aria-labelledby="sync-tab-btn-file" class="hidden space-y-4">
+        <p class="text-xs sm:text-sm text-slate-300">
+          Tradycyjna, w 100% niezawodna kopia zapasowa. Pobierz plik ze swoimi zadaniami, punktami i notatkami, aby zachować go na dysku lub przesłać na telefon.
+        </p>
+
+        <!-- Karta podsumowania bieżącego stanu -->
+        <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+          <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+            <span class="text-[10px] uppercase font-bold text-slate-400 block">Zadania</span>
+            <span id="sync-file-tasks-count" class="text-base sm:text-lg font-black text-emerald-400">0 / 100</span>
+          </div>
+          <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+            <span class="text-[10px] uppercase font-bold text-slate-400 block">Punkty</span>
+            <span id="sync-file-points-count" class="text-base sm:text-lg font-black text-amber-400">0 pkt</span>
+          </div>
+          <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+            <span class="text-[10px] uppercase font-bold text-slate-400 block">Notatki</span>
+            <span id="sync-file-notes-count" class="text-base sm:text-lg font-black text-purple-300">0</span>
+          </div>
+          <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+            <span class="text-[10px] uppercase font-bold text-slate-400 block">Dzień nauki</span>
+            <span id="sync-file-day-count" class="text-base sm:text-lg font-black text-white">Dzień 1</span>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3 pt-2">
+          <button type="button" onclick="downloadProgressBackupFile()" id="btn-download-progress-file" class="touch-target px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition flex items-center gap-2 shadow">
+            <span role="img" aria-label="(pobierz plik)">📥</span>
+            <span>Pobierz plik moich postępów (.json)</span>
+          </button>
+          
+          <button type="button" onclick="document.getElementById('import-progress-file-input').click()" id="btn-upload-progress-file" class="touch-target px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition flex items-center gap-2 shadow">
+            <span role="img" aria-label="(wgraj plik)">📂</span>
+            <span>Wczytaj postępy z pliku</span>
+          </button>
+
+          <!-- Ukryte pole wyboru pliku -->
+          <input type="file" id="import-progress-file-input" accept=".json" onchange="handleImportFileSelect(event)" class="sr-only">
+        </div>
+      </div>
+
+      <!-- Stopka modala -->
+      <div class="mt-6 pt-4 border-t border-slate-800 flex justify-end">
+        <button type="button" onclick="closeSyncModal()" class="touch-target px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs transition">
+          Zamknij okno
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL 6: POTWIERDZENIE WCZYTANIA POSTĘPÓW (TRANSFER / IMPORT)             -->
+  <!-- ========================================================================= -->
+  <div id="modal-transfer-confirm" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto hidden" role="dialog" aria-modal="true" aria-labelledby="confirm-transfer-title" aria-hidden="true">
+    <div class="modal-content bg-slate-900 border-2 border-amber-500 rounded-3xl max-w-lg w-full p-5 sm:p-7 shadow-2xl relative focus:outline-none" tabindex="-1">
+      
+      <div class="flex items-center gap-3 mb-4">
+        <span class="text-3xl shrink-0" role="img" aria-label="(świętowanie)">🎉</span>
+        <div>
+          <span class="text-xs uppercase font-extrabold tracking-wider text-amber-400 block">Wykryto Twoje Postępy</span>
+          <h2 id="confirm-transfer-title" class="text-lg sm:text-xl font-black text-white focus:outline-none" tabindex="-1">
+            Wczytać dane z drugiego urządzenia?
+          </h2>
+        </div>
+      </div>
+
+      <!-- Karta podsumowania wykrytych danych -->
+      <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2 mb-4 text-xs text-slate-300">
+        <div class="flex justify-between border-b border-slate-800/80 pb-1.5">
+          <span class="text-slate-400">Uczeń:</span>
+          <strong id="confirm-import-name" class="text-white">Kursant Vibe Codingu</strong>
+        </div>
+        <div class="flex justify-between border-b border-slate-800/80 pb-1.5">
+          <span class="text-slate-400">Zaliczone zadania:</span>
+          <strong id="confirm-import-tasks" class="text-emerald-400 font-black">0 / 100</strong>
+        </div>
+        <div class="flex justify-between border-b border-slate-800/80 pb-1.5">
+          <span class="text-slate-400">Zdobyte punkty:</span>
+          <strong id="confirm-import-points" class="text-amber-400 font-black">0 pkt</strong>
+        </div>
+        <div class="flex justify-between pt-0.5">
+          <span class="text-slate-400">Pochodzenie danych:</span>
+          <span id="confirm-import-source" class="text-slate-300 italic">Kod QR / Magiczny Link</span>
+        </div>
+      </div>
+
+      <p class="text-xs text-slate-300 leading-relaxed mb-6">
+        Kliknięcie <strong>„Tak, wczytaj moje postępy”</strong> zaktualizuje zadania, punkty i notatki w tej przeglądarce, abyś mógł bez przeszkód kontynuować naukę.
+      </p>
+
+      <div class="flex flex-wrap items-center justify-end gap-3">
+        <button type="button" onclick="cancelImportConfirmation()" class="touch-target px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition">
+          Anuluj
+        </button>
+        <button type="button" onclick="executeApplyImportedState()" id="btn-confirm-import-accept" class="touch-target px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs transition flex items-center gap-2 shadow-lg cursor-pointer">
+          <span role="img" aria-label="(sukces)">✓</span>
+          <span>Tak, wczytaj moje postępy</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Stopka Zgodności WCAG i Wersji -->
   <footer class="border-t border-slate-800 bg-slate-950 py-6 sm:py-8 px-4 text-xs text-slate-400 mt-10">
     <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-6">
       <div>
         <p class="font-bold text-slate-300 mb-1">
-          Akademia Vibe Codingu i Sztuki Promptingu • Wersja 3.7.0 • WCAG 2.1 / 2.2 Poziom AA/AAA (Obsługa Inwersji iOS)
+          Akademia Vibe Codingu i Sztuki Promptingu • Wersja 3.8.0 • WCAG 2.1 / 2.2 Poziom AA/AAA (Wielourządzeniowość i Własny Dysk Google)
         </p>
         <p>
           Akademia Vibe Codingu i Sztuki Promptingu • Projekt dostępny w chmurze na GitHubie: <a href="https://github.com/strugo10/vibe-coding-kompendium" target="_blank" rel="noopener noreferrer" class="underline text-slate-300 hover:text-white">strugo10/vibe-coding-kompendium</a> oraz online: <a href="https://strugo10.github.io/vibe-coding-kompendium/" target="_blank" rel="noopener noreferrer" class="underline text-teal-400 hover:text-teal-300">Wersja webowa na żywo</a>. Praktyka w pracy i życiu osobistym, dedykowany panel uwag dla twórcy i uniwersalny eksport notatek.
