@@ -1,4 +1,4 @@
-# Akademia Vibe Codingu i Sztuki Promptingu (Od Zera do Twórcy) — Wersja 3.8.0
+# Akademia Vibe Codingu i Sztuki Promptingu (Od Zera do Twórcy) — Wersja 3.8.1
 
 > 🚀 **Uruchom Akademię online (działa od razu w przeglądarce):**  
 > 👉 **[https://strugo10.github.io/vibe-coding-kompendium/](https://strugo10.github.io/vibe-coding-kompendium/)**
@@ -7,6 +7,13 @@
 > 👉 **[https://github.com/strugo10/vibe-coding-kompendium](https://github.com/strugo10/vibe-coding-kompendium)**
 
 Kompletne, interaktywne kompendium obejmujące **100 praktycznych zadań** podzielonych na **34 dni nauki** (po 3 zadania dziennie), w pełni dostosowane do standardów dostępności cyfrowej **WCAG 2.1 / 2.2 AA/AAA** (czytniki ekranu **NVDA** na Windows oraz **VoiceOver** na iPhone/iOS). Wszystkie postępy kursanta, punkty, notatki i dyplom zapisują się w 100% lokalnie i bezpiecznie w pamięci przeglądarki (`localStorage`), z możliwością natychmiastowej synchronizacji na smartfon (Kod QR, Magiczny Link) oraz z prywatnym Dyskiem Google kursanta.
+
+## Co nowego w Wersji 3.8.1 (Usprawnienie Dysku Google: Bezpośredni Zapis do Folderu i Likwidacja Błędu 401)?
+- **Bezpośredni i niezawodny zapis na Dysk Google bez rejestracji i haseł:**
+  - Całkowicie wyeliminowano błąd autoryzacji Google (*Error 401: invalid_client*), który pojawiał się przy próbie wywołania okna logowania bez zarejestrowanego klucza Google Cloud.
+  - Wprowadzono natywny, bezpieczny tryb zapisu: kliknięcie *„Zapisz postępy na moim Dysku Google”* generuje plik `Akademia_Vibe_Codingu_Postepy.json` bezpośrednio do folderu Dysku Google na komputerze lub w aplikacji Pliki na telefonie.
+  - Kliknięcie *„Wczytaj postępy z mojego Dysku Google”* otwiera bezpośrednio okno wyboru pliku z Dysku Google, przywracając stan nauki w ułamku sekundy.
+  - Dla zaawansowanych użytkowników dodano pole na opcjonalne wpisanie własnego klucza Google Client ID z konsoli Google Cloud.
 
 ## Co nowego w Wersji 3.8.0 (Wielourządzeniowość: Prywatny Dysk Google Kursanta, Kod QR, Magiczny Link i Kopia Zapasowa)?
 - **100% Prywatna Synchronizacja z Własnym Dyskiem Google Kursanta:**

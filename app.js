@@ -7560,6 +7560,11 @@ function initGoogleDriveSyncStatus() {
   const connectLabel = document.getElementById('btn-gdrive-connect-label');
   const btnDisconnect = document.getElementById('btn-gdrive-disconnect');
   const chkAuto = document.getElementById('chk-gdrive-autosync');
+  const customInp = document.getElementById('gdrive-custom-client-id-input');
+
+  if (customInp) {
+    customInp.value = localStorage.getItem('vibe_coding_gdrive_custom_client_id') || '';
+  }
 
   if (chkAuto) chkAuto.checked = isGdriveAutoSyncEnabled;
 
@@ -7568,7 +7573,7 @@ function initGoogleDriveSyncStatus() {
       dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block animate-pulse';
     }
     if (text) {
-      text.textContent = gdriveUserEmail ? `Połączono jako: ${gdriveUserEmail}` : 'Połączono z Twoim prywatnym kontem Google';
+      text.textContent = gdriveUserEmail ? `Połączono z kontem: ${gdriveUserEmail}` : 'Połączono z Twoim prywatnym kontem Google';
       text.className = 'text-sm font-bold text-emerald-300';
     }
     if (connectLabel) connectLabel.textContent = 'Połącz ponownie';
@@ -7578,10 +7583,10 @@ function initGoogleDriveSyncStatus() {
       dot.className = 'w-2.5 h-2.5 rounded-full bg-slate-500 inline-block';
     }
     if (text) {
-      text.textContent = 'Nie połączono jeszcze z Twoim kontem Google';
+      text.textContent = 'Gotowy do zapisu i odczytu plików na Twoim Dysku Google';
       text.className = 'text-sm font-bold text-slate-300';
     }
-    if (connectLabel) connectLabel.textContent = 'Zaloguj się kontem Google';
+    if (connectLabel) connectLabel.textContent = 'Zaloguj się oknem Google';
     if (btnDisconnect) btnDisconnect.classList.add('hidden');
   }
 
@@ -7590,28 +7595,58 @@ function initGoogleDriveSyncStatus() {
   }
 }
 
+function saveCustomGoogleClientId() {
+  playClickSound();
+  const inp = document.getElementById('gdrive-custom-client-id-input');
+  if (!inp || !inp.value.trim()) {
+    alert('Wpisz poprawny identyfikator Client ID (np. xxxxx.apps.googleusercontent.com)');
+    return;
+  }
+  const val = inp.value.trim();
+  localStorage.setItem('vibe_coding_gdrive_custom_client_id', val);
+  alert('Zapisano Twój Google Client ID! Możesz teraz kliknąć "Zaloguj się oknem Google".');
+}
+
 function connectGoogleDrive() {
   playClickSound();
 
+  const customClientId = localStorage.getItem('vibe_coding_gdrive_custom_client_id');
+  if (!customClientId) {
+    const ask = confirm(
+      "Bezpośrednie wyskakujące okno Google wymaga zarejestrowania darmowego klucza (Google Client ID) w Google Cloud Console.\n\n" +
+      "👉 Czy chcesz zamiast tego zapisać plik bezpośrednio w swoim folderze Dysku Google (100% bez rejestracji i haseł)?\n\n" +
+      "(Kliknij 'OK', aby pobrać plik do folderu Dysku Google, lub 'Anuluj', aby wpisać własny Client ID)."
+    );
+    if (ask) {
+      saveToGoogleDrive();
+      return;
+    } else {
+      const entered = prompt("Wklej tutaj swój zarejestrowany Google Client ID (lub zostaw puste, aby anulować):");
+      if (entered && entered.trim()) {
+        localStorage.setItem('vibe_coding_gdrive_custom_client_id', entered.trim());
+      } else {
+        return;
+      }
+    }
+  }
+
+  const clientId = localStorage.getItem('vibe_coding_gdrive_custom_client_id');
+  if (!clientId) return;
+
   if (typeof google === 'undefined' || !google.accounts || !google.accounts.oauth2) {
-    alert('Biblioteka logowania Google nie została jeszcze załadowana lub brak połączenia z siecią. Spróbuj za chwilę lub skorzystaj z Zakładki 2 (Kod QR) lub Zakładki 3 (Plik .json).');
+    alert('Biblioteka logowania Google nie została jeszcze załadowana lub brak połączenia z siecią. Kliknij "Zapisz postępy na moim Dysku Google".');
     return;
   }
 
-  // Identyfikator klienta OAuth (konfigurowalny lub standardowy dla aplikacji)
-  const defaultClientId = '1035987114885-vibe-coding-placeholder.apps.googleusercontent.com';
-  const customClientId = localStorage.getItem('vibe_coding_gdrive_custom_client_id') || defaultClientId;
-
   try {
     gdriveTokenClient = google.accounts.oauth2.initTokenClient({
-      client_id: customClientId,
+      client_id: clientId,
       scope: 'https://www.googleapis.com/auth/drive.file',
       callback: (tokenResponse) => {
         if (tokenResponse && tokenResponse.access_token) {
           gdriveAccessToken = tokenResponse.access_token;
           localStorage.setItem('vibe_coding_gdrive_token', gdriveAccessToken);
 
-          // Spróbuj pobrać adres e-mail użytkownika
           fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
             headers: { 'Authorization': `Bearer ${gdriveAccessToken}` }
           })
@@ -7637,26 +7672,29 @@ function connectGoogleDrive() {
     gdriveTokenClient.requestAccessToken({ prompt: 'consent' });
   } catch(err) {
     console.warn('Google Drive OAuth error:', err);
-    const useAlt = confirm('Logowanie bezpośrednie przez Google wymaga zarejestrowanego identyfikatora OAuth w chmurze.\n\nCzy chcesz zamiast tego pobrać plik postępów do folderu Google Drive na swoim komputerze lub telefonie (100% offline i bez żadnej rejestracji)?');
-    if (useAlt) {
-      downloadProgressBackupFile();
-    }
+    saveToGoogleDrive();
   }
 }
 
 function saveToGoogleDrive(isSilent = false) {
   if (!isSilent) playClickSound();
 
+  // Jeśli brak połączenia OAuth, natychmiast zapisz plik z postępami do folderu Dysku Google
   if (!gdriveAccessToken) {
+    downloadProgressBackupFile();
     if (!isSilent) {
-      alert('Aby zapisać postępy na Dysku Google, najpierw kliknij "Zaloguj się kontem Google".');
+      alert(
+        "Pobrano plik z Twoimi postępami (Akademia_Vibe_Codingu_Postepy.json)!\n\n" +
+        "📁 Zapisz go w swoim folderze Dysku Google na komputerze lub w aplikacji 'Pliki' na telefonie.\n" +
+        "📲 Na drugim urządzeniu wczytasz go przyciskiem 'Wczytaj postępy z mojego Dysku Google'."
+      );
     }
     return;
   }
 
   saveState();
   const backup = {
-    version: '3.8.0',
+    version: '3.8.1',
     appName: 'Akademia Vibe Codingu',
     exportDate: new Date().toISOString(),
     completedTasks: Array.from(STATE.completedTasks),
@@ -7765,8 +7803,13 @@ function saveToGoogleDrive(isSilent = false) {
 function loadFromGoogleDrive() {
   playClickSound();
 
+  // Jeśli brak połączenia OAuth, otwórz okno wyboru pliku, aby wskazać plik z Dysku Google
   if (!gdriveAccessToken) {
-    alert('Aby wczytać postępy z Dysku Google, najpierw kliknij "Zaloguj się kontem Google".');
+    const fileInput = document.getElementById('import-progress-file-input');
+    if (fileInput) {
+      announceSR("Wskaż plik ze swoimi postępami z Dysku Google.");
+      fileInput.click();
+    }
     return;
   }
 

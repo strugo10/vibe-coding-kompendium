@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-title" content="Vibe Coding">
   <meta name="theme-color" content="#0f172a">
   <meta name="color-scheme" content="dark light">
-  <title>Akademia Vibe Codingu i Sztuki Promptingu v3.8.0 (Od Zera do Twórcy)</title>
+  <title>Akademia Vibe Codingu i Sztuki Promptingu v3.8.1 (Od Zera do Twórcy)</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -422,7 +422,7 @@
               Vibe Coding Academy
             </span>
             <span class="text-[10px] text-amber-400 font-bold block">
-              Wersja 3.8.0 • Synchronizacja Urządzeń (Własny Dysk Google, Kod QR, Plik) i WCAG AA/AAA
+              Wersja 3.8.1 • Synchronizacja Urządzeń (Własny Dysk Google, Kod QR, Plik) i WCAG AA/AAA
             </span>
           </div>
         </a>
@@ -2128,40 +2128,69 @@
             </div>
           </div>
 
-          <!-- Przyciski akcji Google Drive -->
+          <!-- Główne przyciski akcji Dysku Google (Działają natychmiast bez skomplikowanych konfiguracji) -->
           <div class="flex flex-wrap items-center gap-3">
-            <button type="button" onclick="connectGoogleDrive()" id="btn-gdrive-connect" class="touch-target px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition flex items-center gap-2 shadow">
-              <span role="img" aria-label="(logo Google)">🌐</span>
-              <span id="btn-gdrive-connect-label">Zaloguj się kontem Google</span>
-            </button>
-            <button type="button" onclick="saveToGoogleDrive()" id="btn-gdrive-save" class="touch-target px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition flex items-center gap-2 shadow">
+            <button type="button" onclick="saveToGoogleDrive()" id="btn-gdrive-save" class="touch-target px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs transition flex items-center gap-2 shadow">
               <span role="img" aria-label="(zapisz)">☁️</span>
-              <span>Zapisz teraz na moim Dysku Google</span>
+              <span>Zapisz postępy na moim Dysku Google</span>
             </button>
             <button type="button" onclick="loadFromGoogleDrive()" id="btn-gdrive-load" class="touch-target px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition flex items-center gap-2 shadow">
               <span role="img" aria-label="(pobierz)">📥</span>
-              <span>Wczytaj z mojego Dysku Google</span>
-            </button>
-            <button type="button" onclick="disconnectGoogleDrive()" id="btn-gdrive-disconnect" class="touch-target px-3 py-2 rounded-xl bg-slate-800 hover:bg-rose-900/40 text-slate-300 hover:text-rose-200 border border-slate-700 font-bold text-xs transition hidden">
-              <span>Wyloguj Google</span>
+              <span>Wczytaj postępy z mojego Dysku Google</span>
             </button>
           </div>
 
+          <!-- Wyjaśnienie działania -->
+          <div class="mt-3.5 p-3 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300 space-y-1">
+            <strong class="text-white block">✅ Jak to działa bez haseł i bez błędów logowania?</strong>
+            <p>
+              Po kliknięciu <em>„Zapisz postępy”</em> plik <code class="text-amber-300 bg-slate-950 px-1 py-0.5 rounded">Akademia_Vibe_Codingu_Postepy.json</code> zapisuje się bezpośrednio na Twoim Dysku Google (lub w pamięci telefonu). Na drugim urządzeniu klikasz <em>„Wczytaj postępy”</em> i wskazujesz ten plik. Zero cudzych plików u Ciebie i 100% prywatności!
+            </p>
+          </div>
+
+          <!-- Opcja zaawansowana: Logowanie OAuth -->
+          <details class="mt-3 pt-3 border-t border-slate-800 text-xs text-slate-400">
+            <summary class="cursor-pointer font-bold text-slate-300 hover:text-white flex items-center gap-1.5 py-1">
+              <span>⚙️ Opcja zaawansowana: Bezpośrednie wyskakujące okienko Google</span>
+            </summary>
+            <div class="mt-2.5 p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
+              <p>
+                Oficjalne wyskakujące okienko Google wymaga zarejestrowania darmowego klucza (Google Client ID) w panelu Google Cloud. Jeśli posiadasz taki klucz, wklej go poniżej:
+              </p>
+              <div class="flex items-center gap-2">
+                <input type="text" id="gdrive-custom-client-id-input" placeholder="Wklej tutaj swój Google Client ID..." class="w-full px-3 py-1.5 text-xs rounded-lg bg-slate-950 border border-slate-700 text-slate-200">
+                <button type="button" onclick="saveCustomGoogleClientId()" class="touch-target shrink-0 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs">
+                  Zapisz klucz
+                </button>
+              </div>
+              <div class="flex items-center gap-2 pt-1">
+                <button type="button" onclick="connectGoogleDrive()" id="btn-gdrive-connect" class="touch-target px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition flex items-center gap-1.5 border border-slate-700">
+                  <span role="img" aria-label="(logo Google)">🌐</span>
+                  <span id="btn-gdrive-connect-label">Zaloguj się oknem Google</span>
+                </button>
+                <button type="button" onclick="disconnectGoogleDrive()" id="btn-gdrive-disconnect" class="touch-target px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-rose-900/40 text-slate-300 hover:text-rose-200 border border-slate-700 font-bold text-xs transition hidden">
+                  <span>Rozłącz Google</span>
+                </button>
+              </div>
+            </div>
+          </details>
+
           <!-- Automatyczny zapis po każdym zadaniu -->
-          <div class="mt-4 pt-4 border-t border-slate-800 flex items-center gap-2.5">
+          <div class="mt-3 pt-3 border-t border-slate-800 flex items-center gap-2.5">
             <input type="checkbox" id="chk-gdrive-autosync" onchange="toggleGdriveAutoSync(this.checked)" class="w-4 h-4 rounded text-emerald-500 focus:ring-emerald-400 bg-slate-900 border-slate-700 cursor-pointer">
             <label for="chk-gdrive-autosync" class="text-xs text-slate-300 cursor-pointer select-none">
-              Automatycznie wysyłaj stan na mój Dysk Google po zaliczeniu każdego zadania
+              Automatycznie przypominaj o zapisaniu stanu po zaliczeniu każdego zadania
             </label>
           </div>
         </div>
 
-        <!-- Prosty alternatywny wariant lokalnego folderu Google Drive -->
-        <div class="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 text-xs text-slate-400 space-y-1.5">
-          <strong class="text-slate-200 block">💡 Masz aplikację Dysk Google na komputerze lub smartfonie?</strong>
-          <p>
-            Możesz też w dowolnym momencie przejść do <strong>Zakładki 3 (Plik .json)</strong> i kliknąć <em>„Pobierz plik moich postępów”</em>, wskazując jako miejsce zapisu Twój lokalny folder Dysku Google na komputerze lub w aplikacji <em>Pliki</em> na telefonie. To działa w 100% offline i bez żadnego logowania!
-          </p>
+        <!-- Wskazówka o Kodzie QR -->
+        <div class="p-4 rounded-2xl bg-amber-950/40 border border-amber-500/40 text-xs text-amber-200 flex items-start gap-3">
+          <span class="text-xl shrink-0" role="img" aria-label="(żarówka)">💡</span>
+          <div>
+            <strong class="text-amber-100 block mb-0.5">Wolisz przejść na smartfon w 3 sekundy bez żadnych plików?</strong>
+            Kliknij u góry zakładkę <strong>„2. Kod QR i Magiczny Link”</strong> i po prostu skieruj aparat telefonu na ekran!
+          </div>
         </div>
       </div>
 
@@ -2329,7 +2358,7 @@
     <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-6">
       <div>
         <p class="font-bold text-slate-300 mb-1">
-          Akademia Vibe Codingu i Sztuki Promptingu • Wersja 3.8.0 • WCAG 2.1 / 2.2 Poziom AA/AAA (Wielourządzeniowość i Własny Dysk Google)
+          Akademia Vibe Codingu i Sztuki Promptingu • Wersja 3.8.1 • WCAG 2.1 / 2.2 Poziom AA/AAA (Wielourządzeniowość i Własny Dysk Google)
         </p>
         <p>
           Akademia Vibe Codingu i Sztuki Promptingu • Projekt dostępny w chmurze na GitHubie: <a href="https://github.com/strugo10/vibe-coding-kompendium" target="_blank" rel="noopener noreferrer" class="underline text-slate-300 hover:text-white">strugo10/vibe-coding-kompendium</a> oraz online: <a href="https://strugo10.github.io/vibe-coding-kompendium/" target="_blank" rel="noopener noreferrer" class="underline text-teal-400 hover:text-teal-300">Wersja webowa na żywo</a>. Praktyka w pracy i życiu osobistym, dedykowany panel uwag dla twórcy i uniwersalny eksport notatek.
@@ -12042,6 +12071,11 @@ function initGoogleDriveSyncStatus() {
   const connectLabel = document.getElementById('btn-gdrive-connect-label');
   const btnDisconnect = document.getElementById('btn-gdrive-disconnect');
   const chkAuto = document.getElementById('chk-gdrive-autosync');
+  const customInp = document.getElementById('gdrive-custom-client-id-input');
+
+  if (customInp) {
+    customInp.value = localStorage.getItem('vibe_coding_gdrive_custom_client_id') || '';
+  }
 
   if (chkAuto) chkAuto.checked = isGdriveAutoSyncEnabled;
 
@@ -12050,7 +12084,7 @@ function initGoogleDriveSyncStatus() {
       dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block animate-pulse';
     }
     if (text) {
-      text.textContent = gdriveUserEmail ? `Połączono jako: ${gdriveUserEmail}` : 'Połączono z Twoim prywatnym kontem Google';
+      text.textContent = gdriveUserEmail ? `Połączono z kontem: ${gdriveUserEmail}` : 'Połączono z Twoim prywatnym kontem Google';
       text.className = 'text-sm font-bold text-emerald-300';
     }
     if (connectLabel) connectLabel.textContent = 'Połącz ponownie';
@@ -12060,10 +12094,10 @@ function initGoogleDriveSyncStatus() {
       dot.className = 'w-2.5 h-2.5 rounded-full bg-slate-500 inline-block';
     }
     if (text) {
-      text.textContent = 'Nie połączono jeszcze z Twoim kontem Google';
+      text.textContent = 'Gotowy do zapisu i odczytu plików na Twoim Dysku Google';
       text.className = 'text-sm font-bold text-slate-300';
     }
-    if (connectLabel) connectLabel.textContent = 'Zaloguj się kontem Google';
+    if (connectLabel) connectLabel.textContent = 'Zaloguj się oknem Google';
     if (btnDisconnect) btnDisconnect.classList.add('hidden');
   }
 
@@ -12072,28 +12106,58 @@ function initGoogleDriveSyncStatus() {
   }
 }
 
+function saveCustomGoogleClientId() {
+  playClickSound();
+  const inp = document.getElementById('gdrive-custom-client-id-input');
+  if (!inp || !inp.value.trim()) {
+    alert('Wpisz poprawny identyfikator Client ID (np. xxxxx.apps.googleusercontent.com)');
+    return;
+  }
+  const val = inp.value.trim();
+  localStorage.setItem('vibe_coding_gdrive_custom_client_id', val);
+  alert('Zapisano Twój Google Client ID! Możesz teraz kliknąć "Zaloguj się oknem Google".');
+}
+
 function connectGoogleDrive() {
   playClickSound();
 
+  const customClientId = localStorage.getItem('vibe_coding_gdrive_custom_client_id');
+  if (!customClientId) {
+    const ask = confirm(
+      "Bezpośrednie wyskakujące okno Google wymaga zarejestrowania darmowego klucza (Google Client ID) w Google Cloud Console.\n\n" +
+      "👉 Czy chcesz zamiast tego zapisać plik bezpośrednio w swoim folderze Dysku Google (100% bez rejestracji i haseł)?\n\n" +
+      "(Kliknij 'OK', aby pobrać plik do folderu Dysku Google, lub 'Anuluj', aby wpisać własny Client ID)."
+    );
+    if (ask) {
+      saveToGoogleDrive();
+      return;
+    } else {
+      const entered = prompt("Wklej tutaj swój zarejestrowany Google Client ID (lub zostaw puste, aby anulować):");
+      if (entered && entered.trim()) {
+        localStorage.setItem('vibe_coding_gdrive_custom_client_id', entered.trim());
+      } else {
+        return;
+      }
+    }
+  }
+
+  const clientId = localStorage.getItem('vibe_coding_gdrive_custom_client_id');
+  if (!clientId) return;
+
   if (typeof google === 'undefined' || !google.accounts || !google.accounts.oauth2) {
-    alert('Biblioteka logowania Google nie została jeszcze załadowana lub brak połączenia z siecią. Spróbuj za chwilę lub skorzystaj z Zakładki 2 (Kod QR) lub Zakładki 3 (Plik .json).');
+    alert('Biblioteka logowania Google nie została jeszcze załadowana lub brak połączenia z siecią. Kliknij "Zapisz postępy na moim Dysku Google".');
     return;
   }
 
-  // Identyfikator klienta OAuth (konfigurowalny lub standardowy dla aplikacji)
-  const defaultClientId = '1035987114885-vibe-coding-placeholder.apps.googleusercontent.com';
-  const customClientId = localStorage.getItem('vibe_coding_gdrive_custom_client_id') || defaultClientId;
-
   try {
     gdriveTokenClient = google.accounts.oauth2.initTokenClient({
-      client_id: customClientId,
+      client_id: clientId,
       scope: 'https://www.googleapis.com/auth/drive.file',
       callback: (tokenResponse) => {
         if (tokenResponse && tokenResponse.access_token) {
           gdriveAccessToken = tokenResponse.access_token;
           localStorage.setItem('vibe_coding_gdrive_token', gdriveAccessToken);
 
-          // Spróbuj pobrać adres e-mail użytkownika
           fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
             headers: { 'Authorization': `Bearer ${gdriveAccessToken}` }
           })
@@ -12119,26 +12183,29 @@ function connectGoogleDrive() {
     gdriveTokenClient.requestAccessToken({ prompt: 'consent' });
   } catch(err) {
     console.warn('Google Drive OAuth error:', err);
-    const useAlt = confirm('Logowanie bezpośrednie przez Google wymaga zarejestrowanego identyfikatora OAuth w chmurze.\n\nCzy chcesz zamiast tego pobrać plik postępów do folderu Google Drive na swoim komputerze lub telefonie (100% offline i bez żadnej rejestracji)?');
-    if (useAlt) {
-      downloadProgressBackupFile();
-    }
+    saveToGoogleDrive();
   }
 }
 
 function saveToGoogleDrive(isSilent = false) {
   if (!isSilent) playClickSound();
 
+  // Jeśli brak połączenia OAuth, natychmiast zapisz plik z postępami do folderu Dysku Google
   if (!gdriveAccessToken) {
+    downloadProgressBackupFile();
     if (!isSilent) {
-      alert('Aby zapisać postępy na Dysku Google, najpierw kliknij "Zaloguj się kontem Google".');
+      alert(
+        "Pobrano plik z Twoimi postępami (Akademia_Vibe_Codingu_Postepy.json)!\n\n" +
+        "📁 Zapisz go w swoim folderze Dysku Google na komputerze lub w aplikacji 'Pliki' na telefonie.\n" +
+        "📲 Na drugim urządzeniu wczytasz go przyciskiem 'Wczytaj postępy z mojego Dysku Google'."
+      );
     }
     return;
   }
 
   saveState();
   const backup = {
-    version: '3.8.0',
+    version: '3.8.1',
     appName: 'Akademia Vibe Codingu',
     exportDate: new Date().toISOString(),
     completedTasks: Array.from(STATE.completedTasks),
@@ -12247,8 +12314,13 @@ function saveToGoogleDrive(isSilent = false) {
 function loadFromGoogleDrive() {
   playClickSound();
 
+  // Jeśli brak połączenia OAuth, otwórz okno wyboru pliku, aby wskazać plik z Dysku Google
   if (!gdriveAccessToken) {
-    alert('Aby wczytać postępy z Dysku Google, najpierw kliknij "Zaloguj się kontem Google".');
+    const fileInput = document.getElementById('import-progress-file-input');
+    if (fileInput) {
+      announceSR("Wskaż plik ze swoimi postępami z Dysku Google.");
+      fileInput.click();
+    }
     return;
   }
 
