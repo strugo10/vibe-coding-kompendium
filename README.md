@@ -1,4 +1,4 @@
-# Akademia Vibe Codingu i Sztuki Promptingu (Od Zera do Twórcy) — Wersja 3.8.5
+# Akademia Vibe Codingu i Sztuki Promptingu (Od Zera do Twórcy) — Wersja 3.8.6
 
 > 🚀 **Uruchom Akademię online (działa od razu w przeglądarce):**  
 > 👉 **[https://strugo10.github.io/vibe-coding-kompendium/](https://strugo10.github.io/vibe-coding-kompendium/)**
@@ -7,6 +7,11 @@
 > 👉 **[https://github.com/strugo10/vibe-coding-kompendium](https://github.com/strugo10/vibe-coding-kompendium)**
 
 Kompletne, interaktywne kompendium obejmujące **100 praktycznych zadań** podzielonych na **34 dni nauki** (po 3 zadania dziennie), w pełni dostosowane do standardów dostępności cyfrowej **WCAG 2.1 / 2.2 AA/AAA** (czytniki ekranu **NVDA** na Windows oraz **VoiceOver** na iPhone/iOS). Wszystkie postępy kursanta, punkty, notatki i dyplom zapisują się w 100% lokalnie i bezpiecznie w pamięci przeglądarki (`localStorage`), z możliwością natychmiastowej synchronizacji na smartfon (Kod QR, Magiczny Link), przesyłania postępów e-mailem oraz eksportu i importu kopii w pliku JSON ze Smart Merge.
+
+## Co nowego w Wersji 3.8.6 (Naprawa Błędu Składniowego i Przywrócenie Działania Przycisków Górnego Panelu)?
+- **🐞 Naprawa błędu składniowego w obsłudze skrótów klawiszowych:**
+  - Usunięto nadmiarowy nawias klamrowy w funkcji `initializeAcademyApp()` (przy obsłudze skrótu `Alt+X`), który powodował błąd parsowania skryptu (`Uncaught SyntaxError: Unexpected token 'else'`).
+  - Przywrócono natychmiastowe, w pełni sprawne działanie wszystkich przycisków w górnym pasku nawigacyjnym: Telefon i E-mail, Zakończ, Moje Notatki, Słowniczek, Instrukcja, Dźwięk, Kontrast i Tryb Odwróconych Kolorów.
 
 ## Co nowego w Wersji 3.8.5 (Wysyłka Postępów na E-mail, Likwidacja Błędu totalTasks, Całkowite Usunięcie Dysku Google i Dostępne Alerty WCAG AAA)?
 - **🐞 Naprawa błędu `totalTasks is not defined`:**

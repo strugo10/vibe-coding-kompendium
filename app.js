@@ -7223,7 +7223,7 @@ async function downloadProgressBackupFile() {
   saveState();
 
   const backup = {
-    version: '3.8.5',
+    version: '3.8.6',
     appName: 'Akademia Vibe Codingu i Sztuki Promptingu',
     exportDate: new Date().toISOString(),
     completedTasks: Array.from(STATE.completedTasks || []),
@@ -7343,7 +7343,7 @@ function handleImportFileSelect(event) {
 function generateCompactTransferString(includeNotes = false) {
   saveState();
   const payload = {
-    v: '3.8.5',
+    v: '3.8.6',
     ts: Date.now(),
     t: Array.from(STATE.completedTasks || []),
     s: STATE.taskStatuses || {},
@@ -7872,7 +7872,7 @@ async function shareProgressFileViaShareApi() {
   saveState();
 
   const backup = {
-    version: '3.8.5',
+    version: '3.8.6',
     appName: 'Akademia Vibe Codingu i Sztuki Promptingu',
     exportDate: new Date().toISOString(),
     completedTasks: Array.from(STATE.completedTasks || []),
@@ -8145,7 +8145,6 @@ function initializeAcademyApp() {
       } else if (e.key === 'x' || e.key === 'X') {
         e.preventDefault();
         openExitSyncModal();
-      }
       } else if (e.key === 'ArrowRight' || e.key === 'j' || e.key === 'J') {
         e.preventDefault();
         nextDayAndScrollTop();
