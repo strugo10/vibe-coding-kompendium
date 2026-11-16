@@ -96,6 +96,7 @@ function setTaskStatus(taskId, status) {
 
 function calculateScore() {
   const isBusinessLearner = (STATE.userProfile && STATE.userProfile.ageGroup === 'adult' && STATE.userProfile.interest === 'business');
+  let totalTasks = 0;
   let totalPossiblePoints = 0;
   let earnedPoints = 0;
   let passedCount = 0;
@@ -109,6 +110,7 @@ function calculateScore() {
       if (t.isBusinessAddon && !isBusinessLearner) {
         return;
       }
+      totalTasks++;
       const pts = getTaskPoints(t);
       totalPossiblePoints += pts;
       const st = getTaskStatus(t.id);
@@ -124,6 +126,7 @@ function calculateScore() {
       }
     });
   } else {
+    totalTasks = 100;
     totalPossiblePoints = 1975;
   }
 
@@ -7110,9 +7113,6 @@ function saveState() {
     };
     localStorage.setItem('vibe_coding_state_v2', JSON.stringify(payload));
     localStorage.setItem('vibe_coding_author_feedback', JSON.stringify(STATE.authorFeedbacks || []));
-    if (typeof scheduleGdriveDebouncedSync === 'function') {
-      scheduleGdriveDebouncedSync();
-    }
   } catch (e) {
     console.warn("Błąd zapisu localStorage:", e);
   }
@@ -7136,13 +7136,7 @@ function calculateTotalScore() {
   }
 }
 
-let gdriveTokenClient = null;
-let gdriveAccessToken = localStorage.getItem('vibe_coding_gdrive_token') || null;
-let gdriveUserEmail = localStorage.getItem('vibe_coding_gdrive_email') || '';
-let gdriveFileId = localStorage.getItem('vibe_coding_gdrive_file_id') || null;
-let gdriveLastSync = localStorage.getItem('vibe_coding_gdrive_last_sync') || '';
-let isGdriveAutoSyncEnabled = localStorage.getItem('vibe_coding_gdrive_autosync') === 'true';
-let gdriveDebounceTimer = null;
+let userBackupEmail = localStorage.getItem('vibe_coding_backup_email') || '';
 let pendingImportData = null;
 let currentQrCodeInstance = null;
 
@@ -7156,14 +7150,14 @@ function openSyncModal(initialTab = 'qr') {
 
   switchSyncTab(initialTab);
   updateSyncFileStats();
-  initGoogleDriveSyncStatus();
+  initEmailSyncPanel();
 
   setTimeout(() => {
     const activeTab = document.getElementById(`sync-tab-btn-${initialTab}`);
     if (activeTab) activeTab.focus();
   }, 100);
 
-  announceSR("Otwarto okno synchronizacji urządzeń i kopii bezpieczeństwa. Klawisz Escape zamyka okno.");
+  announceSR("Otwarto okno synchronizacji urządzeń i kopii postępów. Klawisz Escape zamyka okno.");
 }
 
 function closeSyncModal() {
@@ -7175,7 +7169,7 @@ function closeSyncModal() {
 // Przełączanie zakładek w modalu synchronizacji
 function switchSyncTab(tabId) {
   playClickSound();
-  const tabs = ['qr', 'gdrive', 'file'];
+  const tabs = ['qr', 'email', 'file'];
   tabs.forEach(t => {
     const btn = document.getElementById(`sync-tab-btn-${t}`);
     const panel = document.getElementById(`sync-panel-${t}`);
@@ -7196,10 +7190,10 @@ function switchSyncTab(tabId) {
 
   if (tabId === 'qr') {
     renderTransferQrCode();
+  } else if (tabId === 'email') {
+    initEmailSyncPanel();
   } else if (tabId === 'file') {
     updateSyncFileStats();
-  } else if (tabId === 'gdrive') {
-    initGoogleDriveSyncStatus();
   }
 }
 
@@ -7229,7 +7223,7 @@ async function downloadProgressBackupFile() {
   saveState();
 
   const backup = {
-    version: '3.8.4',
+    version: '3.8.5',
     appName: 'Akademia Vibe Codingu i Sztuki Promptingu',
     exportDate: new Date().toISOString(),
     completedTasks: Array.from(STATE.completedTasks || []),
@@ -7266,7 +7260,7 @@ async function downloadProgressBackupFile() {
       await writable.close();
       playSuccessChime();
       announceSR('Pomyślnie zapisano plik z postępami w wybranym folderze.');
-      alert('Pomyślnie zapisano plik z postępami w wybranym folderze!');
+      showAccessibleAlert('Pomyślnie zapisano plik', `Plik z Twoimi postępami (${fileName}) został zapisany w wybranym folderze!`, '💾');
       return;
     } catch(err) {
       if (err && err.name === 'AbortError') return;
@@ -7291,20 +7285,23 @@ async function downloadProgressBackupFile() {
   // Sprawdzenie, czy użytkownik korzysta z telefonu (iPhone / Android)
   const isIos = /iPhone|iPad|iPod/i.test(navigator.userAgent);
   if (isIos) {
-    alert(
+    showAccessibleAlert(
+      'Plik zapisany na telefonie',
       'Plik z Twoimi postępami (' + fileName + ') został zapisany na Twoim iPhone!\n\n' +
       '📱 Gdzie go znaleźć w telefonie?\n' +
       '1. Na ekranie początkowym iPhone otwórz niebieską aplikację „Pliki” (Files).\n' +
       '2. Wejdź w folder „Pobrane rzeczy” lub „Na moim iPhonie” -> „Edge” (lub Safari).\n' +
       '3. Plik znajdziesz też od razu w zakładce „Ostatnie” na samym dole aplikacji Pliki!\n\n' +
-      '💡 Pamiętaj: Jeśli chcesz przejść z komputera na telefon w 3 sekundy bez żadnych plików, użyj zakładki „1. Kod QR i Magiczny Link”!'
+      '💡 Pamiętaj: Jeśli chcesz przejść z komputera na telefon w 3 sekundy bez żadnych plików, użyj zakładki „1. Kod QR i Magiczny Link”!',
+      '📱'
     );
   } else {
-    alert(
-      'Pomyślnie wygenerowano plik z Twoimi postępami (' + fileName + ')!\n\n' +
-      '📁 Dysk Google na Twoim komputerze:\n' +
-      'Jeśli korzystasz z aplikacji Dysk Google (np. dysk G: Mój dysk), przenieś pobrany plik do folderu Dysku Google — plik automatycznie trafi do chmury i będzie dostępny na smartfonie!\n\n' +
-      '💡 Wskazówka dla Firefox: Aby Firefox przy każdym zapisie pytał o folder (pozwalając od razu wskazać Dysk Google), wejdź w: Ustawienia Firefox -> Ogólne -> Pobieranie i zaznacz „Zawsze pytaj, gdzie zapisać pliki”.'
+    showAccessibleAlert(
+      'Pobrano plik postępów',
+      'Pomyślnie wygenerowano plik z Twoimi postępami (' + fileName + ') i pobrano go do folderu „Pobrane”!\n\n' +
+      '📁 Możesz zachować ten plik na dysku, przesłać go sobie e-mailem lub wczytać na dowolnym innym komputerze w zakładce „Kopia w pliku”.\n\n' +
+      '🛡️ Dzięki technologii Smart Merge możesz go bezpiecznie wczytać w dowolnym momencie bez ryzyka utraty nowszych postępów.',
+      '💾'
     );
   }
 }
@@ -7318,13 +7315,21 @@ function handleImportFileSelect(event) {
     try {
       const data = JSON.parse(e.target.result);
       if (!data || (!data.completedTasks && !data.taskStatuses && !data.t)) {
-        alert('Wybrany plik nie zawiera poprawnych danych postępów Akademii Vibe Codingu.');
+        showAccessibleAlert(
+          'Nieprawidłowy plik',
+          'Wybrany plik nie zawiera poprawnych danych postępów Akademii Vibe Codingu. Upewnij się, że wybierasz plik .json pobrany z tego kursu.',
+          '⚠️'
+        );
         return;
       }
       // Natychmiastowe zaaplikowanie wczytanego pliku z pełną informacją dla użytkownika
       applyImportedDataDirectly(data, file.name);
     } catch(err) {
-      alert('Nie udało się odczytać pliku JSON: ' + err.message);
+      showAccessibleAlert(
+        'Błąd odczytu pliku JSON',
+        'Wystąpił błąd podczas odczytu pliku:\n\n' + err.message + '\n\nUpewnij się, że plik ma format .json i nie został uszkodzony.',
+        '❌'
+      );
     }
   };
   reader.readAsText(file);
@@ -7338,7 +7343,7 @@ function handleImportFileSelect(event) {
 function generateCompactTransferString(includeNotes = false) {
   saveState();
   const payload = {
-    v: '3.8.4',
+    v: '3.8.5',
     ts: Date.now(),
     t: Array.from(STATE.completedTasks || []),
     s: STATE.taskStatuses || {},
@@ -7582,7 +7587,15 @@ function applyImportedDataDirectly(data, sourceName = '') {
 
   const label = sourceName ? `z: ${sourceName}` : 'z Twojej kopii';
   announceSR(`Pomyślnie zsynchronizowano postępy ${label}. Ukończono ${finalCount} zadań, zdobyto ${finalPoints} punktów.`);
-  alert(`Wspaniale! Pomyślnie zsynchronizowano Twoje postępy ${label}!\n\n✅ Zaliczone zadania: ${finalCount} / 100\n🏆 Zdobyte punkty: ${finalPoints} pkt\n📅 Dzień nauki: ${STATE.currentDay}${mergeNotice}\n\nMożesz teraz bez przeszkód kontynuować naukę na tym urządzeniu!`);
+  showAccessibleAlert(
+    'Wspaniale! Zsynchronizowano postępy',
+    `Pomyślnie wczytano Twoje postępy ${label}!\n\n` +
+    `✅ Zaliczone zadania: ${finalCount} / 100\n` +
+    `🏆 Zdobyte punkty: ${finalPoints} pkt\n` +
+    `📅 Dzień nauki: Dzień ${STATE.currentDay}${mergeNotice}\n\n` +
+    `Możesz teraz bez przeszkód kontynuować naukę na tym urządzeniu!`,
+    '🎉'
+  );
 }
 
 function promptImportConfirmation(data, sourceDesc = '') {
@@ -7677,145 +7690,190 @@ function checkForTransferPayloadInUrl() {
 }
 
 // =========================================================================
-// SYNCHRONIZACJA Z PRYWATNYM DYSKIEM GOOGLE (GOOGLE DRIVE API)
+// SYSTEM DOSTĘPNYCH POWIADOMIEŃ DIALOGOWYCH DLA NVDA / WCAG AAA
 // =========================================================================
 
-function initGoogleDriveSyncStatus() {
-  const dot = document.getElementById('gdrive-status-dot');
-  const text = document.getElementById('gdrive-status-text');
-  const lastSync = document.getElementById('gdrive-last-sync-time');
-  const connectLabel = document.getElementById('btn-gdrive-connect-label');
-  const btnDisconnect = document.getElementById('btn-gdrive-disconnect');
-  const chkAuto = document.getElementById('chk-gdrive-autosync');
-  const customInp = document.getElementById('gdrive-custom-client-id-input');
+let accessibleAlertCallback = null;
+let accessibleAlertTriggerEl = null;
 
-  if (customInp) {
-    customInp.value = localStorage.getItem('vibe_coding_gdrive_custom_client_id') || '';
-  }
+function showAccessibleAlert(title, message, icon = 'ℹ️', onConfirm = null, triggerEl = null) {
+  accessibleAlertCallback = onConfirm;
+  accessibleAlertTriggerEl = triggerEl || document.activeElement;
 
-  if (chkAuto) chkAuto.checked = isGdriveAutoSyncEnabled;
+  const modal = document.getElementById('modal-accessible-alert');
+  const titleEl = document.getElementById('accessible-alert-title');
+  const descEl = document.getElementById('accessible-alert-desc');
+  const iconEl = document.getElementById('accessible-alert-icon');
 
-  if (gdriveAccessToken) {
-    if (dot) {
-      dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block animate-pulse';
-    }
-    if (text) {
-      text.textContent = gdriveUserEmail ? `Połączono z kontem: ${gdriveUserEmail}` : 'Połączono z Twoim prywatnym kontem Google';
-      text.className = 'text-sm font-bold text-emerald-300';
-    }
-    if (connectLabel) connectLabel.textContent = 'Połącz ponownie';
-    if (btnDisconnect) btnDisconnect.classList.remove('hidden');
-  } else {
-    if (dot) {
-      dot.className = 'w-2.5 h-2.5 rounded-full bg-slate-500 inline-block';
-    }
-    if (text) {
-      text.textContent = 'Gotowy do zapisu i odczytu plików na Twoim Dysku Google';
-      text.className = 'text-sm font-bold text-slate-300';
-    }
-    if (connectLabel) connectLabel.textContent = 'Zaloguj się oknem Google';
-    if (btnDisconnect) btnDisconnect.classList.add('hidden');
-  }
+  if (titleEl) titleEl.textContent = title;
+  if (descEl) descEl.textContent = message;
+  if (iconEl) iconEl.textContent = icon;
 
-  if (lastSync) {
-    lastSync.textContent = gdriveLastSync || 'brak';
-  }
+  // Anons głosowy czytnika ekranu
+  announceSR(`${title}. ${message}`);
+
+  // Otwórz modal i ustaw fokus na przycisku zatwierdzenia
+  openModal('modal-accessible-alert', accessibleAlertTriggerEl, '#btn-accessible-alert-ok');
 }
 
-function saveCustomGoogleClientId() {
+function closeAccessibleAlert() {
+  closeModal('modal-accessible-alert');
   playClickSound();
-  const inp = document.getElementById('gdrive-custom-client-id-input');
-  if (!inp || !inp.value.trim()) {
-    alert('Wpisz poprawny identyfikator Client ID (np. xxxxx.apps.googleusercontent.com)');
-    return;
+  if (typeof accessibleAlertCallback === 'function') {
+    const cb = accessibleAlertCallback;
+    accessibleAlertCallback = null;
+    cb();
   }
-  const val = inp.value.trim();
-  localStorage.setItem('vibe_coding_gdrive_custom_client_id', val);
-  alert('Zapisano Twój Google Client ID! Możesz teraz kliknąć "Zaloguj się oknem Google".');
 }
 
-function connectGoogleDrive() {
+// =========================================================================
+// SYNCHRONIZACJA I KOPIA POSTĘPÓW PRZEZ E-MAIL
+// =========================================================================
+
+function initEmailSyncPanel() {
+  const emailInput = document.getElementById('sync-email-address-input');
+  const savedEmail = localStorage.getItem('vibe_coding_backup_email') || '';
+  if (emailInput && savedEmail) {
+    emailInput.value = savedEmail;
+  }
+}
+
+function saveSyncEmailAddress(notify = true) {
   playClickSound();
-
-  const customClientId = localStorage.getItem('vibe_coding_gdrive_custom_client_id');
-  if (!customClientId) {
-    const ask = confirm(
-      "Bezpośrednie wyskakujące okno Google wymaga zarejestrowania darmowego klucza (Google Client ID) w Google Cloud Console.\n\n" +
-      "👉 Czy chcesz zamiast tego zapisać plik bezpośrednio w swoim folderze Dysku Google (100% bez rejestracji i haseł)?\n\n" +
-      "(Kliknij 'OK', aby pobrać plik do folderu Dysku Google, lub 'Anuluj', aby wpisać własny Client ID)."
-    );
-    if (ask) {
-      saveToGoogleDrive();
-      return;
-    } else {
-      const entered = prompt("Wklej tutaj swój zarejestrowany Google Client ID (lub zostaw puste, aby anulować):");
-      if (entered && entered.trim()) {
-        localStorage.setItem('vibe_coding_gdrive_custom_client_id', entered.trim());
-      } else {
-        return;
-      }
-    }
+  const input = document.getElementById('sync-email-address-input');
+  const val = input ? input.value.trim() : '';
+  if (!val || !val.includes('@')) {
+    showAccessibleAlert('Niepoprawny e-mail', 'Wpisz poprawny adres e-mail (np. twoj.adres@gmail.com).', '⚠️');
+    return false;
   }
-
-  const clientId = localStorage.getItem('vibe_coding_gdrive_custom_client_id');
-  if (!clientId) return;
-
-  if (typeof google === 'undefined' || !google.accounts || !google.accounts.oauth2) {
-    alert('Biblioteka logowania Google nie została jeszcze załadowana lub brak połączenia z siecią. Kliknij "Zapisz postępy na moim Dysku Google".');
-    return;
+  localStorage.setItem('vibe_coding_backup_email', val);
+  if (notify) {
+    showAccessibleAlert('Zapisano adres e-mail', `Twój adres e-mail (${val}) został pomyślnie zapisany. Twoje postępy będą przesyłane na ten adres.`, '✅');
   }
-
-  try {
-    gdriveTokenClient = google.accounts.oauth2.initTokenClient({
-      client_id: clientId,
-      scope: 'https://www.googleapis.com/auth/drive.file',
-      callback: (tokenResponse) => {
-        if (tokenResponse && tokenResponse.access_token) {
-          gdriveAccessToken = tokenResponse.access_token;
-          localStorage.setItem('vibe_coding_gdrive_token', gdriveAccessToken);
-
-          fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-            headers: { 'Authorization': `Bearer ${gdriveAccessToken}` }
-          })
-          .then(res => res.json())
-          .then(info => {
-            if (info && info.email) {
-              gdriveUserEmail = info.email;
-              localStorage.setItem('vibe_coding_gdrive_email', gdriveUserEmail);
-            }
-            initGoogleDriveSyncStatus();
-            playSuccessChime();
-            announceSR('Pomyślnie połączono z Twoim prywatnym Dyskiem Google.');
-            saveToGoogleDrive();
-          })
-          .catch(() => {
-            initGoogleDriveSyncStatus();
-            saveToGoogleDrive();
-          });
-        }
-      }
-    });
-
-    gdriveTokenClient.requestAccessToken({ prompt: 'consent' });
-  } catch(err) {
-    console.warn('Google Drive OAuth error:', err);
-    saveToGoogleDrive();
-  }
+  return true;
 }
 
-async function saveToGoogleDrive(isSilent = false) {
-  if (!isSilent) playClickSound();
-
-  // Jeśli brak połączenia OAuth, natychmiast zapisz plik z postępami do folderu Dysku Google
-  if (!gdriveAccessToken) {
-    await downloadProgressBackupFile();
-    return;
-  }
-
+function sendProgressByEmail(emailOverride = null) {
+  playClickSound();
   saveState();
+
+  let targetEmail = emailOverride;
+  if (!targetEmail) {
+    const input = document.getElementById('sync-email-address-input');
+    targetEmail = input ? input.value.trim() : '';
+  }
+  if (!targetEmail) {
+    targetEmail = localStorage.getItem('vibe_coding_backup_email') || '';
+  }
+
+  if (!targetEmail || !targetEmail.includes('@')) {
+    showAccessibleAlert(
+      'Podaj adres e-mail',
+      'Wpisz swój adres e-mail w polu poniżej, aby przygotować wiadomość z Twoimi postępami.',
+      '📧',
+      () => {
+        const inp = document.getElementById('sync-email-address-input') || document.getElementById('exit-email-input');
+        if (inp) inp.focus();
+      }
+    );
+    return;
+  }
+
+  localStorage.setItem('vibe_coding_backup_email', targetEmail);
+
+  const completedCount = STATE.completedTasks ? STATE.completedTasks.size : 0;
+  const points = calculateTotalScore();
+  const currentDay = STATE.currentDay || 1;
+  const learner = STATE.learnerName ? ` dla: ${STATE.learnerName}` : '';
+
+  let transferCode = '';
+  let fullUrl = '';
+  try {
+    transferCode = generateCompactTransferString(false);
+    const baseUrl = window.location.origin + window.location.pathname;
+    fullUrl = `${baseUrl}#transfer=${transferCode}`;
+  } catch(e) {
+    console.error('Błąd linku transferu:', e);
+  }
+
+  const subject = `Akademia Vibe Codingu — Moje postępy (Dzień ${currentDay}, ${completedCount}/100 zadań)`;
+
+  const body = 
+`Cześć!
+
+Oto Twoja kopia postępów z Akademii Vibe Codingu i Sztuki Promptingu${learner}:
+
+📊 TWOJE OSIĄGNIĘCIA:
+• Dzień kursu: Dzień ${currentDay} z 34
+• Zaliczone zadania: ${completedCount} / 100
+• Zdobyte punkty: ${points} pkt
+
+==================================================
+📲 JAK PRZENIEŚĆ POSTĘPY NA TELEFON LUB INNY KOMPUTER:
+==================================================
+1. Na smartfonie lub drugim komputerze kliknij poniższy Magiczny Link:
+${fullUrl}
+
+2. Kurs otworzy się natychmiast z Twoimi postępami!
+
+(Alternatywnie wklej ten kod w oknie synchronizacji: ${transferCode})
+
+🛡️ OCHRONA DANYCH: Dzięki technologii Smart Merge Twoje nowsze zadania są w 100% bezpieczne i nigdy nie zostaną skasowane.
+
+Pozdrawiamy i życzymy owocnej nauki!
+Akademia Vibe Codingu`;
+
+  const mailtoUrl = `mailto:${encodeURIComponent(targetEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+  // Otwórz program pocztowy
+  window.location.href = mailtoUrl;
+
+  showAccessibleAlert(
+    'Otwarto program pocztowy',
+    `Przygotowano wiadomość e-mail z Twoimi postępami i Magicznym Linkiem dla adresu:\n\n📬 ${targetEmail}\n\nKliknij „Wyślij” w swoim programie pocztowym (np. Outlook, Thunderbird, Poczta Windows lub Apple Mail na telefonie), a następnie otwórz tę wiadomość na drugim urządzeniu!`,
+    '✉️'
+  );
+}
+
+function copyEmailBodyToClipboard() {
+  playClickSound();
+  saveState();
+
+  const completedCount = STATE.completedTasks ? STATE.completedTasks.size : 0;
+  const points = calculateTotalScore();
+  const currentDay = STATE.currentDay || 1;
+  const transferCode = generateCompactTransferString(false);
+  const baseUrl = window.location.origin + window.location.pathname;
+  const fullUrl = `${baseUrl}#transfer=${transferCode}`;
+
+  const textToCopy = 
+`Moje postępy w Akademii Vibe Codingu:
+• Dzień nauki: Dzień ${currentDay}
+• Zadania: ${completedCount} / 100
+• Punkty: ${points} pkt
+
+Magiczny Link do otwarcia na drugim urządzeniu:
+${fullUrl}
+
+Kod transferu:
+${transferCode}`;
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      showAccessibleAlert('Skopiowano treść wiadomości', 'Treść wiadomości ze statystykami i Magicznym Linkiem została skopiowana do schowka! Możesz ją wkleić w dowolnym programie pocztowym lub komunikatorze.', '📋');
+    });
+  } else {
+    showAccessibleAlert('Statystyki i Link', textToCopy, '📋');
+  }
+}
+
+async function shareProgressFileViaShareApi() {
+  playClickSound();
+  saveState();
+
   const backup = {
-    version: '3.8.4',
-    appName: 'Akademia Vibe Codingu',
+    version: '3.8.5',
+    appName: 'Akademia Vibe Codingu i Sztuki Promptingu',
     exportDate: new Date().toISOString(),
     completedTasks: Array.from(STATE.completedTasks || []),
     taskStatuses: STATE.taskStatuses || {},
@@ -7825,180 +7883,62 @@ async function saveToGoogleDrive(isSilent = false) {
     taskNotes: STATE.taskNotes || {},
     sandboxCreations: STATE.sandboxCreations || [],
     authorFeedbacks: STATE.authorFeedbacks || [],
-    diplomaGradeApproved: Boolean(STATE.diplomaGradeApproved),
-    selectedDiplomaStyle: STATE.selectedDiplomaStyle || 'cyberpunk',
     points: calculateTotalScore()
   };
 
+  const jsonStr = JSON.stringify(backup, null, 2);
   const fileName = 'Akademia_Vibe_Codingu_Postepy.json';
-  const fileContent = JSON.stringify(backup, null, 2);
 
-  const performUpload = (fileId) => {
-    let url, method;
-    if (fileId) {
-      url = `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`;
-      method = 'PATCH';
-    } else {
-      url = 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart';
-      method = 'POST';
-    }
+  try {
+    const blob = new Blob([jsonStr], { type: 'application/json' });
+    const file = new File([blob], fileName, { type: 'application/json' });
 
-    let requestBody;
-    let headers = {
-      'Authorization': `Bearer ${gdriveAccessToken}`
-    };
-
-    if (fileId) {
-      headers['Content-Type'] = 'application/json; charset=UTF-8';
-      requestBody = fileContent;
-    } else {
-      const boundary = '-------314159265358979323846';
-      headers['Content-Type'] = `multipart/related; boundary="${boundary}"`;
-      const metadata = {
-        name: fileName,
-        mimeType: 'application/json'
-      };
-      requestBody = 
-        `--${boundary}\r\n` +
-        `Content-Type: application/json; charset=UTF-8\r\n\r\n` +
-        `${JSON.stringify(metadata)}\r\n` +
-        `--${boundary}\r\n` +
-        `Content-Type: application/json; charset=UTF-8\r\n\r\n` +
-        `${fileContent}\r\n` +
-        `--${boundary}--`;
-    }
-
-    fetch(url, { method: method, headers: headers, body: requestBody })
-      .then(res => {
-        if (res.status === 401) {
-          gdriveAccessToken = null;
-          localStorage.removeItem('vibe_coding_gdrive_token');
-          initGoogleDriveSyncStatus();
-          if (!isSilent) alert('Sesja połączenia z Google wygasła. Kliknij "Zaloguj się kontem Google", aby połączyć ponownie.');
-          throw new Error('Token expired');
-        }
-        return res.json();
-      })
-      .then(data => {
-        if (data && data.id) {
-          gdriveFileId = data.id;
-          localStorage.setItem('vibe_coding_gdrive_file_id', gdriveFileId);
-        }
-        gdriveLastSync = new Date().toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
-        localStorage.setItem('vibe_coding_gdrive_last_sync', gdriveLastSync);
-        initGoogleDriveSyncStatus();
-
-        if (!isSilent) {
-          playSuccessChime();
-          announceSR('Zapisano postępy na Twoim Dysku Google.');
-          alert(`Pomyślnie zapisano Twoje postępy na Twoim Dysku Google!\nPlik: ${fileName}`);
-        }
-      })
-      .catch(err => {
-        console.warn('Błąd zapisu na Google Drive:', err);
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({
+        title: 'Moje postępy — Akademia Vibe Codingu',
+        text: `Moje postępy: ${backup.completedTasks.length} zadań, ${backup.points} pkt, Dzień ${backup.currentDay}.`,
+        files: [file]
       });
-  };
-
-  if (gdriveFileId) {
-    performUpload(gdriveFileId);
-  } else {
-    fetch(`https://www.googleapis.com/drive/v3/files?q=name='${fileName}'+and+trashed=false&fields=files(id,name)`, {
-      headers: { 'Authorization': `Bearer ${gdriveAccessToken}` }
-    })
-    .then(res => res.json())
-    .then(data => {
-      const existing = data && data.files && data.files[0];
-      if (existing && existing.id) {
-        gdriveFileId = existing.id;
-        localStorage.setItem('vibe_coding_gdrive_file_id', gdriveFileId);
-        performUpload(gdriveFileId);
-      } else {
-        performUpload(null);
-      }
-    })
-    .catch(() => performUpload(null));
-  }
-}
-
-function loadFromGoogleDrive() {
-  playClickSound();
-
-  // Jeśli brak połączenia OAuth, otwórz okno wyboru pliku, aby wskazać plik z Dysku Google
-  if (!gdriveAccessToken) {
-    const fileInput = document.getElementById('import-progress-file-input');
-    if (fileInput) {
-      announceSR("Wskaż plik ze swoimi postępami z Dysku Google.");
-      fileInput.click();
-    }
-    return;
-  }
-
-  const fileName = 'Akademia_Vibe_Codingu_Postepy.json';
-  fetch(`https://www.googleapis.com/drive/v3/files?q=name='${fileName}'+and+trashed=false&fields=files(id,name)`, {
-    headers: { 'Authorization': `Bearer ${gdriveAccessToken}` }
-  })
-  .then(res => res.json())
-  .then(data => {
-    const file = data && data.files && data.files[0];
-    if (!file || !file.id) {
-      alert(`Na Twoim Dysku Google nie znaleziono jeszcze pliku '${fileName}'.\nNajpierw zapisz postępy na komputerze!`);
       return;
     }
-    return fetch(`https://www.googleapis.com/drive/v3/files/${file.id}?alt=media`, {
-      headers: { 'Authorization': `Bearer ${gdriveAccessToken}` }
-    });
-  })
-  .then(res => {
-    if (!res) return;
-    return res.json();
-  })
-  .then(data => {
-    if (data) {
-      promptImportConfirmation(data, 'z Twojego prywatnego Dysku Google');
-    }
-  })
-  .catch(err => {
-    console.warn('Błąd wczytywania z Google Drive:', err);
-    alert('Wystąpił błąd podczas wczytywania pliku z Dysku Google: ' + err.message);
-  });
-}
-
-function disconnectGoogleDrive() {
-  playClickSound();
-  if (confirm('Czy na pewno chcesz odłączyć połączenie z Dyskiem Google? Twoje zapisane pliki na dysku nie zostaną usunięte.')) {
-    gdriveAccessToken = null;
-    gdriveUserEmail = '';
-    gdriveFileId = null;
-    gdriveLastSync = '';
-    localStorage.removeItem('vibe_coding_gdrive_token');
-    localStorage.removeItem('vibe_coding_gdrive_email');
-    localStorage.removeItem('vibe_coding_gdrive_file_id');
-    localStorage.removeItem('vibe_coding_gdrive_last_sync');
-    initGoogleDriveSyncStatus();
-    announceSR('Odłączono konto Google.');
+  } catch(e) {
+    if (e && e.name === 'AbortError') return;
+    console.warn('Share API error:', e);
   }
+
+  // Fallback: standardowy mailto
+  sendProgressByEmail();
 }
 
-function toggleGdriveAutoSync(enabled) {
-  isGdriveAutoSyncEnabled = Boolean(enabled);
-  localStorage.setItem('vibe_coding_gdrive_autosync', isGdriveAutoSyncEnabled ? 'true' : 'false');
+// =========================================================================
+// ZAKOŃCZENIE NAUKI NA DZIŚ I PYTANIE O WYSYŁKĘ (EXIT MODAL)
+// =========================================================================
+
+function openExitSyncModal() {
   playClickSound();
-  if (isGdriveAutoSyncEnabled) {
-    announceSR('Włączono automatyczną synchronizację z Dyskiem Google.');
-    if (gdriveAccessToken) {
-      saveToGoogleDrive(true);
-    }
-  } else {
-    announceSR('Wyłączono automatyczną synchronizację z Dyskiem Google.');
+  const triggerBtn = document.getElementById('btn-header-exit');
+  const savedEmail = localStorage.getItem('vibe_coding_backup_email') || '';
+  const exitInp = document.getElementById('exit-email-input');
+  if (exitInp && savedEmail) {
+    exitInp.value = savedEmail;
   }
+  openModal('modal-exit-sync', triggerBtn, '#btn-exit-send-email');
+  announceSR('Otwarto okno zakończenia nauki. Czy chcesz wysłać postępy na e-mail?');
 }
 
-function scheduleGdriveDebouncedSync() {
-  if (!isGdriveAutoSyncEnabled || !gdriveAccessToken) return;
-  if (gdriveDebounceTimer) clearTimeout(gdriveDebounceTimer);
-  gdriveDebounceTimer = setTimeout(() => {
-    saveToGoogleDrive(true);
-  }, 4000);
+function closeExitSyncModal() {
+  closeModal('modal-exit-sync');
+  playClickSound();
+}
+
+function sendProgressByEmailFromExit() {
+  const exitInp = document.getElementById('exit-email-input');
+  const emailVal = exitInp ? exitInp.value.trim() : '';
+  if (emailVal) {
+    localStorage.setItem('vibe_coding_backup_email', emailVal);
+  }
+  closeModal('modal-exit-sync');
+  sendProgressByEmail(emailVal);
 }
 
 // Powiadomienia Web Notifications API
@@ -8074,11 +8014,23 @@ function initializeAcademyApp() {
   updateAuthorFeedbackCounter();
   renderMotivationalQuoteUI();
   renderSandboxArchiveGrid();
-  initGoogleDriveSyncStatus();
+  initEmailSyncPanel();
   checkForTransferPayloadInUrl();
 
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
+      const alertModal = document.getElementById('modal-accessible-alert');
+      if (alertModal && !alertModal.classList.contains('hidden')) {
+        e.preventDefault();
+        closeAccessibleAlert();
+        return;
+      }
+      const exitModal = document.getElementById('modal-exit-sync');
+      if (exitModal && !exitModal.classList.contains('hidden')) {
+        e.preventDefault();
+        closeExitSyncModal();
+        return;
+      }
       if (STATE.activeSubpage === 'page-feedback') {
         e.preventDefault();
         closeAuthorFeedbackPage();
@@ -8190,6 +8142,10 @@ function initializeAcademyApp() {
       } else if (e.key === 'g' || e.key === 'G') {
         e.preventDefault();
         openSyncModal();
+      } else if (e.key === 'x' || e.key === 'X') {
+        e.preventDefault();
+        openExitSyncModal();
+      }
       } else if (e.key === 'ArrowRight' || e.key === 'j' || e.key === 'J') {
         e.preventDefault();
         nextDayAndScrollTop();

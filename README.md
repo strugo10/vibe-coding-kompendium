@@ -1,4 +1,4 @@
-# Akademia Vibe Codingu i Sztuki Promptingu (Od Zera do Twórcy) — Wersja 3.8.4
+# Akademia Vibe Codingu i Sztuki Promptingu (Od Zera do Twórcy) — Wersja 3.8.5
 
 > 🚀 **Uruchom Akademię online (działa od razu w przeglądarce):**  
 > 👉 **[https://strugo10.github.io/vibe-coding-kompendium/](https://strugo10.github.io/vibe-coding-kompendium/)**
@@ -6,7 +6,23 @@
 > 📦 **Repozytorium kodu na GitHubie:**  
 > 👉 **[https://github.com/strugo10/vibe-coding-kompendium](https://github.com/strugo10/vibe-coding-kompendium)**
 
-Kompletne, interaktywne kompendium obejmujące **100 praktycznych zadań** podzielonych na **34 dni nauki** (po 3 zadania dziennie), w pełni dostosowane do standardów dostępności cyfrowej **WCAG 2.1 / 2.2 AA/AAA** (czytniki ekranu **NVDA** na Windows oraz **VoiceOver** na iPhone/iOS). Wszystkie postępy kursanta, punkty, notatki i dyplom zapisują się w 100% lokalnie i bezpiecznie w pamięci przeglądarki (`localStorage`), z możliwością natychmiastowej synchronizacji na smartfon (Kod QR, Magiczny Link) oraz z prywatnym Dyskiem Google kursanta.
+Kompletne, interaktywne kompendium obejmujące **100 praktycznych zadań** podzielonych na **34 dni nauki** (po 3 zadania dziennie), w pełni dostosowane do standardów dostępności cyfrowej **WCAG 2.1 / 2.2 AA/AAA** (czytniki ekranu **NVDA** na Windows oraz **VoiceOver** na iPhone/iOS). Wszystkie postępy kursanta, punkty, notatki i dyplom zapisują się w 100% lokalnie i bezpiecznie w pamięci przeglądarki (`localStorage`), z możliwością natychmiastowej synchronizacji na smartfon (Kod QR, Magiczny Link), przesyłania postępów e-mailem oraz eksportu i importu kopii w pliku JSON ze Smart Merge.
+
+## Co nowego w Wersji 3.8.5 (Wysyłka Postępów na E-mail, Likwidacja Błędu totalTasks, Całkowite Usunięcie Dysku Google i Dostępne Alerty WCAG AAA)?
+- **🐞 Naprawa błędu `totalTasks is not defined`:**
+  - Zdiagnozowano i trwale usunięto błąd zmiennej `totalTasks` w silniku obliczania punktacji `calculateScore()`.
+  - Wczytywanie plików JSON przebiega teraz całkowicie bezbłędnie i błyskawicznie.
+- **📧 Nowość: Wygodna i niezawodna wysyłka postępów na E-mail:**
+  - Całkowicie wycofano problematyczne i mylące logowanie z Dyskiem Google.
+  - Dodano dedykowaną zakładkę: **„2. Wyślij na E-mail”** – kursant może zdefiniować swój adres e-mail, który zapamiętywany jest w przeglądarce.
+  - Jedno kliknięcie generuje wiadomość z podsumowaniem osiągnięć, statystykami oraz **Magicznym Linkiem** i kodem transferowym, umożliwiającym natychmiastowe wznowienie nauki na smartfonie lub drugim komputerze.
+  - Na urządzeniach mobilnych (iPhone / Android) dodano wsparcie dla systemowego udostępniania pliku JSON przez aplikację Poczta / Udostępnij (`navigator.share`).
+- **🚪 Dedykowany dialog zakończenia nauki na dziś (Skrót: `Alt+X`):**
+  - Dodano w nagłówku oraz pod skrótem klawiszowym `Alt+X` przyjazne okno zapytania: *„Kończysz naukę na dziś? Czy chcesz wysłać mailem postęp kursu, tak aby móc go łatwo wczytać na innym urządzeniu?”*.
+  - Użytkownik może w ułamku sekundy wysłać e-mail, wyświetlić kod QR lub po prostu zamknąć okno.
+- **🛡️ Dostępne powiadomienia dialogowe WCAG AAA (zamiast zawodnych `alert()`):**
+  - Wyeliminowano natywne okna `alert()`, które w przeglądarkach kradły fokus czytnikowi NVDA i przenosiły go do paska adresu.
+  - Zbudowano wewnątrz strony w pełni dostępny modal (`role="alertdialog"` z atrybutami ARIA, `inert` i pułapką fokusu), który czytnik NVDA natychmiast i bezbłędnie anonsuje na głos, a klawisz Enter/Escape płynnie przywraca fokus na stronę.
 
 ## Co nowego w Wersji 3.8.4 (Inteligentne Scalanie Postępów Smart Merge, Ochrona Przed Cofnięciem Danych i Nowa Ergonomia Synchronizacji)?
 - **🛡️ Inteligentne Scalanie Postępów (Smart Merge) i 100% Ochrona przed Utratą Danych:**

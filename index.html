@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-title" content="Vibe Coding">
   <meta name="theme-color" content="#0f172a">
   <meta name="color-scheme" content="dark light">
-  <title>Akademia Vibe Codingu i Sztuki Promptingu v3.8.4 (Od Zera do Twórcy)</title>
+  <title>Akademia Vibe Codingu i Sztuki Promptingu v3.8.5 (Od Zera do Twórcy)</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -24,8 +24,6 @@
     }
   </script>
 
-  <!-- Google Identity Services dla autoryzacji z prywatnym Dyskiem Google kursanta -->
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
 
   <!-- Favicon -->
   <link rel="icon" href="https://fav.farm/⚡" />
@@ -427,7 +425,7 @@
               Vibe Coding Academy
             </span>
             <span class="text-[10px] text-amber-400 font-bold block">
-              Wersja 3.8.4 • Inteligentna Synchronizacja Urządzeń (Smart Merge, Własny Dysk Google, Kod QR) i WCAG AA/AAA
+              Wersja 3.8.5 • Synchronizacja Urządzeń (E-mail, Kod QR, Plik Smart Merge) i WCAG AA/AAA
             </span>
           </div>
         </a>
@@ -442,10 +440,16 @@
       <!-- Szybkie przełączniki ułatwień dostępu (Notatki, Instrukcja, Słowniczek, Dźwięk, Kontrast, Inwersja iPhone, Czcionka, Motyw) -->
       <div class="flex items-center gap-1.5 sm:gap-2">
 
-        <!-- Przycisk Synchronizacji i Przenoszenia na Telefon (Własny Dysk Google / Kod QR / Plik) -->
-        <button type="button" onclick="openSyncModal()" class="touch-target px-2.5 py-1.5 rounded-lg border border-emerald-500/60 bg-emerald-950/70 hover:bg-emerald-900 text-emerald-200 text-xs font-bold transition flex items-center gap-1.5 shadow" aria-haspopup="dialog" id="btn-header-sync" title="Przenieś kurs na smartfon lub zsynchronizuj z własnym Dyskiem Google (Alt+G)">
-          <span role="img" aria-label="(ikona telefonu i chmury)">📲</span>
-          <span class="hidden sm:inline">Telefon i Dysk Google</span>
+        <!-- Przycisk Synchronizacji i Przenoszenia na Telefon (Kod QR / E-mail / Plik) -->
+        <button type="button" onclick="openSyncModal()" class="touch-target px-2.5 py-1.5 rounded-lg border border-emerald-500/60 bg-emerald-950/70 hover:bg-emerald-900 text-emerald-200 text-xs font-bold transition flex items-center gap-1.5 shadow" aria-haspopup="dialog" id="btn-header-sync" title="Przenieś kurs na smartfon, wyślij postępy e-mailem lub pobierz plik (Alt+G)">
+          <span role="img" aria-label="(ikona telefonu i e-maila)">📲</span>
+          <span class="hidden sm:inline">Telefon i E-mail</span>
+        </button>
+
+        <!-- Przycisk Zakończenia Nauki i Wysłania Postępów (Alt+X) -->
+        <button type="button" onclick="openExitSyncModal()" class="touch-target px-2.5 py-1.5 rounded-lg border border-indigo-500/60 bg-indigo-950/70 hover:bg-indigo-900 text-indigo-200 text-xs font-bold transition flex items-center gap-1.5 shadow" aria-haspopup="dialog" id="btn-header-exit" title="Zakończ naukę na dziś i opcjonalnie wyślij postępy e-mailem (Alt+X)">
+          <span role="img" aria-label="(ikona wyjścia)">🚪</span>
+          <span class="hidden sm:inline">Zakończ</span>
         </button>
 
         <!-- Przycisk Przeglądania Notatek (Dostępny w każdym momencie kursu) -->
@@ -2096,9 +2100,9 @@
           <span aria-hidden="true">📲</span>
           <span>1. Kod QR i Magiczny Link (Najszybsza)</span>
         </button>
-        <button type="button" role="tab" id="sync-tab-btn-gdrive" aria-selected="false" aria-controls="sync-panel-gdrive" onclick="switchSyncTab('gdrive')" class="sync-tab-btn touch-target px-4 py-2.5 rounded-t-xl text-xs sm:text-sm font-bold border-b-2 border-transparent bg-slate-900 text-slate-400 hover:text-slate-200 flex items-center gap-2">
-          <span aria-hidden="true">☁️</span>
-          <span>2. Dysk Google i Chmura</span>
+        <button type="button" role="tab" id="sync-tab-btn-email" aria-selected="false" aria-controls="sync-panel-email" onclick="switchSyncTab('email')" class="sync-tab-btn touch-target px-4 py-2.5 rounded-t-xl text-xs sm:text-sm font-bold border-b-2 border-transparent bg-slate-900 text-slate-400 hover:text-slate-200 flex items-center gap-2">
+          <span aria-hidden="true">📧</span>
+          <span>2. Wyślij na E-mail</span>
         </button>
         <button type="button" role="tab" id="sync-tab-btn-file" aria-selected="false" aria-controls="sync-panel-file" onclick="switchSyncTab('file')" class="sync-tab-btn touch-target px-4 py-2.5 rounded-t-xl text-xs sm:text-sm font-bold border-b-2 border-transparent bg-slate-900 text-slate-400 hover:text-slate-200 flex items-center gap-2">
           <span aria-hidden="true">🛡️</span>
@@ -2191,98 +2195,58 @@
         </div>
       </div>
 
-      <!-- PANEL 2: WŁASNY DYSK GOOGLE -->
-      <div id="sync-panel-gdrive" role="tabpanel" aria-labelledby="sync-tab-btn-gdrive" class="hidden space-y-4">
-        <!-- Baner Gwarancji Prywatności -->
+      <!-- PANEL 2: WYSYŁKA NA E-MAIL -->
+      <div id="sync-panel-email" role="tabpanel" aria-labelledby="sync-tab-btn-email" class="hidden space-y-4">
+        <!-- Baner E-mail -->
         <div class="p-4 rounded-2xl bg-indigo-950/60 border border-indigo-500/40 flex items-start gap-3">
-          <span class="text-2xl shrink-0" aria-hidden="true">🛡️</span>
+          <span class="text-2xl shrink-0" aria-hidden="true">📧</span>
           <div class="text-xs text-indigo-100 leading-relaxed">
-            <strong class="text-white block mb-1">Gwarancja 100% prywatności Twojego Dysku Google:</strong>
-            Twoje postępy zapisują się <strong>wyłącznie na Twoim własnym, prywatnym koncie Google</strong> w pliku <code class="bg-indigo-900/80 px-1 py-0.5 rounded text-amber-300 font-mono">Akademia_Vibe_Codingu_Postepy.json</code>.
-            Autor kursu ani nikt inny nie ma wglądu w Twoje dane, a na Twój dysk nie trafią żadne cudze pliki.
+            <strong class="text-white block mb-1">Kopia postępów w Twojej skrzynce pocztowej:</strong>
+            Zdefiniuj swój adres e-mail. Za każdym razem, gdy zechcesz przenieść postępy na drugie urządzenie lub zabezpieczyć swoje osiągnięcia, jedno kliknięcie przygotuje gotową wiadomość z Magicznym Linkiem i kodem transferu.
           </div>
         </div>
 
-        <!-- Karta statusu połączenia z Google -->
-        <div class="p-5 rounded-2xl bg-slate-950 border border-slate-800">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-            <div>
-              <span class="text-[11px] uppercase font-bold text-slate-400 block">Stan połączenia:</span>
-              <div id="gdrive-status-badge" class="flex items-center gap-2 mt-0.5">
-                <span class="w-2.5 h-2.5 rounded-full bg-slate-500 inline-block" id="gdrive-status-dot"></span>
-                <span id="gdrive-status-text" class="text-sm font-bold text-slate-300">Gotowy do zapisu i odczytu plików</span>
-              </div>
+        <div class="p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-4">
+          <div>
+            <label for="sync-email-address-input" class="text-xs font-extrabold uppercase tracking-wider text-slate-300 block mb-1.5">
+              Twój adres e-mail do przesyłania postępów:
+            </label>
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+              <input type="email" id="sync-email-address-input" placeholder="np. twoj.adres@gmail.com" class="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+              <button type="button" onclick="saveSyncEmailAddress(true)" class="touch-target shrink-0 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition border border-slate-700">
+                Zapisz e-mail
+              </button>
             </div>
-            <div id="gdrive-last-sync-badge" class="text-xs text-slate-400">
-              Ostatnia synchronizacja: <span id="gdrive-last-sync-time" class="text-slate-300 font-semibold">brak</span>
-            </div>
+            <p class="text-[11px] text-slate-400 mt-1.5">
+              Adres zapisuje się bezpiecznie w Twojej przeglądarce i posłuży do automatycznego przygotowywania wiadomości.
+            </p>
           </div>
 
-          <!-- Główne przyciski akcji Dysku Google -->
-          <div class="flex flex-wrap items-center gap-3">
-            <button type="button" onclick="saveToGoogleDrive()" id="btn-gdrive-save" class="touch-target px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs transition flex items-center gap-2 shadow">
-              <span aria-hidden="true">☁️</span>
-              <span>Zapisz postępy na moim Dysku Google</span>
+          <div class="flex flex-wrap items-center gap-3 pt-2">
+            <button type="button" onclick="sendProgressByEmail()" id="btn-send-progress-email" class="touch-target px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs transition flex items-center gap-2 shadow-lg focus:ring-2 focus:ring-indigo-400">
+              <span aria-hidden="true">📧</span>
+              <span>Otwórz program pocztowy z postępami</span>
             </button>
-            <button type="button" onclick="loadFromGoogleDrive()" id="btn-gdrive-load" class="touch-target px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition flex items-center gap-2 shadow">
-              <span aria-hidden="true">📥</span>
-              <span>Wczytaj postępy z mojego Dysku Google</span>
+
+            <button type="button" onclick="shareProgressFileViaShareApi()" id="btn-share-progress-email" class="touch-target px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition flex items-center gap-2 shadow focus:ring-2 focus:ring-emerald-400">
+              <span aria-hidden="true">📤</span>
+              <span>Udostępnij plik pocztą (iPhone / Mac / Android)</span>
             </button>
-            <a href="https://drive.google.com/drive/my-drive" target="_blank" rel="noopener noreferrer" class="touch-target px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-bold text-xs transition flex items-center gap-2 border border-slate-700">
-              <span aria-hidden="true">🌐</span>
-              <span>Otwórz drive.google.com ↗</span>
-            </a>
+
+            <button type="button" onclick="copyEmailBodyToClipboard()" id="btn-copy-email-body" class="touch-target px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition flex items-center gap-2 border border-slate-700">
+              <span aria-hidden="true">📋</span>
+              <span>Kopiuj treść e-maila</span>
+            </button>
           </div>
 
-          <!-- Wyjaśnienie działania -->
-          <div class="mt-4 p-4 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300 space-y-2.5">
-            <strong class="text-white block text-sm flex items-center gap-1.5">
+          <div class="mt-3 p-3.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300 space-y-1.5">
+            <strong class="text-white block flex items-center gap-1.5">
               <span>💡</span>
-              <span>Dlaczego przeglądarka pobiera plik zamiast zapisywać w tle bez pytania?</span>
+              <span>Jak to działa w praktyce?</span>
             </strong>
             <p class="leading-relaxed">
-              Zasady bezpieczeństwa internetu (tzw. <em>izolacja piaskownicy / sandbox</em>) bezwzględnie zabraniają stronom www ingerować w Twoje prywatne pliki w chmurze bez wyraźnej autoryzacji — nawet jeśli w innej karcie jesteś zalogowany do Google. To chroni Cię przed wirusami i kradzieżą danych.
+              Kliknięcie <em>„Otwórz program pocztowy”</em> uruchamia Twoją pocztę (np. Outlook, Thunderbird, Pocztę Windows lub Apple Mail na telefonie) z wypełnionym adresem, podsumowaniem postępów i Magicznym Linkiem. Wystarczy kliknąć <strong>Wyślij</strong>, a potem na drugim urządzeniu otworzyć otrzymaną wiadomość i stuknąć link!
             </p>
-            <ul class="space-y-1.5 list-disc list-inside text-slate-300">
-              <li><strong>Aplikacja Dysk Google na komputerze (np. dysk G:\Mój dysk):</strong> Zapisz lub przenieś pobrany plik do folderu <em>G:\Mój dysk</em>. Aplikacja natychmiast wyśle go do Twojej chmury Google, a plik będzie widoczny na smartfonie!</li>
-              <li><strong>W Mozilla Firefox:</strong> Firefox standardowo pobiera pliki do folderu <em>Pobrane</em>. Aby Firefox za każdym razem pytał Cię, gdzie zapisać plik (umożliwiając od razu wskazanie folderu Dysku Google): wejdź w <em>Ustawienia Firefox &rarr; Ogólne &rarr; Pobieranie</em> i zaznacz opcję <strong>„Zawsze pytaj, gdzie zapisać pliki”</strong>.</li>
-              <li><strong>W telefonie (iPhone / Android):</strong> Pobrany plik znajduje się w aplikacji <strong>Pliki</strong> (folder <em>„Pobrane rzeczy”</em> lub <em>„Na moim iPhonie”</em>).</li>
-            </ul>
-          </div>
-
-          <!-- Opcja zaawansowana: Logowanie OAuth -->
-          <details class="mt-3 pt-3 border-t border-slate-800 text-xs text-slate-400">
-            <summary class="cursor-pointer font-bold text-slate-300 hover:text-white flex items-center gap-1.5 py-1">
-              <span>⚙️ Opcja zaawansowana: Bezpośrednie wyskakujące okienko Google API</span>
-            </summary>
-            <div class="mt-2.5 p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
-              <p>
-                Oficjalne wyskakujące okienko Google wymaga zarejestrowania darmowego klucza (Google Client ID) w panelu Google Cloud. Jeśli posiadasz taki klucz, wklej go poniżej:
-              </p>
-              <div class="flex items-center gap-2">
-                <input type="text" id="gdrive-custom-client-id-input" placeholder="Wklej tutaj swój Google Client ID..." class="w-full px-3 py-1.5 text-xs rounded-lg bg-slate-950 border border-slate-700 text-slate-200">
-                <button type="button" onclick="saveCustomGoogleClientId()" class="touch-target shrink-0 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs">
-                  Zapisz klucz
-                </button>
-              </div>
-              <div class="flex items-center gap-2 pt-1">
-                <button type="button" onclick="connectGoogleDrive()" id="btn-gdrive-connect" class="touch-target px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition flex items-center gap-1.5 border border-slate-700">
-                  <span role="img" aria-label="(logo Google)">🌐</span>
-                  <span id="btn-gdrive-connect-label">Zaloguj się oknem Google</span>
-                </button>
-                <button type="button" onclick="disconnectGoogleDrive()" id="btn-gdrive-disconnect" class="touch-target px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-rose-900/40 text-slate-300 hover:text-rose-200 border border-slate-700 font-bold text-xs transition hidden">
-                  <span>Rozłącz Google</span>
-                </button>
-              </div>
-            </div>
-          </details>
-
-          <!-- Automatyczny zapis po każdym zadaniu -->
-          <div class="mt-3 pt-3 border-t border-slate-800 flex items-center gap-2.5">
-            <input type="checkbox" id="chk-gdrive-autosync" onchange="toggleGdriveAutoSync(this.checked)" class="w-4 h-4 rounded text-emerald-500 focus:ring-emerald-400 bg-slate-900 border-slate-700 cursor-pointer">
-            <label for="chk-gdrive-autosync" class="text-xs text-slate-300 cursor-pointer select-none">
-              Automatycznie przypominaj o zapisaniu stanu po zaliczeniu każdego zadania
-            </label>
           </div>
         </div>
       </div>
@@ -2400,12 +2364,89 @@
     </div>
   </div>
 
+  <!-- ========================================================================= -->
+  <!-- MODAL 7: ZAKOŃCZENIE NAUKI I WYSŁANIE POSTĘPÓW (EXIT MODAL)                 -->
+  <!-- ========================================================================= -->
+  <div id="modal-exit-sync" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto hidden" role="dialog" aria-modal="true" aria-labelledby="exit-modal-title" aria-describedby="exit-modal-desc" aria-hidden="true">
+    <div class="modal-content bg-slate-900 border-2 border-indigo-500 rounded-3xl max-w-lg w-full p-5 sm:p-7 shadow-2xl relative focus:outline-none" tabindex="-1">
+      <button type="button" onclick="closeModal('modal-exit-sync')" class="touch-target absolute top-3 right-3 sm:top-5 sm:right-5 text-slate-400 hover:text-white text-2xl font-bold p-2 focus:ring-2 focus:ring-indigo-400 rounded-lg flex items-center justify-center min-w-[44px]">
+        <span class="sr-only">Zamknij to okno (Escape)</span>
+        <span aria-hidden="true">&times;</span>
+      </button>
+
+      <div class="flex items-center gap-3 mb-4 pr-10">
+        <span class="text-3xl shrink-0" aria-hidden="true">🚪</span>
+        <div>
+          <span class="text-xs uppercase font-extrabold tracking-wider text-indigo-400 block">Zakończenie nauki</span>
+          <h2 id="exit-modal-title" class="text-lg sm:text-xl font-black text-white focus:outline-none" tabindex="-1">
+            Kończysz naukę na dziś?
+          </h2>
+        </div>
+      </div>
+
+      <p id="exit-modal-desc" class="text-xs sm:text-sm text-slate-300 leading-relaxed mb-4">
+        Świetna robota! Czy chcesz wysłać mailem postęp kursu, tak aby móc go łatwo wczytać na innym urządzeniu (np. telefonie lub innym komputerze)?
+      </p>
+
+      <!-- Pole adresu e-mail w oknie wyjścia -->
+      <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2 mb-4">
+        <label for="exit-email-input" class="text-xs font-bold text-slate-300 block">
+          Twój adres e-mail do wysyłki postępów:
+        </label>
+        <div class="flex items-center gap-2">
+          <input type="email" id="exit-email-input" placeholder="np. twoj.adres@gmail.com" class="w-full px-3 py-2 text-xs rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+        </div>
+      </div>
+
+      <!-- Akcje wyjścia -->
+      <div class="space-y-2.5">
+        <button type="button" onclick="sendProgressByEmailFromExit()" id="btn-exit-send-email" class="touch-target w-full py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs sm:text-sm transition flex items-center justify-center gap-2 shadow-lg focus:ring-4 focus:ring-indigo-400">
+          <span aria-hidden="true">📧</span>
+          <span>Tak, wyślij moje postępy na e-mail</span>
+        </button>
+
+        <div class="grid grid-cols-2 gap-2.5 pt-1">
+          <button type="button" onclick="closeModal('modal-exit-sync'); openSyncModal('qr');" class="touch-target py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition flex items-center justify-center gap-1.5 border border-slate-700">
+            <span aria-hidden="true">📲</span>
+            <span>Pokaż kod QR</span>
+          </button>
+          <button type="button" onclick="closeModal('modal-exit-sync'); downloadProgressBackupFile();" class="touch-target py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition flex items-center justify-center gap-1.5 border border-slate-700">
+            <span aria-hidden="true">💾</span>
+            <span>Pobierz plik</span>
+          </button>
+        </div>
+
+        <button type="button" onclick="closeModal('modal-exit-sync')" class="touch-target w-full py-2.5 px-4 rounded-xl text-slate-400 hover:text-white font-semibold text-xs transition mt-1">
+          Nie wysyłaj, po prostu zamknij
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL 8: DOSTĘPNE POWIADOMIENIE DIALOGOWE DLA CZYTNIKÓW EKRANU (WCAG AAA)  -->
+  <!-- ========================================================================= -->
+  <div id="modal-accessible-alert" class="fixed inset-0 z-[70] bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto hidden" role="alertdialog" aria-modal="true" aria-labelledby="accessible-alert-title" aria-describedby="accessible-alert-desc" aria-hidden="true">
+    <div class="modal-content bg-slate-900 border-2 border-emerald-500 rounded-3xl max-w-md w-full p-6 shadow-2xl relative text-center focus:outline-none" tabindex="-1">
+      <div id="accessible-alert-icon" class="text-4xl mb-3" aria-hidden="true">ℹ️</div>
+      <h3 id="accessible-alert-title" class="text-lg font-black text-white mb-2 focus:outline-none" tabindex="-1">
+        Powiadomienie
+      </h3>
+      <div id="accessible-alert-desc" class="text-xs sm:text-sm text-slate-300 leading-relaxed mb-6 whitespace-pre-line text-left bg-slate-950/80 p-3.5 rounded-xl border border-slate-800">
+        Treść powiadomienia
+      </div>
+      <button type="button" id="btn-accessible-alert-ok" onclick="closeAccessibleAlert()" class="touch-target w-full py-3 px-5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-sm transition shadow-lg focus:ring-4 focus:ring-emerald-400">
+        Rozumiem (Enter)
+      </button>
+    </div>
+  </div>
+
   <!-- Stopka Zgodności WCAG i Wersji -->
   <footer class="border-t border-slate-800 bg-slate-950 py-6 sm:py-8 px-4 text-xs text-slate-400 mt-10">
     <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-6">
       <div>
         <p class="font-bold text-slate-300 mb-1">
-          Akademia Vibe Codingu i Sztuki Promptingu • Wersja 3.8.4 • WCAG 2.1 / 2.2 Poziom AA/AAA (Wielourządzeniowość, Smart Merge i Własny Dysk Google)
+          Akademia Vibe Codingu i Sztuki Promptingu • Wersja 3.8.5 • WCAG 2.1 / 2.2 Poziom AA/AAA (Wielourządzeniowość, E-mail i Smart Merge)
         </p>
         <p>
           Akademia Vibe Codingu i Sztuki Promptingu • Projekt dostępny w chmurze na GitHubie: <a href="https://github.com/strugo10/vibe-coding-kompendium" target="_blank" rel="noopener noreferrer" class="underline text-slate-300 hover:text-white">strugo10/vibe-coding-kompendium</a> oraz online: <a href="https://strugo10.github.io/vibe-coding-kompendium/" target="_blank" rel="noopener noreferrer" class="underline text-teal-400 hover:text-teal-300">Wersja webowa na żywo</a>. Praktyka w pracy i życiu osobistym, dedykowany panel uwag dla twórcy i uniwersalny eksport notatek.
