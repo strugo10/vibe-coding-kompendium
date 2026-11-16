@@ -1,4 +1,4 @@
-# Akademia Vibe Codingu i Sztuki Promptingu (Od Zera do Twórcy) — Wersja 3.8.3
+# Akademia Vibe Codingu i Sztuki Promptingu (Od Zera do Twórcy) — Wersja 3.8.4
 
 > 🚀 **Uruchom Akademię online (działa od razu w przeglądarce):**  
 > 👉 **[https://strugo10.github.io/vibe-coding-kompendium/](https://strugo10.github.io/vibe-coding-kompendium/)**
@@ -7,6 +7,19 @@
 > 👉 **[https://github.com/strugo10/vibe-coding-kompendium](https://github.com/strugo10/vibe-coding-kompendium)**
 
 Kompletne, interaktywne kompendium obejmujące **100 praktycznych zadań** podzielonych na **34 dni nauki** (po 3 zadania dziennie), w pełni dostosowane do standardów dostępności cyfrowej **WCAG 2.1 / 2.2 AA/AAA** (czytniki ekranu **NVDA** na Windows oraz **VoiceOver** na iPhone/iOS). Wszystkie postępy kursanta, punkty, notatki i dyplom zapisują się w 100% lokalnie i bezpiecznie w pamięci przeglądarki (`localStorage`), z możliwością natychmiastowej synchronizacji na smartfon (Kod QR, Magiczny Link) oraz z prywatnym Dyskiem Google kursanta.
+
+## Co nowego w Wersji 3.8.4 (Inteligentne Scalanie Postępów Smart Merge, Ochrona Przed Cofnięciem Danych i Nowa Ergonomia Synchronizacji)?
+- **🛡️ Inteligentne Scalanie Postępów (Smart Merge) i 100% Ochrona przed Utratą Danych:**
+  - Wdrożono zaawansowany algorytm scalania: wczytanie starszego pliku (np. z poniedziałku z Dnia 5, podczas gdy w środę osiągnięto Dzień 6) **nigdy nie cofa ani nie kasuje nowszych osiągnięć**.
+  - Zaliczone zadania są sumowane w unikalny zbiór (suma mnogościowa), dzień nauki ustawia się na najwyższy osiągnięty, a notatki są bezpiecznie zachowywane i łączone.
+  - Wyświetlany jest czytelny komunikat potwierdzający bezpieczne połączenie danych bez utraty osiągnięć.
+- **📲 Kod QR i Magiczny Link jako Domyślna, Rekomendowana Metoda (Zakładka 1):**
+  - Okno wielourządzeniowości otwiera się teraz domyślnie na zakładce Kodu QR, co pozwala przejść z komputera na smartfon w 3 sekundy bez konieczności zapisywania i szukania plików.
+  - Wyjaśniono kwestię trwałości danych na smartfonie: zamknięcie karty, przeglądarki czy wyłączenie telefonu **nie powoduje utraty postępów** (dane są bezpiecznie zapisane w pamięci lokalnej urządzenia).
+- **☁️ Przejrzysta Architektura Dysku Google i Bezpośredni Dostęp:**
+  - Dodano przycisk szybkiego otwarcia dysku w chmurze: `Otwórz drive.google.com ↗`.
+  - Wyjaśniono działanie zabezpieczeń przeglądarki (izolacja piaskownicy / sandbox), która uniemożliwia stronom internetowym ingerowanie w pliki w chmurze bez wiedzy użytkownika.
+  - Wyjaśniono integrację z oficjalną aplikacją „Dysk Google na komputer” (`G:\Mój dysk`), dzięki której pliki zapisywane w tym folderze automatycznie synchronizują się z chmurą i telefonem.
 
 ## Co nowego w Wersji 3.8.3 (Dostępność NVDA dla Okien Dialogowych, Bezpośredni Import Pliku i Obsługa Pobierania na iPhone)?
 - **Pełna dostępność cyfrowa (WCAG AA/AAA i czytnik NVDA) dla okien dialogowych:**

@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-title" content="Vibe Coding">
   <meta name="theme-color" content="#0f172a">
   <meta name="color-scheme" content="dark light">
-  <title>Akademia Vibe Codingu i Sztuki Promptingu v3.8.3 (Od Zera do Twórcy)</title>
+  <title>Akademia Vibe Codingu i Sztuki Promptingu v3.8.4 (Od Zera do Twórcy)</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -427,7 +427,7 @@
               Vibe Coding Academy
             </span>
             <span class="text-[10px] text-amber-400 font-bold block">
-              Wersja 3.8.3 • Synchronizacja Urządzeń (Własny Dysk Google, Kod QR, Plik) i WCAG AA/AAA
+              Wersja 3.8.4 • Inteligentna Synchronizacja Urządzeń (Smart Merge, Własny Dysk Google, Kod QR) i WCAG AA/AAA
             </span>
           </div>
         </a>
@@ -2092,22 +2092,107 @@
 
       <!-- ZAKŁADKI NAWIGACYJNE METOD SYNCHRONIZACJI -->
       <div class="flex flex-wrap border-b border-slate-700/80 mb-6 gap-2" role="tablist" aria-label="Wybierz metodę synchronizacji">
-        <button type="button" role="tab" id="sync-tab-btn-gdrive" aria-selected="true" aria-controls="sync-panel-gdrive" onclick="switchSyncTab('gdrive')" class="sync-tab-btn touch-target px-4 py-2.5 rounded-t-xl text-xs sm:text-sm font-bold border-b-2 border-emerald-500 bg-slate-800 text-white flex items-center gap-2">
-          <span aria-hidden="true">☁️</span>
-          <span>1. Własny Dysk Google</span>
-        </button>
-        <button type="button" role="tab" id="sync-tab-btn-qr" aria-selected="false" aria-controls="sync-panel-qr" onclick="switchSyncTab('qr')" class="sync-tab-btn touch-target px-4 py-2.5 rounded-t-xl text-xs sm:text-sm font-bold border-b-2 border-transparent bg-slate-900 text-slate-400 hover:text-slate-200 flex items-center gap-2">
+        <button type="button" role="tab" id="sync-tab-btn-qr" aria-selected="true" aria-controls="sync-panel-qr" onclick="switchSyncTab('qr')" class="sync-tab-btn touch-target px-4 py-2.5 rounded-t-xl text-xs sm:text-sm font-bold border-b-2 border-emerald-500 bg-slate-800 text-white flex items-center gap-2">
           <span aria-hidden="true">📲</span>
-          <span>2. Kod QR i Magiczny Link</span>
+          <span>1. Kod QR i Magiczny Link (Najszybsza)</span>
+        </button>
+        <button type="button" role="tab" id="sync-tab-btn-gdrive" aria-selected="false" aria-controls="sync-panel-gdrive" onclick="switchSyncTab('gdrive')" class="sync-tab-btn touch-target px-4 py-2.5 rounded-t-xl text-xs sm:text-sm font-bold border-b-2 border-transparent bg-slate-900 text-slate-400 hover:text-slate-200 flex items-center gap-2">
+          <span aria-hidden="true">☁️</span>
+          <span>2. Dysk Google i Chmura</span>
         </button>
         <button type="button" role="tab" id="sync-tab-btn-file" aria-selected="false" aria-controls="sync-panel-file" onclick="switchSyncTab('file')" class="sync-tab-btn touch-target px-4 py-2.5 rounded-t-xl text-xs sm:text-sm font-bold border-b-2 border-transparent bg-slate-900 text-slate-400 hover:text-slate-200 flex items-center gap-2">
-          <span aria-hidden="true">💾</span>
-          <span>3. Kopia w Pliku (.json)</span>
+          <span aria-hidden="true">🛡️</span>
+          <span>3. Kopia w Pliku i Smart Merge</span>
         </button>
       </div>
 
-      <!-- PANEL 1: WŁASNY DYSK GOOGLE -->
-      <div id="sync-panel-gdrive" role="tabpanel" aria-labelledby="sync-tab-btn-gdrive" class="space-y-4">
+      <!-- PANEL 1: KOD QR I MAGICZNY LINK (DOMYŚLNY) -->
+      <div id="sync-panel-qr" role="tabpanel" aria-labelledby="sync-tab-btn-qr" class="space-y-5">
+        <div class="p-4 rounded-2xl bg-emerald-950/40 border border-emerald-500/30 text-xs text-emerald-200 flex items-start gap-3">
+          <span class="text-xl shrink-0" role="img" aria-label="(błyskawica)">⚡</span>
+          <div>
+            <strong class="text-emerald-100 block mb-0.5">Błyskawiczne przejście na smartfon w 3 sekundy bez pobierania plików:</strong>
+            Skieruj aparat iPhone'a lub smartfona z Androidem na poniższy kod QR, albo prześlij sobie Magiczny Link.
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 items-center">
+          <!-- Kolumna Kodu QR -->
+          <div class="p-5 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col items-center text-center">
+            <span class="text-xs uppercase font-extrabold text-amber-400 mb-3 tracking-wider">Aparat w telefonie</span>
+            
+            <div id="sync-qr-code-display" style="background-color: #ffffff !important; color: #000000 !important;" class="p-3 rounded-2xl shadow-lg border-4 border-emerald-500/40 flex items-center justify-center min-w-[210px] min-h-[210px]">
+              <!-- Tutaj renderuje się kod QR -->
+              <span class="text-xs text-slate-600">Generowanie kodu QR...</span>
+            </div>
+
+            <p class="text-xs text-slate-400 mt-3 max-w-xs leading-relaxed">
+              Skieruj aparat telefonu na ten kod i stuknij powiadomienie. Kurs otworzy się z Twoimi postępami!
+            </p>
+          </div>
+
+          <!-- Kolumna Magicznego Linku i Ręcznego Kodu -->
+          <div class="space-y-4">
+            <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
+              <label for="sync-transfer-link-input" class="text-xs font-bold text-white block">
+                Magiczny Link do otwarcia na drugim urządzeniu:
+              </label>
+              <div class="flex items-center gap-2">
+                <input type="text" id="sync-transfer-link-input" readonly class="w-full px-3 py-2 text-xs rounded-xl bg-slate-900 border border-slate-700 text-slate-300 focus:outline-none select-all" aria-label="Magiczny link transferowy">
+                <button type="button" onclick="copyTransferLink()" id="btn-copy-transfer-link" class="touch-target shrink-0 px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition flex items-center gap-1.5 shadow">
+                  <span role="img" aria-label="(kopiuj)">📋</span>
+                  <span>Kopiuj link</span>
+                </button>
+              </div>
+              <p class="text-[11px] text-slate-400 leading-relaxed">
+                Wyślij ten link do siebie (np. mailem, w wiadomości lub otwórz w Safari/Edge).
+              </p>
+            </div>
+
+            <!-- Ręczne wklejenie kodu z innego urządzenia -->
+            <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
+              <label for="sync-manual-code-input" class="text-xs font-bold text-white block">
+                Otrzymałeś kod lub link z drugiego urządzenia? Wklej go tutaj:
+              </label>
+              <textarea id="sync-manual-code-input" rows="2" placeholder="Wklej tutaj otrzymany kod transferu lub link..." class="w-full px-3 py-2 text-xs rounded-xl bg-slate-900 border border-slate-700 text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 resize-none"></textarea>
+              <div class="flex justify-end">
+                <button type="button" onclick="applyManualTransferCode()" class="touch-target px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition flex items-center gap-1.5 shadow">
+                  <span role="img" aria-label="(wczytaj)">📥</span>
+                  <span>Wczytaj postępy z tego kodu</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bezpieczeństwo danych na telefonie i zamknięciu karty -->
+        <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-3">
+          <strong class="text-xs uppercase font-extrabold text-slate-300 block tracking-wider">
+            Bezpieczeństwo danych na smartfonie:
+          </strong>
+          <div class="space-y-2 text-xs text-slate-300">
+            <details class="rounded-xl bg-slate-900/80 border border-slate-800/80 p-3">
+              <summary class="cursor-pointer font-bold text-slate-200 hover:text-white flex items-center gap-2">
+                <span>📱 Czy jeśli zamknę kartę w telefonie, stracę postępy z komputera?</span>
+              </summary>
+              <p class="mt-2 text-slate-300 leading-relaxed pl-5">
+                <strong>Absolutnie NIE!</strong> Po otwarciu strony z kodu QR wszystkie Twoje postępy zapisują się trwale w pamięci Twojej przeglądarki (Safari / Edge / Chrome). Nawet jeśli zamkniesz kartę, zamkniesz całą przeglądarkę czy wyłączysz telefon — po ponownym otwarciu kursu wszystkie zadania, punkty i notatki będą nienaruszone na swoim miejscu.
+              </p>
+            </details>
+            <details class="rounded-xl bg-slate-900/80 border border-slate-800/80 p-3">
+              <summary class="cursor-pointer font-bold text-slate-200 hover:text-white flex items-center gap-2">
+                <span>🤔 Co zrobić, jeśli zapomnę zeskanować kod QR przed wyjściem od komputera?</span>
+              </summary>
+              <p class="mt-2 text-slate-300 leading-relaxed pl-5">
+                Nie martw się! Możesz bez obaw uczyć się na telefonie. Kiedy wrócisz do komputera, po prostu otwórz to okno na telefonie i zeskanuj kod z telefonu na komputerze (lub wczytaj plik). Dzięki technologii <strong>Smart Merge</strong> komputer i telefon bezbłędnie połączą Twoje postępy — <strong>żadne zaliczone zadanie nie zostanie skasowane ani cofnięte!</strong>
+              </p>
+            </details>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANEL 2: WŁASNY DYSK GOOGLE -->
+      <div id="sync-panel-gdrive" role="tabpanel" aria-labelledby="sync-tab-btn-gdrive" class="hidden space-y-4">
         <!-- Baner Gwarancji Prywatności -->
         <div class="p-4 rounded-2xl bg-indigo-950/60 border border-indigo-500/40 flex items-start gap-3">
           <span class="text-2xl shrink-0" aria-hidden="true">🛡️</span>
@@ -2125,7 +2210,7 @@
               <span class="text-[11px] uppercase font-bold text-slate-400 block">Stan połączenia:</span>
               <div id="gdrive-status-badge" class="flex items-center gap-2 mt-0.5">
                 <span class="w-2.5 h-2.5 rounded-full bg-slate-500 inline-block" id="gdrive-status-dot"></span>
-                <span id="gdrive-status-text" class="text-sm font-bold text-slate-300">Nie połączono jeszcze z Twoim kontem Google</span>
+                <span id="gdrive-status-text" class="text-sm font-bold text-slate-300">Gotowy do zapisu i odczytu plików</span>
               </div>
             </div>
             <div id="gdrive-last-sync-badge" class="text-xs text-slate-400">
@@ -2133,7 +2218,7 @@
             </div>
           </div>
 
-          <!-- Główne przyciski akcji Dysku Google (Działają natychmiast bez skomplikowanych konfiguracji) -->
+          <!-- Główne przyciski akcji Dysku Google -->
           <div class="flex flex-wrap items-center gap-3">
             <button type="button" onclick="saveToGoogleDrive()" id="btn-gdrive-save" class="touch-target px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs transition flex items-center gap-2 shadow">
               <span aria-hidden="true">☁️</span>
@@ -2143,29 +2228,32 @@
               <span aria-hidden="true">📥</span>
               <span>Wczytaj postępy z mojego Dysku Google</span>
             </button>
+            <a href="https://drive.google.com/drive/my-drive" target="_blank" rel="noopener noreferrer" class="touch-target px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-bold text-xs transition flex items-center gap-2 border border-slate-700">
+              <span aria-hidden="true">🌐</span>
+              <span>Otwórz drive.google.com ↗</span>
+            </a>
           </div>
 
           <!-- Wyjaśnienie działania -->
-          <div class="mt-3.5 p-3.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300 space-y-2">
+          <div class="mt-4 p-4 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300 space-y-2.5">
             <strong class="text-white block text-sm flex items-center gap-1.5">
               <span>💡</span>
-              <span>Gdzie zapisuje się plik z Twoimi postępami?</span>
+              <span>Dlaczego przeglądarka pobiera plik zamiast zapisywać w tle bez pytania?</span>
             </strong>
-            <ul class="space-y-1.5 list-disc list-inside text-slate-300">
-              <li><strong>W Google Chrome / Microsoft Edge / Opera:</strong> Po kliknięciu <em>„Zapisz postępy...”</em> otworzy się okno wyboru folderu na dysku. Wskaż swój folder <strong>„Dysk Google”</strong> (lub dowolny inny) i kliknij <em>Zapisz</em>.</li>
-              <li><strong>W Mozilla Firefox:</strong> Przeglądarka domyślnie pobiera plik do Twojego folderu <strong>Pobrane</strong>. Jeśli chcesz, aby Firefox przed każdym pobraniem pytał o folder (np. Dysku Google), włącz w <em>Ustawieniach Firefox &rarr; Ogólne &rarr; Pobieranie</em> opcję <em>„Zawsze pytaj, gdzie zapisać pliki”</em>.</li>
-              <li><strong>Na telefonie (iPhone / Android):</strong> Pobrany plik trafia do systemowej aplikacji <strong>„Pliki”</strong> (na iPhone: niebieska ikona teczki, folder <em>„Na moim iPhonie” &rarr; „Edge”</em> lub <em>„Pobrane rzeczy”</em>). Gdy na drugim urządzeniu klikniesz <em>„Wczytaj”</em>, aplikacja Pliki pozwoli Ci od razu wybrać ten plik.</li>
-              <li><strong>Najwygodniejsza opcja na smartfon bez szukania plików:</strong> Skorzystaj z zakładki <strong>„2. Kod QR i Magiczny Link”</strong> — po prostu skieruj aparat telefonu na ekran komputera i gotowe!</li>
-            </ul>
-            <p class="text-[11px] text-emerald-300 pt-1 border-t border-slate-800">
-              Aby wczytać postępy na innym komputerze lub smartfonie, kliknij pomarańczowy przycisk <strong>„Wczytaj postępy z mojego Dysku Google”</strong> i wskaż zapisany plik.
+            <p class="leading-relaxed">
+              Zasady bezpieczeństwa internetu (tzw. <em>izolacja piaskownicy / sandbox</em>) bezwzględnie zabraniają stronom www ingerować w Twoje prywatne pliki w chmurze bez wyraźnej autoryzacji — nawet jeśli w innej karcie jesteś zalogowany do Google. To chroni Cię przed wirusami i kradzieżą danych.
             </p>
+            <ul class="space-y-1.5 list-disc list-inside text-slate-300">
+              <li><strong>Aplikacja Dysk Google na komputerze (np. dysk G:\Mój dysk):</strong> Zapisz lub przenieś pobrany plik do folderu <em>G:\Mój dysk</em>. Aplikacja natychmiast wyśle go do Twojej chmury Google, a plik będzie widoczny na smartfonie!</li>
+              <li><strong>W Mozilla Firefox:</strong> Firefox standardowo pobiera pliki do folderu <em>Pobrane</em>. Aby Firefox za każdym razem pytał Cię, gdzie zapisać plik (umożliwiając od razu wskazanie folderu Dysku Google): wejdź w <em>Ustawienia Firefox &rarr; Ogólne &rarr; Pobieranie</em> i zaznacz opcję <strong>„Zawsze pytaj, gdzie zapisać pliki”</strong>.</li>
+              <li><strong>W telefonie (iPhone / Android):</strong> Pobrany plik znajduje się w aplikacji <strong>Pliki</strong> (folder <em>„Pobrane rzeczy”</em> lub <em>„Na moim iPhonie”</em>).</li>
+            </ul>
           </div>
 
           <!-- Opcja zaawansowana: Logowanie OAuth -->
           <details class="mt-3 pt-3 border-t border-slate-800 text-xs text-slate-400">
             <summary class="cursor-pointer font-bold text-slate-300 hover:text-white flex items-center gap-1.5 py-1">
-              <span>⚙️ Opcja zaawansowana: Bezpośrednie wyskakujące okienko Google</span>
+              <span>⚙️ Opcja zaawansowana: Bezpośrednie wyskakujące okienko Google API</span>
             </summary>
             <div class="mt-2.5 p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
               <p>
@@ -2197,75 +2285,20 @@
             </label>
           </div>
         </div>
-
-        <!-- Wskazówka o Kodzie QR -->
-        <div class="p-4 rounded-2xl bg-amber-950/40 border border-amber-500/40 text-xs text-amber-200 flex items-start gap-3">
-          <span class="text-xl shrink-0" role="img" aria-label="(żarówka)">💡</span>
-          <div>
-            <strong class="text-amber-100 block mb-0.5">Wolisz przejść na smartfon w 3 sekundy bez żadnych plików?</strong>
-            Kliknij u góry zakładkę <strong>„2. Kod QR i Magiczny Link”</strong> i po prostu skieruj aparat telefonu na ekran!
-          </div>
-        </div>
       </div>
 
-      <!-- PANEL 2: KOD QR I MAGICZNY LINK -->
-      <div id="sync-panel-qr" role="tabpanel" aria-labelledby="sync-tab-btn-qr" class="hidden space-y-5">
-        <p class="text-xs sm:text-sm text-slate-300">
-          Najszybszy sposób na natychmiastowe przejście z komputera na smartfon: skieruj aparat iPhone'a / Androida na kod QR lub prześlij sobie wygenerowany Magiczny Link.
-        </p>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 items-center">
-          <!-- Kolumna Kodu QR -->
-          <div class="p-5 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col items-center text-center">
-            <span class="text-xs uppercase font-extrabold text-amber-400 mb-3 tracking-wider">Aparat w telefonie</span>
-            
-            <div id="sync-qr-code-display" style="background-color: #ffffff !important; color: #000000 !important;" class="p-3 rounded-2xl shadow-lg border-4 border-emerald-500/40 flex items-center justify-center min-w-[210px] min-h-[210px]">
-              <!-- Tutaj renderuje się kod QR -->
-              <span class="text-xs text-slate-600">Generowanie kodu QR...</span>
-            </div>
-
-            <p class="text-xs text-slate-400 mt-3 max-w-xs leading-relaxed">
-              Stuknij powiadomienie, które pojawi się w aparacie telefonu. Kurs otworzy się z Twoimi postępami!
-            </p>
-          </div>
-
-          <!-- Kolumna Magicznego Linku i Ręcznego Kodu -->
-          <div class="space-y-4">
-            <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
-              <label for="sync-transfer-link-input" class="text-xs font-bold text-white block">
-                Magiczny Link do otwarcia na drugim urządzeniu:
-              </label>
-              <div class="flex items-center gap-2">
-                <input type="text" id="sync-transfer-link-input" readonly class="w-full px-3 py-2 text-xs rounded-xl bg-slate-900 border border-slate-700 text-slate-300 focus:outline-none select-all" aria-label="Magiczny link transferowy">
-                <button type="button" onclick="copyTransferLink()" id="btn-copy-transfer-link" class="touch-target shrink-0 px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition flex items-center gap-1.5 shadow">
-                  <span role="img" aria-label="(kopiuj)">📋</span>
-                  <span>Kopiuj link</span>
-                </button>
-              </div>
-              <p class="text-[11px] text-slate-400 leading-relaxed">
-                Wyślij ten link do siebie (np. mailem, w wiadomości lub otwórz w Safari).
-              </p>
-            </div>
-
-            <!-- Ręczne wklejenie kodu z innego urządzenia -->
-            <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
-              <label for="sync-manual-code-input" class="text-xs font-bold text-white block">
-                Otrzymałeś kod lub link z drugiego urządzenia? Wklej go tutaj:
-              </label>
-              <textarea id="sync-manual-code-input" rows="2" placeholder="Wklej tutaj otrzymany kod transferu lub link..." class="w-full px-3 py-2 text-xs rounded-xl bg-slate-900 border border-slate-700 text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 resize-none"></textarea>
-              <div class="flex justify-end">
-                <button type="button" onclick="applyManualTransferCode()" class="touch-target px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition flex items-center gap-1.5 shadow">
-                  <span role="img" aria-label="(wczytaj)">📥</span>
-                  <span>Wczytaj postępy z tego kodu</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- PANEL 3: PLIK POSTĘPÓW (.JSON) -->
+      <!-- PANEL 3: PLIK POSTĘPÓW (.JSON) I OCHRONA SMART MERGE -->
       <div id="sync-panel-file" role="tabpanel" aria-labelledby="sync-tab-btn-file" class="hidden space-y-4">
+        <!-- Baner Smart Merge -->
+        <div class="p-4 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 flex items-start gap-3">
+          <span class="text-2xl shrink-0" aria-hidden="true">🛡️</span>
+          <div class="text-xs text-emerald-100 leading-relaxed">
+            <strong class="text-white block mb-1">Ochrona przed cofnięciem (Smart Merge):</strong>
+            Boisz się, że wczytasz starszy plik (np. plik z poniedziałku z Dnia 5, a obecnie jesteś w środę na Dniu 6)? <strong>Nie musisz się obawiać!</strong>
+            System automatycznie scala dane: bierze sumę wszystkich zaliczonych zadań, wybiera najwyższy ukończony dzień nauki i zachowuje Twoje notatki. Żadne nowsze zadanie nigdy nie zostanie utracone!
+          </div>
+        </div>
+
         <p class="text-xs sm:text-sm text-slate-300">
           Tradycyjna, w 100% niezawodna kopia zapasowa. Pobierz plik ze swoimi zadaniami, punktami i notatkami, aby zachować go na dysku lub przesłać na telefon.
         </p>
@@ -2372,7 +2405,7 @@
     <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-6">
       <div>
         <p class="font-bold text-slate-300 mb-1">
-          Akademia Vibe Codingu i Sztuki Promptingu • Wersja 3.8.3 • WCAG 2.1 / 2.2 Poziom AA/AAA (Wielourządzeniowość i Własny Dysk Google)
+          Akademia Vibe Codingu i Sztuki Promptingu • Wersja 3.8.4 • WCAG 2.1 / 2.2 Poziom AA/AAA (Wielourządzeniowość, Smart Merge i Własny Dysk Google)
         </p>
         <p>
           Akademia Vibe Codingu i Sztuki Promptingu • Projekt dostępny w chmurze na GitHubie: <a href="https://github.com/strugo10/vibe-coding-kompendium" target="_blank" rel="noopener noreferrer" class="underline text-slate-300 hover:text-white">strugo10/vibe-coding-kompendium</a> oraz online: <a href="https://strugo10.github.io/vibe-coding-kompendium/" target="_blank" rel="noopener noreferrer" class="underline text-teal-400 hover:text-teal-300">Wersja webowa na żywo</a>. Praktyka w pracy i życiu osobistym, dedykowany panel uwag dla twórcy i uniwersalny eksport notatek.

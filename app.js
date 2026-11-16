@@ -7147,7 +7147,7 @@ let pendingImportData = null;
 let currentQrCodeInstance = null;
 
 // Otwieranie i zamykanie okna synchronizacji
-function openSyncModal(initialTab = 'gdrive') {
+function openSyncModal(initialTab = 'qr') {
   playClickSound();
   const triggerBtn = document.getElementById('btn-header-sync');
   const preferredSelector = `#sync-tab-btn-${initialTab}`;
@@ -7175,7 +7175,7 @@ function closeSyncModal() {
 // Przełączanie zakładek w modalu synchronizacji
 function switchSyncTab(tabId) {
   playClickSound();
-  const tabs = ['gdrive', 'qr', 'file'];
+  const tabs = ['qr', 'gdrive', 'file'];
   tabs.forEach(t => {
     const btn = document.getElementById(`sync-tab-btn-${t}`);
     const panel = document.getElementById(`sync-panel-${t}`);
@@ -7229,7 +7229,7 @@ async function downloadProgressBackupFile() {
   saveState();
 
   const backup = {
-    version: '3.8.3',
+    version: '3.8.4',
     appName: 'Akademia Vibe Codingu i Sztuki Promptingu',
     exportDate: new Date().toISOString(),
     completedTasks: Array.from(STATE.completedTasks || []),
@@ -7297,13 +7297,14 @@ async function downloadProgressBackupFile() {
       '1. Na ekranie początkowym iPhone otwórz niebieską aplikację „Pliki” (Files).\n' +
       '2. Wejdź w folder „Pobrane rzeczy” lub „Na moim iPhonie” -> „Edge” (lub Safari).\n' +
       '3. Plik znajdziesz też od razu w zakładce „Ostatnie” na samym dole aplikacji Pliki!\n\n' +
-      '💡 Wskazówka: Aby na telefonie nie szukać plików w aplikacji Pliki, najwygodniej jest korzystać z Zakładki „2. Kod QR i Magiczny Link”!'
+      '💡 Pamiętaj: Jeśli chcesz przejść z komputera na telefon w 3 sekundy bez żadnych plików, użyj zakładki „1. Kod QR i Magiczny Link”!'
     );
   } else {
     alert(
-      'Plik z Twoimi postępami (' + fileName + ') został pobrany!\n\n' +
-      '📁 Znajdziesz go w folderze „Pobrane” na swoim komputerze. Możesz go zapisać w swoim folderze „Dysk Google”.\n\n' +
-      '💡 Wskazówka dla Firefox: Jeśli chcesz, aby przeglądarka za każdym razem pytała o wybór folderu, wejdź w Ustawienia Firefox -> Ogólne -> Pobieranie i zaznacz opcję „Zawsze pytaj, gdzie zapisać pliki”.'
+      'Pomyślnie wygenerowano plik z Twoimi postępami (' + fileName + ')!\n\n' +
+      '📁 Dysk Google na Twoim komputerze:\n' +
+      'Jeśli korzystasz z aplikacji Dysk Google (np. dysk G: Mój dysk), przenieś pobrany plik do folderu Dysku Google — plik automatycznie trafi do chmury i będzie dostępny na smartfonie!\n\n' +
+      '💡 Wskazówka dla Firefox: Aby Firefox przy każdym zapisie pytał o folder (pozwalając od razu wskazać Dysk Google), wejdź w: Ustawienia Firefox -> Ogólne -> Pobieranie i zaznacz „Zawsze pytaj, gdzie zapisać pliki”.'
     );
   }
 }
@@ -7337,7 +7338,7 @@ function handleImportFileSelect(event) {
 function generateCompactTransferString(includeNotes = false) {
   saveState();
   const payload = {
-    v: '3.8.3',
+    v: '3.8.4',
     ts: Date.now(),
     t: Array.from(STATE.completedTasks || []),
     s: STATE.taskStatuses || {},
@@ -7471,39 +7472,71 @@ function applyManualTransferCode() {
 // =========================================================================
 
 function applyImportedDataDirectly(data, sourceName = '') {
-  if (Array.isArray(data.completedTasks)) {
-    STATE.completedTasks = new Set(data.completedTasks);
-  } else if (data.t && Array.isArray(data.t)) {
-    STATE.completedTasks = new Set(data.t);
+  const localTasks = STATE.completedTasks ? Array.from(STATE.completedTasks) : [];
+  const localCount = localTasks.length;
+  const localDay = STATE.currentDay || 1;
+
+  const importedTasksRaw = data.completedTasks || data.t || [];
+  const importedTasks = Array.isArray(importedTasksRaw) ? importedTasksRaw : Object.keys(importedTasksRaw);
+  const importedCount = importedTasks.length;
+  const importedDay = data.currentDay || data.d || 1;
+
+  // Sprawdzamy, czy wczytywany plik ma mniej zadań lub wcześniejszy dzień niż obecne urządzenie
+  const isImportedOlder = (importedCount < localCount) || (importedDay < localDay);
+
+  let mergeNotice = '';
+
+  // INTELIGENTNE SCALANIE POSTĘPÓW (Smart Merge):
+  // Bezpieczeństwo danych: bierzemy sumę wszystkich zadań (żadne nowsze zadanie nie zostanie skasowane!)
+  const mergedTasksSet = new Set([...localTasks, ...importedTasks]);
+  STATE.completedTasks = mergedTasksSet;
+
+  // Połączenie statusów zadań
+  if (!STATE.taskStatuses) STATE.taskStatuses = {};
+  const incomingStatuses = data.taskStatuses || data.s || {};
+  Object.keys(incomingStatuses).forEach(k => {
+    if (!STATE.taskStatuses[k] || STATE.taskStatuses[k] !== 'passed') {
+      STATE.taskStatuses[k] = incomingStatuses[k];
+    }
+  });
+  // Gwarancja, że wszystkie zaliczone zadania mają status 'passed'
+  STATE.completedTasks.forEach(id => {
+    STATE.taskStatuses[id] = 'passed';
+  });
+
+  // Dzień nauki: zawsze wyższy z dwóch (ochrona przed cofnięciem się w kursie)
+  STATE.currentDay = Math.max(localDay, importedDay);
+
+  if (isImportedOlder && localCount > 0) {
+    mergeNotice = `\n\n🛡️ Ochrona przed cofnięciem: Wczytywany plik miał mniej zadań (${importedCount}) niż to urządzenie (${localCount}). Postępy zostały bezpiecznie POŁĄCZONE — żadne z Twoich nowszych osiągnięć nie przepadło!`;
   }
 
-  if (data.taskStatuses && typeof data.taskStatuses === 'object') {
-    STATE.taskStatuses = Object.assign({}, data.taskStatuses);
-  } else if (data.s && typeof data.s === 'object') {
-    STATE.taskStatuses = Object.assign({}, data.s);
-  } else if (STATE.completedTasks) {
-    STATE.taskStatuses = {};
-    STATE.completedTasks.forEach(id => {
-      STATE.taskStatuses[id] = 'passed';
-    });
-  }
-
-  if (data.currentDay || data.d) STATE.currentDay = data.currentDay || data.d;
   if (data.learnerName || data.n) STATE.learnerName = data.learnerName || data.n;
   if (data.userProfile) STATE.userProfile = Object.assign(STATE.userProfile || {}, data.userProfile);
 
+  // Scalanie notatek (żadna wpisana notatka nie zostanie utracona)
   if (data.taskNotes || data.nt) {
     const notes = data.taskNotes || data.nt;
     if (!STATE.taskNotes) STATE.taskNotes = {};
-    Object.assign(STATE.taskNotes, notes);
     Object.keys(notes).forEach(k => {
-      if (notes[k]) {
-        try { localStorage.setItem(`vibe_coding_task_notes_${k}`, notes[k]); } catch(e){}
+      if (notes[k] && (!STATE.taskNotes[k] || !STATE.taskNotes[k].trim())) {
+        STATE.taskNotes[k] = notes[k];
+      } else if (notes[k] && STATE.taskNotes[k] && notes[k] !== STATE.taskNotes[k]) {
+        if (notes[k].length > STATE.taskNotes[k].length) {
+          STATE.taskNotes[k] = notes[k];
+        }
       }
+      try { localStorage.setItem(`vibe_coding_task_notes_${k}`, STATE.taskNotes[k]); } catch(e){}
     });
   }
+
   if (Array.isArray(data.sandboxCreations)) {
-    STATE.sandboxCreations = data.sandboxCreations;
+    const existingIds = new Set((STATE.sandboxCreations || []).map(p => p.id));
+    data.sandboxCreations.forEach(p => {
+      if (!existingIds.has(p.id)) {
+        STATE.sandboxCreations.push(p);
+      }
+    });
     try { localStorage.setItem('vibe_coding_sandbox_creations', JSON.stringify(STATE.sandboxCreations)); } catch(e){}
   }
   if (Array.isArray(data.authorFeedbacks)) {
@@ -7541,15 +7574,15 @@ function applyImportedDataDirectly(data, sourceName = '') {
     closeModal('modal-transfer-confirm');
   }
 
-  const count = STATE.completedTasks ? STATE.completedTasks.size : 0;
-  const points = calculateTotalScore();
+  const finalCount = STATE.completedTasks ? STATE.completedTasks.size : 0;
+  const finalPoints = calculateTotalScore();
 
   playVictoryFanfare();
   celebrateWithConfetti();
 
-  const label = sourceName ? `z pliku: ${sourceName}` : 'z Twojej kopii';
-  announceSR(`Pomyślnie wczytano Twoje postępy ${label}. Ukończono ${count} zadań, zdobyto ${points} punktów.`);
-  alert(`Wspaniale! Pomyślnie wczytano Twoje postępy ${label}!\n\n✅ Ukończone zadania: ${count} / 100\n🏆 Zdobyte punkty: ${points} pkt\n\nMożesz teraz bez przeszkód kontynuować kurs na tym urządzeniu.`);
+  const label = sourceName ? `z: ${sourceName}` : 'z Twojej kopii';
+  announceSR(`Pomyślnie zsynchronizowano postępy ${label}. Ukończono ${finalCount} zadań, zdobyto ${finalPoints} punktów.`);
+  alert(`Wspaniale! Pomyślnie zsynchronizowano Twoje postępy ${label}!\n\n✅ Zaliczone zadania: ${finalCount} / 100\n🏆 Zdobyte punkty: ${finalPoints} pkt\n📅 Dzień nauki: ${STATE.currentDay}${mergeNotice}\n\nMożesz teraz bez przeszkód kontynuować naukę na tym urządzeniu!`);
 }
 
 function promptImportConfirmation(data, sourceDesc = '') {
@@ -7781,7 +7814,7 @@ async function saveToGoogleDrive(isSilent = false) {
 
   saveState();
   const backup = {
-    version: '3.8.3',
+    version: '3.8.4',
     appName: 'Akademia Vibe Codingu',
     exportDate: new Date().toISOString(),
     completedTasks: Array.from(STATE.completedTasks || []),
