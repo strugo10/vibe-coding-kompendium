@@ -7118,8 +7118,22 @@ function saveState() {
 }
 
 // =========================================================================
-// SYNCHRONIZACJA URZĄDZEŃ, WŁASNY DYSK GOOGLE, KOD QR I KOPIA ZAPASOWA (v3.8.0)
+// SYNCHRONIZACJA URZĄDZEŃ, WŁASNY DYSK GOOGLE, KOD QR I KOPIA ZAPASOWA (v3.8.2)
 // =========================================================================
+
+// Obliczanie łącznej liczby zdobytych punktów
+function calculateTotalScore() {
+  try {
+    if (typeof calculateScore === 'function') {
+      const s = calculateScore();
+      return (s && typeof s.earnedPoints === 'number') ? s.earnedPoints : 0;
+    }
+    return 0;
+  } catch(e) {
+    console.warn("Błąd calculateTotalScore:", e);
+    return 0;
+  }
+}
 
 let gdriveTokenClient = null;
 let gdriveAccessToken = localStorage.getItem('vibe_coding_gdrive_token') || null;
@@ -7212,15 +7226,15 @@ function updateSyncFileStats() {
 // POBIERANIE I WCZYTYWANIE PLIKU .JSON (OPCJA 1 / 3)
 // =========================================================================
 
-function downloadProgressBackupFile() {
+async function downloadProgressBackupFile() {
   playClickSound();
   saveState();
 
   const backup = {
-    version: '3.8.0',
+    version: '3.8.2',
     appName: 'Akademia Vibe Codingu i Sztuki Promptingu',
     exportDate: new Date().toISOString(),
-    completedTasks: Array.from(STATE.completedTasks),
+    completedTasks: Array.from(STATE.completedTasks || []),
     taskStatuses: STATE.taskStatuses || {},
     currentDay: STATE.currentDay || 1,
     learnerName: STATE.learnerName || '',
@@ -7237,19 +7251,49 @@ function downloadProgressBackupFile() {
   };
 
   const jsonStr = JSON.stringify(backup, null, 2);
+  const fileName = 'Akademia_Vibe_Codingu_Postepy.json';
+
+  // 1. Nowoczesny wybór folderu (Chrome, Edge, Opera - File System Access API)
+  if (typeof window.showSaveFilePicker === 'function') {
+    try {
+      const handle = await window.showSaveFilePicker({
+        suggestedName: fileName,
+        types: [{
+          description: 'Plik postępów Akademii Vibe Codingu (JSON)',
+          accept: { 'application/json': ['.json'] }
+        }]
+      });
+      const writable = await handle.createWritable();
+      await writable.write(jsonStr);
+      await writable.close();
+      playSuccessChime();
+      announceSR('Pomyślnie zapisano plik z postępami w wybranym folderze.');
+      alert('Pomyślnie zapisano plik z postępami w wybranym folderze!');
+      return;
+    } catch(err) {
+      if (err && err.name === 'AbortError') return;
+      console.warn('showSaveFilePicker fallback:', err);
+    }
+  }
+
+  // 2. Niezawodny fallback dla Firefox, Safari i urządzeń mobilnych
   const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  const dateStr = new Date().toISOString().split('T')[0];
   a.href = url;
-  a.download = `Vibe_Coding_Postepy_${dateStr}.json`;
+  a.download = fileName;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
 
-  announceSR('Pobrano plik z Twoimi postępami. Możesz zapisać go na Dysku Google lub przenieść na drugie urządzenie.');
+  announceSR('Pobrano plik postępów.');
   playSuccessChime();
+  alert(
+    'Plik z Twoimi postępami (' + fileName + ') został pobrany!\n\n' +
+    '📁 Znajdziesz go w folderze "Pobrane" na swoim komputerze. Przenieś go lub skopiuj do swojego folderu "Dysk Google".\n\n' +
+    '💡 Wskazówka dla Firefox: Jeśli chcesz, aby przeglądarka za każdym razem pytała o wybór folderu, wejdź w Ustawienia Firefox -> Ogólne -> Pobieranie i zaznacz opcję "Zawsze pytaj, gdzie zapisać pliki".'
+  );
 }
 
 function handleImportFileSelect(event) {
@@ -7280,9 +7324,9 @@ function handleImportFileSelect(event) {
 function generateCompactTransferString(includeNotes = false) {
   saveState();
   const payload = {
-    v: '3.8.0',
+    v: '3.8.2',
     ts: Date.now(),
-    t: Array.from(STATE.completedTasks),
+    t: Array.from(STATE.completedTasks || []),
     s: STATE.taskStatuses || {},
     d: STATE.currentDay || 1,
     n: STATE.learnerName || '',
@@ -7324,29 +7368,46 @@ function renderTransferQrCode() {
   if (!container) return;
 
   container.innerHTML = '';
-  const transferCode = generateCompactTransferString(false);
-  const baseUrl = window.location.origin + window.location.pathname;
-  const fullUrl = `${baseUrl}#transfer=${transferCode}`;
+  container.style.backgroundColor = '#ffffff';
+  container.style.color = '#0b0f19';
+
+  let transferCode = '';
+  let fullUrl = '';
+  try {
+    transferCode = generateCompactTransferString(false);
+    const baseUrl = window.location.origin + window.location.pathname;
+    fullUrl = `${baseUrl}#transfer=${transferCode}`;
+  } catch(e) {
+    console.error('Błąd generowania kodu transferu:', e);
+    container.innerHTML = '<span class="text-xs text-rose-700 font-bold p-2 text-center">Błąd przygotowania danych</span>';
+    return;
+  }
 
   const linkInput = document.getElementById('sync-transfer-link-input');
-  if (linkInput) linkInput.value = fullUrl;
+  if (linkInput) {
+    linkInput.value = fullUrl;
+  }
 
   if (typeof QRCode !== 'undefined') {
     try {
+      const correctLevel = (QRCode.CorrectLevel && typeof QRCode.CorrectLevel.L !== 'undefined')
+        ? QRCode.CorrectLevel.L
+        : 1;
+
       currentQrCodeInstance = new QRCode(container, {
         text: fullUrl,
         width: 190,
         height: 190,
         colorDark: '#0b0f19',
         colorLight: '#ffffff',
-        correctLevel: QRCode.CorrectLevel.M
+        correctLevel: correctLevel
       });
     } catch(err) {
       console.warn('Błąd generowania QRCode:', err);
-      container.innerHTML = '<span class="text-xs text-slate-700 font-bold p-2">Użyj poniższego Magicznego Linku lub Kodu</span>';
+      container.innerHTML = '<span class="text-xs text-slate-800 font-bold p-2 text-center">Aparat nie może odczytać kodu graficznego?<br>Skorzystaj z Magicznego Linku obok!</span>';
     }
   } else {
-    container.innerHTML = '<span class="text-xs text-slate-700 font-bold p-2">Magiczny Link wygenerowany poniżej</span>';
+    container.innerHTML = '<span class="text-xs text-slate-800 font-bold p-2 text-center">Biblioteka QR nie została załadowana.<br>Skorzystaj z Magicznego Linku obok!</span>';
   }
 }
 
@@ -7676,28 +7737,21 @@ function connectGoogleDrive() {
   }
 }
 
-function saveToGoogleDrive(isSilent = false) {
+async function saveToGoogleDrive(isSilent = false) {
   if (!isSilent) playClickSound();
 
   // Jeśli brak połączenia OAuth, natychmiast zapisz plik z postępami do folderu Dysku Google
   if (!gdriveAccessToken) {
-    downloadProgressBackupFile();
-    if (!isSilent) {
-      alert(
-        "Pobrano plik z Twoimi postępami (Akademia_Vibe_Codingu_Postepy.json)!\n\n" +
-        "📁 Zapisz go w swoim folderze Dysku Google na komputerze lub w aplikacji 'Pliki' na telefonie.\n" +
-        "📲 Na drugim urządzeniu wczytasz go przyciskiem 'Wczytaj postępy z mojego Dysku Google'."
-      );
-    }
+    await downloadProgressBackupFile();
     return;
   }
 
   saveState();
   const backup = {
-    version: '3.8.1',
+    version: '3.8.2',
     appName: 'Akademia Vibe Codingu',
     exportDate: new Date().toISOString(),
-    completedTasks: Array.from(STATE.completedTasks),
+    completedTasks: Array.from(STATE.completedTasks || []),
     taskStatuses: STATE.taskStatuses || {},
     currentDay: STATE.currentDay || 1,
     learnerName: STATE.learnerName || '',

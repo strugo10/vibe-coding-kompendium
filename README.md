@@ -1,4 +1,4 @@
-# Akademia Vibe Codingu i Sztuki Promptingu (Od Zera do Twórcy) — Wersja 3.8.1
+# Akademia Vibe Codingu i Sztuki Promptingu (Od Zera do Twórcy) — Wersja 3.8.2
 
 > 🚀 **Uruchom Akademię online (działa od razu w przeglądarce):**  
 > 👉 **[https://strugo10.github.io/vibe-coding-kompendium/](https://strugo10.github.io/vibe-coding-kompendium/)**
@@ -7,6 +7,16 @@
 > 👉 **[https://github.com/strugo10/vibe-coding-kompendium](https://github.com/strugo10/vibe-coding-kompendium)**
 
 Kompletne, interaktywne kompendium obejmujące **100 praktycznych zadań** podzielonych na **34 dni nauki** (po 3 zadania dziennie), w pełni dostosowane do standardów dostępności cyfrowej **WCAG 2.1 / 2.2 AA/AAA** (czytniki ekranu **NVDA** na Windows oraz **VoiceOver** na iPhone/iOS). Wszystkie postępy kursanta, punkty, notatki i dyplom zapisują się w 100% lokalnie i bezpiecznie w pamięci przeglądarki (`localStorage`), z możliwością natychmiastowej synchronizacji na smartfon (Kod QR, Magiczny Link) oraz z prywatnym Dyskiem Google kursanta.
+
+## Co nowego w Wersji 3.8.2 (Stabilizacja Kodu QR, Wbudowana Biblioteka i Wybór Folderu Dysku Google)?
+- **Naprawa i gwarancja wyświetlania Kodu QR na ekranie:**
+  - Wbudowano bibliotekę `qrcode.min.js` lokalnie w repozytorium projektu, eliminując zależność od zewnętrznych serwerów CDN i blokad wtyczek AdBlock.
+  - Naprawiono błąd obliczania punktów (`calculateTotalScore`), który powodował zatrzymanie skryptu i brak wyświetlania kodu QR oraz Magicznego Linku.
+  - Zastosowano optymalny poziom korekcji błędów (`CorrectLevel.L`) z powiększonymi pikselami, co gwarantuje błyskawiczne i pewne odczytanie kodu przez aparat iPhone'a i smartfona z Androidem z ekranu komputera.
+- **Wygodny zapis pliku postępów i wybór folderu Dysku Google:**
+  - W nowoczesnych przeglądarkach (Google Chrome, Microsoft Edge, Opera) kliknięcie przycisku zapisu otwiera systemowe okno dialogowe pozwalające bezpośrednio wybrać folder `Dysk Google` lub dowolny inny folder na dysku.
+  - W przeglądarce Mozilla Firefox dodano precyzyjne wskazówki dotyczące domyślnego folderu *Pobrane* oraz instrukcję, jak włączyć w opcjach Firefoxa stałe pytanie o folder zapisu.
+  - Wyeliminowano zbędne podwójne komunikaty przy zapisie.
 
 ## Co nowego w Wersji 3.8.1 (Usprawnienie Dysku Google: Bezpośredni Zapis do Folderu i Likwidacja Błędu 401)?
 - **Bezpośredni i niezawodny zapis na Dysk Google bez rejestracji i haseł:**

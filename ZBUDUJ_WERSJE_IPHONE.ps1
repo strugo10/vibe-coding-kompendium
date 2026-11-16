@@ -5,10 +5,15 @@ $dir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $indexHtml = Get-Content -Path (Join-Path $dir "index.html") -Raw -Encoding UTF8
 $tasksJs   = Get-Content -Path (Join-Path $dir "tasks_data.js") -Raw -Encoding UTF8
 $appJs     = Get-Content -Path (Join-Path $dir "app.js") -Raw -Encoding UTF8
+$qrcodeJs  = Get-Content -Path (Join-Path $dir "qrcode.min.js") -Raw -Encoding UTF8
 
 # Bezpieczna ucieczka dla tagów script wewnątrz stringów JS w plikach
-$safeTasksJs = $tasksJs -replace '</script>', '<\/script>'
-$safeAppJs   = $appJs -replace '</script>', '<\/script>'
+$safeTasksJs  = $tasksJs -replace '</script>', '<\/script>'
+$safeAppJs    = $appJs -replace '</script>', '<\/script>'
+$safeQrcodeJs = $qrcodeJs -replace '</script>', '<\/script>'
+
+# Zastąpienie zewnętrznego skryptu qrcode.min.js wersją wstrzykniętą inline
+$indexHtml = $indexHtml -replace '<script src="qrcode\.min\.js"></script>', "<script>`n$safeQrcodeJs`n</script>"
 
 # Wstrzyknięcie skryptów bezpośrednio do jednego pliku HTML (bez zewnętrznych zależności lokalnych)
 $inlineScripts = @"
