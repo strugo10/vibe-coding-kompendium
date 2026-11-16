@@ -670,6 +670,9 @@ function setBackgroundInert(isInert) {
   allModals.forEach(m => {
     if (isInert && m !== currentOpenModal) {
       m.setAttribute('aria-hidden', 'true');
+      m.setAttribute('inert', '');
+    } else if (!isInert) {
+      m.removeAttribute('inert');
     }
   });
 }
@@ -697,12 +700,18 @@ function openModal(modalId, triggerElement = null, preferredFocusSelector = null
     }
 
     if (!focusTarget) {
+      focusTarget = modal.querySelector('button[role="tab"][aria-selected="true"], input:checked, input[type="text"]:not([readonly]), button:not([onclick*="close"]):not([disabled]), [tabindex="0"]');
+    }
+
+    if (!focusTarget) {
+      focusTarget = modal.querySelector('button:not([disabled])');
+    }
+
+    if (!focusTarget) {
       const title = modal.querySelector('h3, h2, [role="heading"]');
       if (title) {
         title.setAttribute('tabindex', '-1');
         focusTarget = title;
-      } else {
-        focusTarget = modal.querySelector('input:checked, input[type="text"], input[type="radio"], button:not([onclick*="close"]), select, textarea');
       }
     }
 
@@ -5084,21 +5093,13 @@ function openNotesManagerModal() {
   if (!modal) return;
   renderNotesManagerList('');
   updateGlobalNotesCounter();
-  modal.classList.remove('hidden');
-  modal.removeAttribute('aria-hidden');
-  const title = document.getElementById('notes-modal-title');
-  if (title) title.focus();
-  playClickSound();
+  const triggerBtn = document.getElementById('btn-header-notes');
+  openModal('modal-notes-manager', triggerBtn, '#notes-search-input');
   announceSR("Otwarto okno przeglądania zrobionych notatek.");
 }
 
 function closeNotesManagerModal() {
-  const modal = document.getElementById('modal-notes-manager');
-  if (!modal) return;
-  modal.classList.add('hidden');
-  modal.setAttribute('aria-hidden', 'true');
-  const headerBtn = document.getElementById('btn-header-notes');
-  if (headerBtn) headerBtn.focus();
+  closeModal('modal-notes-manager');
   announceSR("Zamknięto przeglądarkę notatek.");
 }
 
@@ -7148,30 +7149,27 @@ let currentQrCodeInstance = null;
 // Otwieranie i zamykanie okna synchronizacji
 function openSyncModal(initialTab = 'gdrive') {
   playClickSound();
-  const modal = document.getElementById('modal-sync-manager');
-  if (!modal) return;
+  const triggerBtn = document.getElementById('btn-header-sync');
+  const preferredSelector = `#sync-tab-btn-${initialTab}`;
 
-  currentOpenModal = modal;
-  modal.classList.remove('hidden');
-  modal.removeAttribute('aria-hidden');
+  openModal('modal-sync-manager', triggerBtn, preferredSelector);
 
   switchSyncTab(initialTab);
   updateSyncFileStats();
   initGoogleDriveSyncStatus();
 
-  const title = document.getElementById('sync-modal-title');
-  if (title) setTimeout(() => title.focus(), 60);
+  setTimeout(() => {
+    const activeTab = document.getElementById(`sync-tab-btn-${initialTab}`);
+    if (activeTab) activeTab.focus();
+  }, 100);
 
-  announceSR("Otwarto okno synchronizacji urządzeń i kopii bezpieczeństwa.");
+  announceSR("Otwarto okno synchronizacji urządzeń i kopii bezpieczeństwa. Klawisz Escape zamyka okno.");
 }
 
 function closeSyncModal() {
-  const modal = document.getElementById('modal-sync-manager');
-  if (!modal) return;
-  modal.classList.add('hidden');
-  modal.setAttribute('aria-hidden', 'true');
-  currentOpenModal = null;
+  closeModal('modal-sync-manager');
   playClickSound();
+  announceSR("Zamknięto okno synchronizacji urządzeń.");
 }
 
 // Przełączanie zakładek w modalu synchronizacji
@@ -7231,7 +7229,7 @@ async function downloadProgressBackupFile() {
   saveState();
 
   const backup = {
-    version: '3.8.2',
+    version: '3.8.3',
     appName: 'Akademia Vibe Codingu i Sztuki Promptingu',
     exportDate: new Date().toISOString(),
     completedTasks: Array.from(STATE.completedTasks || []),
@@ -7253,7 +7251,7 @@ async function downloadProgressBackupFile() {
   const jsonStr = JSON.stringify(backup, null, 2);
   const fileName = 'Akademia_Vibe_Codingu_Postepy.json';
 
-  // 1. Nowoczesny wybór folderu (Chrome, Edge, Opera - File System Access API)
+  // 1. Nowoczesny wybór folderu (Chrome, Edge, Opera na komputerze - File System Access API)
   if (typeof window.showSaveFilePicker === 'function') {
     try {
       const handle = await window.showSaveFilePicker({
@@ -7276,7 +7274,7 @@ async function downloadProgressBackupFile() {
     }
   }
 
-  // 2. Niezawodny fallback dla Firefox, Safari i urządzeń mobilnych
+  // 2. Niezawodny fallback dla Firefox, Safari i urządzeń mobilnych (w tym Edge na iPhone)
   const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -7289,11 +7287,25 @@ async function downloadProgressBackupFile() {
 
   announceSR('Pobrano plik postępów.');
   playSuccessChime();
-  alert(
-    'Plik z Twoimi postępami (' + fileName + ') został pobrany!\n\n' +
-    '📁 Znajdziesz go w folderze "Pobrane" na swoim komputerze. Przenieś go lub skopiuj do swojego folderu "Dysk Google".\n\n' +
-    '💡 Wskazówka dla Firefox: Jeśli chcesz, aby przeglądarka za każdym razem pytała o wybór folderu, wejdź w Ustawienia Firefox -> Ogólne -> Pobieranie i zaznacz opcję "Zawsze pytaj, gdzie zapisać pliki".'
-  );
+
+  // Sprawdzenie, czy użytkownik korzysta z telefonu (iPhone / Android)
+  const isIos = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if (isIos) {
+    alert(
+      'Plik z Twoimi postępami (' + fileName + ') został zapisany na Twoim iPhone!\n\n' +
+      '📱 Gdzie go znaleźć w telefonie?\n' +
+      '1. Na ekranie początkowym iPhone otwórz niebieską aplikację „Pliki” (Files).\n' +
+      '2. Wejdź w folder „Pobrane rzeczy” lub „Na moim iPhonie” -> „Edge” (lub Safari).\n' +
+      '3. Plik znajdziesz też od razu w zakładce „Ostatnie” na samym dole aplikacji Pliki!\n\n' +
+      '💡 Wskazówka: Aby na telefonie nie szukać plików w aplikacji Pliki, najwygodniej jest korzystać z Zakładki „2. Kod QR i Magiczny Link”!'
+    );
+  } else {
+    alert(
+      'Plik z Twoimi postępami (' + fileName + ') został pobrany!\n\n' +
+      '📁 Znajdziesz go w folderze „Pobrane” na swoim komputerze. Możesz go zapisać w swoim folderze „Dysk Google”.\n\n' +
+      '💡 Wskazówka dla Firefox: Jeśli chcesz, aby przeglądarka za każdym razem pytała o wybór folderu, wejdź w Ustawienia Firefox -> Ogólne -> Pobieranie i zaznacz opcję „Zawsze pytaj, gdzie zapisać pliki”.'
+    );
+  }
 }
 
 function handleImportFileSelect(event) {
@@ -7308,7 +7320,8 @@ function handleImportFileSelect(event) {
         alert('Wybrany plik nie zawiera poprawnych danych postępów Akademii Vibe Codingu.');
         return;
       }
-      promptImportConfirmation(data, 'z pliku: ' + file.name);
+      // Natychmiastowe zaaplikowanie wczytanego pliku z pełną informacją dla użytkownika
+      applyImportedDataDirectly(data, file.name);
     } catch(err) {
       alert('Nie udało się odczytać pliku JSON: ' + err.message);
     }
@@ -7324,7 +7337,7 @@ function handleImportFileSelect(event) {
 function generateCompactTransferString(includeNotes = false) {
   saveState();
   const payload = {
-    v: '3.8.2',
+    v: '3.8.3',
     ts: Date.now(),
     t: Array.from(STATE.completedTasks || []),
     s: STATE.taskStatuses || {},
@@ -7457,76 +7470,35 @@ function applyManualTransferCode() {
 // POTWIERDZENIE I APLIKOWANIE ZAIMPORTOWANEGO STANU
 // =========================================================================
 
-function promptImportConfirmation(data, sourceDesc = '') {
-  pendingImportData = data;
-  const modal = document.getElementById('modal-transfer-confirm');
-  if (!modal) {
-    if (confirm(`Wykryto Twoje postępy (${sourceDesc}):\nUkończone zadania: ${(data.completedTasks || []).length}/100\nPunkty: ${data.points || 0}\n\nCzy chcesz wczytać te postępy na to urządzenie?`)) {
-      executeApplyImportedState();
-    }
-    return;
-  }
-
-  const tasksCountEl = document.getElementById('confirm-import-tasks');
-  const pointsCountEl = document.getElementById('confirm-import-points');
-  const nameEl = document.getElementById('confirm-import-name');
-  const sourceEl = document.getElementById('confirm-import-source');
-
-  const count = Array.isArray(data.completedTasks) ? data.completedTasks.length : (data.completedTasks instanceof Set ? data.completedTasks.size : 0);
-  if (tasksCountEl) tasksCountEl.textContent = `${count} / 100`;
-  if (pointsCountEl) pointsCountEl.textContent = `${data.points || calculateTotalScoreFromData(data)} pkt`;
-  if (nameEl) nameEl.textContent = data.learnerName ? `Uczeń: ${data.learnerName}` : (STATE.learnerName ? `Uczeń: ${STATE.learnerName}` : 'Kursant Vibe Codingu');
-  if (sourceEl) sourceEl.textContent = `Źródło: ${sourceDesc}`;
-
-  modal.classList.remove('hidden');
-  modal.removeAttribute('aria-hidden');
-  currentOpenModal = modal;
-  playClickSound();
-
-  const confirmBtn = document.getElementById('btn-confirm-import-accept');
-  if (confirmBtn) setTimeout(() => confirmBtn.focus(), 80);
-
-  announceSR(`Wykryto postępy ${sourceDesc}. Ukończono ${count} zadań.`);
-}
-
-function cancelImportConfirmation() {
-  pendingImportData = null;
-  const modal = document.getElementById('modal-transfer-confirm');
-  if (modal) {
-    modal.classList.add('hidden');
-    modal.setAttribute('aria-hidden', 'true');
-  }
-  currentOpenModal = null;
-  playClickSound();
-}
-
-function executeApplyImportedState() {
-  if (!pendingImportData) return;
-  const data = pendingImportData;
-  pendingImportData = null;
-
+function applyImportedDataDirectly(data, sourceName = '') {
   if (Array.isArray(data.completedTasks)) {
     STATE.completedTasks = new Set(data.completedTasks);
+  } else if (data.t && Array.isArray(data.t)) {
+    STATE.completedTasks = new Set(data.t);
   }
+
   if (data.taskStatuses && typeof data.taskStatuses === 'object') {
     STATE.taskStatuses = Object.assign({}, data.taskStatuses);
-  } else if (data.completedTasks) {
+  } else if (data.s && typeof data.s === 'object') {
+    STATE.taskStatuses = Object.assign({}, data.s);
+  } else if (STATE.completedTasks) {
     STATE.taskStatuses = {};
-    data.completedTasks.forEach(id => {
+    STATE.completedTasks.forEach(id => {
       STATE.taskStatuses[id] = 'passed';
     });
   }
 
-  if (data.currentDay) STATE.currentDay = data.currentDay;
-  if (data.learnerName) STATE.learnerName = data.learnerName;
+  if (data.currentDay || data.d) STATE.currentDay = data.currentDay || data.d;
+  if (data.learnerName || data.n) STATE.learnerName = data.learnerName || data.n;
   if (data.userProfile) STATE.userProfile = Object.assign(STATE.userProfile || {}, data.userProfile);
 
-  if (data.taskNotes) {
+  if (data.taskNotes || data.nt) {
+    const notes = data.taskNotes || data.nt;
     if (!STATE.taskNotes) STATE.taskNotes = {};
-    Object.assign(STATE.taskNotes, data.taskNotes);
-    Object.keys(data.taskNotes).forEach(k => {
-      if (data.taskNotes[k]) {
-        try { localStorage.setItem(`vibe_coding_task_notes_${k}`, data.taskNotes[k]); } catch(e){}
+    Object.assign(STATE.taskNotes, notes);
+    Object.keys(notes).forEach(k => {
+      if (notes[k]) {
+        try { localStorage.setItem(`vibe_coding_task_notes_${k}`, notes[k]); } catch(e){}
       }
     });
   }
@@ -7559,13 +7531,74 @@ function executeApplyImportedState() {
   updateGlobalNotesCounter();
   updateAuthorFeedbackCounter();
 
-  cancelImportConfirmation();
-  closeSyncModal();
+  // Zamknij wszelkie otwarte okna synchronizacji lub potwierdzenia
+  const syncModal = document.getElementById('modal-sync-manager');
+  if (syncModal && !syncModal.classList.contains('hidden')) {
+    closeSyncModal();
+  }
+  const confirmModal = document.getElementById('modal-transfer-confirm');
+  if (confirmModal && !confirmModal.classList.contains('hidden')) {
+    closeModal('modal-transfer-confirm');
+  }
+
+  const count = STATE.completedTasks ? STATE.completedTasks.size : 0;
+  const points = calculateTotalScore();
 
   playVictoryFanfare();
   celebrateWithConfetti();
-  announceSR('Wspaniale! Twoje postępy zostały pomyślnie wczytane na to urządzenie. Możesz kontynuować kurs!');
-  alert('Wspaniale! Twoje postępy zostały pomyślnie wczytane na to urządzenie.');
+
+  const label = sourceName ? `z pliku: ${sourceName}` : 'z Twojej kopii';
+  announceSR(`Pomyślnie wczytano Twoje postępy ${label}. Ukończono ${count} zadań, zdobyto ${points} punktów.`);
+  alert(`Wspaniale! Pomyślnie wczytano Twoje postępy ${label}!\n\n✅ Ukończone zadania: ${count} / 100\n🏆 Zdobyte punkty: ${points} pkt\n\nMożesz teraz bez przeszkód kontynuować kurs na tym urządzeniu.`);
+}
+
+function promptImportConfirmation(data, sourceDesc = '') {
+  pendingImportData = data;
+
+  // Zamknij okno synchronizacji jeśli było otwarte
+  const syncModal = document.getElementById('modal-sync-manager');
+  if (syncModal && !syncModal.classList.contains('hidden')) {
+    closeSyncModal();
+  }
+
+  const modal = document.getElementById('modal-transfer-confirm');
+  if (!modal) {
+    if (confirm(`Wykryto Twoje postępy (${sourceDesc}):\nUkończone zadania: ${(data.completedTasks || []).length}/100\nPunkty: ${data.points || 0}\n\nCzy chcesz wczytać te postępy na to urządzenie?`)) {
+      executeApplyImportedState();
+    }
+    return;
+  }
+
+  const tasksCountEl = document.getElementById('confirm-import-tasks');
+  const pointsCountEl = document.getElementById('confirm-import-points');
+  const nameEl = document.getElementById('confirm-import-name');
+  const sourceEl = document.getElementById('confirm-import-source');
+
+  const count = Array.isArray(data.completedTasks) ? data.completedTasks.length : (data.completedTasks instanceof Set ? data.completedTasks.size : (data.t ? data.t.length : 0));
+  if (tasksCountEl) tasksCountEl.textContent = `${count} / 100`;
+  if (pointsCountEl) pointsCountEl.textContent = `${data.points || calculateTotalScoreFromData(data)} pkt`;
+  if (nameEl) nameEl.textContent = data.learnerName ? `Uczeń: ${data.learnerName}` : (STATE.learnerName ? `Uczeń: ${STATE.learnerName}` : 'Kursant Vibe Codingu');
+  if (sourceEl) sourceEl.textContent = `Źródło: ${sourceDesc}`;
+
+  openModal('modal-transfer-confirm', null, '#btn-confirm-import-accept');
+  playClickSound();
+
+  announceSR(`Wykryto Twoje postępy ${sourceDesc}. Ukończono ${count} z 100 zadań. Aby wczytać, naciśnij przycisk Tak, wczytaj moje postępy.`);
+}
+
+function cancelImportConfirmation() {
+  pendingImportData = null;
+  closeModal('modal-transfer-confirm');
+  playClickSound();
+  announceSR("Anulowano wczytywanie postępów.");
+}
+
+function executeApplyImportedState() {
+  if (!pendingImportData) return;
+  const data = pendingImportData;
+  pendingImportData = null;
+  cancelImportConfirmation();
+  applyImportedDataDirectly(data, 'z transferu QR / linku');
 }
 
 function calculateTotalScoreFromData(data) {
@@ -7748,7 +7781,7 @@ async function saveToGoogleDrive(isSilent = false) {
 
   saveState();
   const backup = {
-    version: '3.8.2',
+    version: '3.8.3',
     appName: 'Akademia Vibe Codingu',
     exportDate: new Date().toISOString(),
     completedTasks: Array.from(STATE.completedTasks || []),

@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-title" content="Vibe Coding">
   <meta name="theme-color" content="#0f172a">
   <meta name="color-scheme" content="dark light">
-  <title>Akademia Vibe Codingu i Sztuki Promptingu v3.8.2 (Od Zera do Twórcy)</title>
+  <title>Akademia Vibe Codingu i Sztuki Promptingu v3.8.3 (Od Zera do Twórcy)</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -427,7 +427,7 @@
               Vibe Coding Academy
             </span>
             <span class="text-[10px] text-amber-400 font-bold block">
-              Wersja 3.8.2 • Synchronizacja Urządzeń (Własny Dysk Google, Kod QR, Plik) i WCAG AA/AAA
+              Wersja 3.8.3 • Synchronizacja Urządzeń (Własny Dysk Google, Kod QR, Plik) i WCAG AA/AAA
             </span>
           </div>
         </a>
@@ -2071,13 +2071,13 @@
   <div id="modal-sync-manager" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto hidden" role="dialog" aria-modal="true" aria-labelledby="sync-modal-title" aria-hidden="true">
     <div class="modal-content bg-slate-900 border border-emerald-500/50 rounded-3xl max-w-4xl w-full p-5 sm:p-6 md:p-8 shadow-2xl relative max-h-[92dvh] overflow-y-auto focus:outline-none" tabindex="-1">
       
-      <button type="button" onclick="closeSyncModal()" class="touch-target absolute top-3 right-3 sm:top-5 sm:right-5 text-slate-400 hover:text-white text-2xl font-bold p-2 focus:ring-2 focus:ring-emerald-400 rounded-lg flex items-center justify-center min-w-[44px]">
+      <button type="button" id="btn-close-sync-modal" onclick="closeSyncModal()" class="touch-target absolute top-3 right-3 sm:top-5 sm:right-5 text-slate-400 hover:text-white text-2xl font-bold p-2 focus:ring-2 focus:ring-emerald-400 rounded-lg flex items-center justify-center min-w-[44px]">
         <span class="sr-only">Zamknij okno synchronizacji (Escape) </span>
-        <span role="img" aria-label="(ikona zamknięcia)">&times;</span>
+        <span aria-hidden="true">&times;</span>
       </button>
 
       <div class="flex items-center gap-3 mb-4 pr-10">
-        <span class="text-3xl shrink-0" role="img" aria-label="(ikona synchronizacji)">📲</span>
+        <span class="text-3xl shrink-0" aria-hidden="true">📲</span>
         <div>
           <span class="text-xs uppercase font-extrabold tracking-wider text-emerald-400 block">Wielourządzeniowość i Kopia Bezpieczeństwa</span>
           <h2 id="sync-modal-title" class="text-lg sm:text-2xl font-black text-white focus:outline-none" tabindex="-1">
@@ -2093,15 +2093,15 @@
       <!-- ZAKŁADKI NAWIGACYJNE METOD SYNCHRONIZACJI -->
       <div class="flex flex-wrap border-b border-slate-700/80 mb-6 gap-2" role="tablist" aria-label="Wybierz metodę synchronizacji">
         <button type="button" role="tab" id="sync-tab-btn-gdrive" aria-selected="true" aria-controls="sync-panel-gdrive" onclick="switchSyncTab('gdrive')" class="sync-tab-btn touch-target px-4 py-2.5 rounded-t-xl text-xs sm:text-sm font-bold border-b-2 border-emerald-500 bg-slate-800 text-white flex items-center gap-2">
-          <span role="img" aria-label="(chmura)">☁️</span>
+          <span aria-hidden="true">☁️</span>
           <span>1. Własny Dysk Google</span>
         </button>
         <button type="button" role="tab" id="sync-tab-btn-qr" aria-selected="false" aria-controls="sync-panel-qr" onclick="switchSyncTab('qr')" class="sync-tab-btn touch-target px-4 py-2.5 rounded-t-xl text-xs sm:text-sm font-bold border-b-2 border-transparent bg-slate-900 text-slate-400 hover:text-slate-200 flex items-center gap-2">
-          <span role="img" aria-label="(smartfon)">📲</span>
+          <span aria-hidden="true">📲</span>
           <span>2. Kod QR i Magiczny Link</span>
         </button>
         <button type="button" role="tab" id="sync-tab-btn-file" aria-selected="false" aria-controls="sync-panel-file" onclick="switchSyncTab('file')" class="sync-tab-btn touch-target px-4 py-2.5 rounded-t-xl text-xs sm:text-sm font-bold border-b-2 border-transparent bg-slate-900 text-slate-400 hover:text-slate-200 flex items-center gap-2">
-          <span role="img" aria-label="(dyskietka)">💾</span>
+          <span aria-hidden="true">💾</span>
           <span>3. Kopia w Pliku (.json)</span>
         </button>
       </div>
@@ -2110,7 +2110,7 @@
       <div id="sync-panel-gdrive" role="tabpanel" aria-labelledby="sync-tab-btn-gdrive" class="space-y-4">
         <!-- Baner Gwarancji Prywatności -->
         <div class="p-4 rounded-2xl bg-indigo-950/60 border border-indigo-500/40 flex items-start gap-3">
-          <span class="text-2xl shrink-0" role="img" aria-label="(tarcza)">🛡️</span>
+          <span class="text-2xl shrink-0" aria-hidden="true">🛡️</span>
           <div class="text-xs text-indigo-100 leading-relaxed">
             <strong class="text-white block mb-1">Gwarancja 100% prywatności Twojego Dysku Google:</strong>
             Twoje postępy zapisują się <strong>wyłącznie na Twoim własnym, prywatnym koncie Google</strong> w pliku <code class="bg-indigo-900/80 px-1 py-0.5 rounded text-amber-300 font-mono">Akademia_Vibe_Codingu_Postepy.json</code>.
@@ -2136,11 +2136,11 @@
           <!-- Główne przyciski akcji Dysku Google (Działają natychmiast bez skomplikowanych konfiguracji) -->
           <div class="flex flex-wrap items-center gap-3">
             <button type="button" onclick="saveToGoogleDrive()" id="btn-gdrive-save" class="touch-target px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs transition flex items-center gap-2 shadow">
-              <span role="img" aria-label="(zapisz)">☁️</span>
+              <span aria-hidden="true">☁️</span>
               <span>Zapisz postępy na moim Dysku Google</span>
             </button>
             <button type="button" onclick="loadFromGoogleDrive()" id="btn-gdrive-load" class="touch-target px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition flex items-center gap-2 shadow">
-              <span role="img" aria-label="(pobierz)">📥</span>
+              <span aria-hidden="true">📥</span>
               <span>Wczytaj postępy z mojego Dysku Google</span>
             </button>
           </div>
@@ -2154,6 +2154,8 @@
             <ul class="space-y-1.5 list-disc list-inside text-slate-300">
               <li><strong>W Google Chrome / Microsoft Edge / Opera:</strong> Po kliknięciu <em>„Zapisz postępy...”</em> otworzy się okno wyboru folderu na dysku. Wskaż swój folder <strong>„Dysk Google”</strong> (lub dowolny inny) i kliknij <em>Zapisz</em>.</li>
               <li><strong>W Mozilla Firefox:</strong> Przeglądarka domyślnie pobiera plik do Twojego folderu <strong>Pobrane</strong>. Jeśli chcesz, aby Firefox przed każdym pobraniem pytał o folder (np. Dysku Google), włącz w <em>Ustawieniach Firefox &rarr; Ogólne &rarr; Pobieranie</em> opcję <em>„Zawsze pytaj, gdzie zapisać pliki”</em>.</li>
+              <li><strong>Na telefonie (iPhone / Android):</strong> Pobrany plik trafia do systemowej aplikacji <strong>„Pliki”</strong> (na iPhone: niebieska ikona teczki, folder <em>„Na moim iPhonie” &rarr; „Edge”</em> lub <em>„Pobrane rzeczy”</em>). Gdy na drugim urządzeniu klikniesz <em>„Wczytaj”</em>, aplikacja Pliki pozwoli Ci od razu wybrać ten plik.</li>
+              <li><strong>Najwygodniejsza opcja na smartfon bez szukania plików:</strong> Skorzystaj z zakładki <strong>„2. Kod QR i Magiczny Link”</strong> — po prostu skieruj aparat telefonu na ekran komputera i gotowe!</li>
             </ul>
             <p class="text-[11px] text-emerald-300 pt-1 border-t border-slate-800">
               Aby wczytać postępy na innym komputerze lub smartfonie, kliknij pomarańczowy przycisk <strong>„Wczytaj postępy z mojego Dysku Google”</strong> i wskaż zapisany plik.
@@ -2357,8 +2359,8 @@
         <button type="button" onclick="cancelImportConfirmation()" class="touch-target px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition">
           Anuluj
         </button>
-        <button type="button" onclick="executeApplyImportedState()" id="btn-confirm-import-accept" class="touch-target px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs transition flex items-center gap-2 shadow-lg cursor-pointer">
-          <span role="img" aria-label="(sukces)">✓</span>
+        <button type="button" onclick="executeApplyImportedState()" id="btn-confirm-import-accept" class="touch-target px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs transition flex items-center gap-2 shadow-lg cursor-pointer" aria-label="Tak, wczytaj moje postępy">
+          <span aria-hidden="true" class="text-sm font-bold">✓</span>
           <span>Tak, wczytaj moje postępy</span>
         </button>
       </div>
@@ -2370,7 +2372,7 @@
     <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-6">
       <div>
         <p class="font-bold text-slate-300 mb-1">
-          Akademia Vibe Codingu i Sztuki Promptingu • Wersja 3.8.2 • WCAG 2.1 / 2.2 Poziom AA/AAA (Wielourządzeniowość i Własny Dysk Google)
+          Akademia Vibe Codingu i Sztuki Promptingu • Wersja 3.8.3 • WCAG 2.1 / 2.2 Poziom AA/AAA (Wielourządzeniowość i Własny Dysk Google)
         </p>
         <p>
           Akademia Vibe Codingu i Sztuki Promptingu • Projekt dostępny w chmurze na GitHubie: <a href="https://github.com/strugo10/vibe-coding-kompendium" target="_blank" rel="noopener noreferrer" class="underline text-slate-300 hover:text-white">strugo10/vibe-coding-kompendium</a> oraz online: <a href="https://strugo10.github.io/vibe-coding-kompendium/" target="_blank" rel="noopener noreferrer" class="underline text-teal-400 hover:text-teal-300">Wersja webowa na żywo</a>. Praktyka w pracy i życiu osobistym, dedykowany panel uwag dla twórcy i uniwersalny eksport notatek.

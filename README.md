@@ -1,4 +1,4 @@
-# Akademia Vibe Codingu i Sztuki Promptingu (Od Zera do Twórcy) — Wersja 3.8.2
+# Akademia Vibe Codingu i Sztuki Promptingu (Od Zera do Twórcy) — Wersja 3.8.3
 
 > 🚀 **Uruchom Akademię online (działa od razu w przeglądarce):**  
 > 👉 **[https://strugo10.github.io/vibe-coding-kompendium/](https://strugo10.github.io/vibe-coding-kompendium/)**
@@ -7,6 +7,19 @@
 > 👉 **[https://github.com/strugo10/vibe-coding-kompendium](https://github.com/strugo10/vibe-coding-kompendium)**
 
 Kompletne, interaktywne kompendium obejmujące **100 praktycznych zadań** podzielonych na **34 dni nauki** (po 3 zadania dziennie), w pełni dostosowane do standardów dostępności cyfrowej **WCAG 2.1 / 2.2 AA/AAA** (czytniki ekranu **NVDA** na Windows oraz **VoiceOver** na iPhone/iOS). Wszystkie postępy kursanta, punkty, notatki i dyplom zapisują się w 100% lokalnie i bezpiecznie w pamięci przeglądarki (`localStorage`), z możliwością natychmiastowej synchronizacji na smartfon (Kod QR, Magiczny Link) oraz z prywatnym Dyskiem Google kursanta.
+
+## Co nowego w Wersji 3.8.3 (Dostępność NVDA dla Okien Dialogowych, Bezpośredni Import Pliku i Obsługa Pobierania na iPhone)?
+- **Pełna dostępność cyfrowa (WCAG AA/AAA i czytnik NVDA) dla okien dialogowych:**
+  - Wdrożono natywny mechanizm `inert` oraz pełne zarządzanie fokusem: po otwarciu okna synchronizacji (`Alt+G` lub kliknięcie w nagłówku) fokus automatycznie i bez potrzeby dotykania myszki przechodzi do okna, anonsując tytuł dialogu i aktywną zakładkę.
+  - Tło strony zostaje wygaszone dla czytnika (`inert`), eliminując gubienie fokusu na elementach w tle.
+  - Klawisz `Escape` natychmiast zamyka okno i bezbłędnie przywraca fokus na przycisk wywołujący na stronie głównej.
+- **Bezpośrednie i intuicyjne wczytywanie pliku postępów:**
+  - Po wybraniu pliku `.json` z folderu Pobrane/Dysk Google postępy wczytują się natychmiastowo, bez konieczności przechodzenia przez kolejne zbędne okno potwierdzenia.
+  - Usunięto mylącą etykietę „przycisk sukces” – ikony statusowe mają teraz `aria-hidden="true"`, a przyciski posiadają jasne, czytelne etykiety dostępne dla czytników ekranu.
+  - Dodano uroczysty akord fanfar, konfetti oraz audiodeskrypcję liczby przywróconych zadań i punktów.
+- **Dedykowane wskazówki zapisu dla iPhone (Microsoft Edge i Safari):**
+  - Wyjaśniono, gdzie na iPhone trafia pobrany plik: do systemowej aplikacji **„Pliki”** (folder *Na moim iPhonie* &rarr; *Edge* lub *Pobrane rzeczy*).
+  - Wyeksponowano rekomendację korzystania na smartfonie z błyskawicznego **Kodu QR** (bez konieczności szukania plików w pamięci telefonu).
 
 ## Co nowego w Wersji 3.8.2 (Stabilizacja Kodu QR, Wbudowana Biblioteka i Wybór Folderu Dysku Google)?
 - **Naprawa i gwarancja wyświetlania Kodu QR na ekranie:**
